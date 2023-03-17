@@ -55,6 +55,8 @@ it. You can do so following these steps:
 3) Select Git>Commit to open the Commit dialog.
 4) Check the "Reformat Code", "Rearrange Code", "Optimize Imports" boxes. If you're using the modal dialog, you need to
    select the little gear icon to see these checkboxes.
-   IntelliJ will show you little warnings when your code goes past the line limit, or you have too many lines between
-   your method signatures. I suggest disabling these warnings when they come up, and checking the boxes above so the IDE
-   automatically formats the code for you. This'll save you time.
+
+IntelliJ will show you little warnings when your code goes past the line limit, or you have too many lines between
+your method signatures. I suggest disabling these warnings when they come up, and checking the boxes mentioned above so
+the IDE
+automatically formats the code for you. This'll save you time.
