@@ -12,21 +12,21 @@ def main(data, context):
 
     config = {
         'feed': {
-            'max_articles': 1,
-            'author': '<AUTHOR>',
-            'email': '<EMAIL>'
+            'max_articles': 30,
+            'author': 'The Nonlinear Fund',
+            'email': 'info@nonlinear.org'
         },
         'sources': {
             'list': [
-                'SRC_1',
-                'SRC_2',
-                'SRC_3'
-                ]
+                'https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
+                'https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
+                'https://www.alignmentforum.org/feed.xml?view=community-rss&karmaThreshold=0'
+            ]
         },
         'system': {
-            'output_file_basename': '<out-file-basename>',
-            'gcp_bucket_name': '<BUCKET_NAME>',
-            'removed_authors_filename': '<removed-authors-filename>'
+            'output_file_basename': 'nonlinear-library',
+            'gcp_bucket_name': 'rssfile',
+            'removed_authors_filename': 'removed_authors.txt'
         }
     }
 
@@ -37,7 +37,15 @@ def main(data, context):
 
     print('ENTERING THE MAIN FUNCTION')
 
-    feed_initial_str="""FEED INITIAL STR"""
+    feed_initial_str="""<?xml version="1.0" encoding="{_encoding}"?>\
+        <rss xmlns:dc="{_namespaces_dc}" xmlns:content="{_namespaces_content}" \
+        xmlns:atom="{_namespaces_}" version="2.0"><channel><title><![CDATA[{_feed_title}]]></title>\
+        <description><![CDATA[{_feed_subtitle}]]></description><link>{_feed_link}</link>\
+        <image><url>https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico</url>\
+        <title>{_feed_title}</title><link>{_feed_link}</link></image><generator>{_feed_generator}</generator>\
+        <lastBuildDate>{_feed_updated}</lastBuildDate><atom:link \
+        href="{_feed_titledetail_base}" \
+        rel="self" type="application/rss+xml"/>"""
 
     item_str="""<item><title><![CDATA[{item_web_short} - {item_title} by {item_author}]]></title><description>\
         <![CDATA[{item_summary}]]></description>
@@ -45,29 +53,30 @@ def main(data, context):
 
     feed_final_str = '</channel></rss>'
 
-    intro_str = """ INTRO STR """
-    outro_str = 'OUTRO STR'
+    intro_str = """ Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. 
+    This is: {item_title}, published by {item_author} on {item_date} on {item_web_long}. """
+    outro_str = ' <p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org. </p>'
 
 
     def find_website_short(url):
         website = 'Unknown'
-        if 'SRC_1_SUBSTR' in url:
-            website = 'SRC_1_SHORT'
-        elif 'SRC_2_SUBSTR' in url:
-            website = 'SRC_2_SHORT'
-        elif 'SRC_3_SUBSTR' in url:
-            website = 'SRC_3_SHORT'
+        if 'forum.effectivealtruism.org' in url:
+            website = 'EA'
+        elif 'lesswrong.com' in url:
+            website = 'LW'
+        elif 'alignmentforum.org' in url:
+            website = 'AF'
 
         return website
 
     def find_website_long(url):
         website = 'Unknown'
-        if 'SRC_1_SUBSTR' in url:
-            website = 'SRC_1_LONG'
-        elif 'SRC_2_SUBSTR' in url:
-            website = 'SRC_2_LONG'
-        elif 'SRC_3_SUBSTR' in url:
-            website = 'SRC_3_LONG'
+        if 'forum.effectivealtruism.org' in url:
+            website = 'The Effective Altruism Forum'
+        elif 'lesswrong.com' in url:
+            website = 'LessWrong'
+        elif 'alignmentforum.org' in url:
+            website = 'The AI Alignment Forum'
 
         return website
 
@@ -92,7 +101,7 @@ def main(data, context):
                     self.list_removed_authors = [line.rstrip() for line in f.readlines()]
             else:
                 from google.cloud import storage
-                client = storage.Client(project='PROJECT_NAME')
+                client = storage.Client(project='crucial-alpha-321109')
                 bucket = client.get_bucket(self.gcp_bucket_name)
                 blob = bucket.get_blob(self.removed_authors_filename)
                 downloaded_blob = blob.download_as_string()
@@ -108,10 +117,10 @@ def main(data, context):
 
         def _modify_feed(self, url, src_idx):
             print('ENTERING THE _modify_feed subFUNCTION')
-            news_feed = feedparser.parse(url)       
+            news_feed = feedparser.parse(url)
             reg = "(?<=%s).*?(?=%s)" % ('rss&','karma')
             r = re.compile(reg,re.DOTALL)
-            
+
             rss_feed = feed_initial_str.format(
                 _encoding=news_feed['encoding'].upper(),
                 _namespaces_dc=news_feed['namespaces']['dc'],
@@ -123,7 +132,7 @@ def main(data, context):
                 _feed_generator=news_feed['feed']['generator'],
                 _feed_updated=news_feed['feed']['updated'],
                 _feed_titledetail_base=r.sub('amp;', news_feed['feed']['title_detail']['base'])
-                )
+            )
 
             # get website
             feed_web_short = find_website_short(news_feed['feed']['link'])
@@ -163,16 +172,16 @@ def main(data, context):
                     item_title=item['title'],
                     item_author=authors_str,
                     item_summary=intro_str.format(
-                            item_title=item['title'], item_author=authors_str,
-                            item_date=item_date, item_web_long=feed_web_long) + \
-                        '<br /><br />' + item_body_with_outro,  # TODO: make more robust
+                        item_title=item['title'], item_author=authors_str,
+                        item_date=item_date, item_web_long=feed_web_long) + \
+                                 '<br /><br />' + item_body_with_outro,  # TODO: make more robust
                     item_link=item['link'],
                     item_guidislink=str(item['guidislink']).lower(),
                     item_id=item['id'] + f'_NL_{feed_web_short}',
                     item_published=item['published']
                 )
                 item['title'] = f'{feed_web_short} - {item["title"]} by {authors_str}'
-                
+
             print('WRITING THE MODIFIED FEED TO AN XML FILE')
 
             filename = '{}-{}.xml'.format(
@@ -188,10 +197,9 @@ def main(data, context):
                 bucket = client.get_bucket(self.gcp_bucket_name)
                 blob = bucket.blob(filename)
                 blob.upload_from_string(rss_feed + feed_final_str)
-            
+
             return news_feed
 
     feed = Feed(config)
     list_modified_sources = feed.modify_feed()
-
 
