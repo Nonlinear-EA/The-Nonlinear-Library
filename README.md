@@ -37,13 +37,8 @@ to your account on IntelliJ (which you can do in Settings) and also
 allow access to the Nonlinear-EA organization through your account using
 [this link](https://github.com/settings/connections/applications/58566862bd2a5ff748fb).
 
-To set up the Python interpreter, follow these steps:
-
-1) Go to File>Project Structure.
-2) Go to SDKs, click the + button on the left (not the one on the right), select Setup Python SDK.
-3) Make sure virtualenv is selected. Select the latest version of Python you have on your system (I'm using 3.11). Click
-   OK.
-4) Click Project, and then select the SDK you just created from the dropdown. Click OK.
+To set up the Python interpreter,
+follow [these instructions](https://www.jetbrains.com/help/idea/creating-virtual-environment.html).
 
 Also, it's going to be more convenient if you're using IntelliJ if you automatically format the code before you commit
 it. You can do so following these steps:
