@@ -1,16 +1,11 @@
-import os
-import os.path as path
-import subprocess
 import re
 import ssl
-import toml
+
 import feedparser
-import requests
-from bs4 import BeautifulSoup
 from google.cloud import storage
 
-def main(data, context):
 
+def main(data, context):
     config = {
         'feed': {
             'max_articles': 30,
@@ -29,7 +24,7 @@ def main(data, context):
         }
     }
 
-    feed_initial_str="""<?xml version="1.0" encoding="{_encoding}"?>\
+    feed_initial_str = """<?xml version="1.0" encoding="{_encoding}"?>\
         <rss xmlns:atom="{_namespaces_}" xmlns:itunes="{_namespaces_itunes}" xmlns:content="{_namespaces_content}" \
         version="2.0"><channel><title>{_feed_title}</title>\
         <description>{_feed_subtitle}</description>\
@@ -50,7 +45,7 @@ def main(data, context):
         <itunes:summary><![CDATA[{_feed_subtitle}]]></itunes:summary>\
         <lastBuildDate>{_feed_updated}</lastBuildDate>"""
 
-    item_str="""<item><guid isPermaLink="{item_guidislink}">{item_guid}</guid>\
+    item_str = """<item><guid isPermaLink="{item_guidislink}">{item_guid}</guid>\
         <title>{item_title}</title>\
         <description><![CDATA[{item_summary}]]></description>\
         <author>{item_author}</author>\
@@ -86,19 +81,17 @@ def main(data, context):
             self.list_modified_sources = []
             self.image_url = config['feed']['image_url']
 
-
         def modify_feed(self):
             print('ENTERING THE modify_feed FUNCTION')
             for i in range(len(self.sources_list)):
                 if ('http' in self.sources_list[i]):
                     self.list_modified_sources.append(self._modify_feed(self.sources_list[i], i))
 
-
         def _modify_feed(self, url, src_idx):
             print('ENTERING THE _modify_feed subFUNCTION')
             news_feed = feedparser.parse(url)
-            reg = "(?<=%s).*?(?=%s)" % ('rss&','karma')
-            r = re.compile(reg,re.DOTALL)
+            reg = "(?<=%s).*?(?=%s)" % ('rss&', 'karma')
+            r = re.compile(reg, re.DOTALL)
 
             news_feed['feed']['title'] = 'The Nonlinear Library: LessWrong'
             news_feed['feed']['image']['href'] = self.image_url
@@ -135,7 +128,8 @@ def main(data, context):
                         item_guid=item['guid'] + '_LW',
                         item_title=item['title'],
                         item_summary=html_hyperlink_format_spotify.format(
-                            hyperlink=item['link'], hyperlink_text='Link to original article') + '<br/>' + '<br/>' + item['summary'],
+                            hyperlink=item['link'], hyperlink_text='Link to original article') + '<br/>' + '<br/>' +
+                                     item['summary'],
                         item_author=item['author'],
                         item_link=item['link'],
                         item_enclosure_length=item['links'][1]['length'] if 'enclosure' in item['links'][1].values() \
@@ -152,7 +146,6 @@ def main(data, context):
                         item_itunes_episode=item['itunes_episode']
                     )
 
-
             print('WRITING THE MODIFIED FEED TO AN XML FILE')
 
             filename = '{}.xml'.format(self.output_file_basename)
@@ -168,9 +161,9 @@ def main(data, context):
 
             return news_feed
 
-
     # feed = Feed(config, local=False)
     feed = Feed(config, local=True)
     list_modified_sources = feed.modify_feed()
 
-main(None,None)
+
+main(None, None)

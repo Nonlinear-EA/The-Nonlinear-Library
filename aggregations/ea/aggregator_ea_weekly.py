@@ -1,19 +1,15 @@
-import os
 import datetime
-import os.path as path
-import subprocess
+import os
 import re
 import ssl
-import toml
+from difflib import SequenceMatcher
+
 import feedparser
 import requests
 from bs4 import BeautifulSoup
-from google.cloud import storage
-from difflib import SequenceMatcher
 
 
 def main(data, context):
-
     config = {
         'feed': {
             'max_articles': 30,
@@ -34,7 +30,7 @@ def main(data, context):
         }
     }
 
-    feed_initial_str="""<?xml version="1.0" encoding="{_encoding}"?>\
+    feed_initial_str = """<?xml version="1.0" encoding="{_encoding}"?>\
         <rss xmlns:atom="{_namespaces_}" xmlns:itunes="{_namespaces_itunes}" xmlns:content="{_namespaces_content}" \
         version="2.0"><channel><title>{_feed_title}</title>\
         <description>{_feed_subtitle}</description>\
@@ -55,7 +51,7 @@ def main(data, context):
         <itunes:summary><![CDATA[{_feed_subtitle}]]></itunes:summary>\
         <lastBuildDate>{_feed_updated}</lastBuildDate>"""
 
-    item_str="""<item><guid isPermaLink="{item_guidislink}">{item_guid}</guid>\
+    item_str = """<item><guid isPermaLink="{item_guidislink}">{item_guid}</guid>\
         <title>{item_title}</title>\
         <description><![CDATA[{item_summary}]]></description>\
         <author>{item_author}</author>\
@@ -94,10 +90,9 @@ def main(data, context):
         today_index = today.weekday()
         start_of_this_week = datetime.timedelta(days=today_index, weeks=weeks_back)
         start_of_last_week = today - start_of_this_week
-        end_of_last_week = start_of_last_week +  datetime.timedelta(days=7)
+        end_of_last_week = start_of_last_week + datetime.timedelta(days=7)
 
         return start_of_last_week, end_of_last_week
-
 
     def format_published_datetime(datetime_str):
         try:
@@ -112,13 +107,11 @@ def main(data, context):
     def is_datetime_between(target, before, after):
         return before < target < after
 
-
     def string_similarity(a, b):
         return SequenceMatcher(None, a, b).ratio()
 
     def datetime_to_int(dt):
-        return dt.year*10000000000 + dt.month* 100000000 +dt.day * 1000000 + dt.hour*10000  +  dt.minute*100 + dt.second
-
+        return dt.year * 10000000000 + dt.month * 100000000 + dt.day * 1000000 + dt.hour * 10000 + dt.minute * 100 + dt.second
 
     class Feed(object):
         def __init__(self, config, local=False):
@@ -146,19 +139,19 @@ def main(data, context):
                 downloaded_blob = blob.download_as_string()
                 self.list_removed_authors = [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
-
         def modify_feed(self):
             print('ENTERING THE modify_feed FUNCTION')
             for i in range(len(self.sources_list)):
                 if ('http' in self.sources_list[i]):
-                    self.list_modified_sources.append(self._modify_feed(self.sources_list[i], 'EA - ', 'The Nonlinear Library: EA Forum Weekly', '_EA-week'))
-
+                    self.list_modified_sources.append(
+                        self._modify_feed(self.sources_list[i], 'EA - ', 'The Nonlinear Library: EA Forum Weekly',
+                                          '_EA-week'))
 
         def _modify_feed(self, url, title_beginning, feed_title, guid_suffix):
             print('ENTERING THE _modify_feed subFUNCTION')
             news_feed = feedparser.parse(url)
-            reg = "(?<=%s).*?(?=%s)" % ('rss&','karma')
-            r = re.compile(reg,re.DOTALL)
+            reg = "(?<=%s).*?(?=%s)" % ('rss&', 'karma')
+            r = re.compile(reg, re.DOTALL)
 
             news_feed['feed']['title'] = feed_title
             news_feed['feed']['image']['href'] = self.image_url
@@ -217,12 +210,14 @@ def main(data, context):
                                 list_indices += [i]
                         list_indices = sorted(list(set(list_indices)))
 
-                        start_of_previous_week, end_of_previous_week = get_previous_week_start_and_end(weeks_back=weeks_back)
-                        print('\n\n\n', i, item['title'], published_datetime_object, start_of_previous_week, end_of_previous_week)
+                        start_of_previous_week, end_of_previous_week = get_previous_week_start_and_end(
+                            weeks_back=weeks_back)
+                        print('\n\n\n', i, item['title'], published_datetime_object, start_of_previous_week,
+                              end_of_previous_week)
                         if is_datetime_between(
-                            target=published_datetime_object.date(),
-                            before=start_of_previous_week,
-                            after=end_of_previous_week
+                                target=published_datetime_object.date(),
+                                before=start_of_previous_week,
+                                after=end_of_previous_week
                         ):
                             list_indices_karmas.append((i, int(get_karma(item['link'])), item['title'], item['link']))
 
@@ -262,7 +257,8 @@ def main(data, context):
                         item_guid=item['guid'] + guid_suffix,
                         item_title=item['title'],
                         item_summary=html_hyperlink_format_spotify.format(
-                            hyperlink=item['link'], hyperlink_text='Link to original article') + '<br/>' + '<br/>' + item['summary'],
+                            hyperlink=item['link'], hyperlink_text='Link to original article') + '<br/>' + '<br/>' +
+                                     item['summary'],
                         item_author=item['author'],
                         item_link=item['link'],
                         item_enclosure_length=item['links'][1]['length'] if 'enclosure' in item['links'][1].values() \
@@ -279,7 +275,6 @@ def main(data, context):
                         item_itunes_episode=item['itunes_episode']
                     )
 
-
             print('WRITING THE MODIFIED FEED TO AN XML FILE')
 
             filename = '{}.xml'.format(self.output_file_basename)
@@ -295,9 +290,9 @@ def main(data, context):
 
             return news_feed
 
-
     # feed = Feed(config, local=False)
     feed = Feed(config, local=True)
     list_modified_sources = feed.modify_feed()
 
-main(None,None)
+
+main(None, None)
