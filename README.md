@@ -58,5 +58,4 @@ it. You can do so following these steps:
 
 IntelliJ will show you little warnings when your code goes past the line limit, or you have too many lines between
 your method signatures. I suggest disabling these warnings when they come up, and checking the boxes mentioned above so
-the IDE
-automatically formats the code for you. This'll save you time.
+the IDE automatically formats the code for you. This'll save you time.
