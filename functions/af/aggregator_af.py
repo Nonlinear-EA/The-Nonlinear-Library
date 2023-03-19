@@ -2,7 +2,6 @@ import re
 import ssl
 
 import feedparser
-from google.cloud import storage
 
 
 def af_all_main():
