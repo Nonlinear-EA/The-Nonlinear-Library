@@ -76,13 +76,13 @@ def ea_weekly_main():
 
     def get_karma(url):
         # disguising the request using headers
-        page = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+        page = requests.get(url, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'})
         soup = BeautifulSoup(page.content, "html.parser")
-
-        class_name = 'PostsVote-voteScore'
-        post_karma = soup.find('h1', {'class': class_name}).text
-
-        return post_karma
+        if soup.contains('<title>403 Forbidden</title>'):
+            raise AssertionError(
+                '403 Forbidden error when trying to access ' + url + ' You may need to change the headers to something else.')
+        return soup.find('h1', {'class': 'PostsVote-voteScore'}).text
 
     def get_previous_week_start_and_end(weeks_back):
         # today_index=6 because this will run every sunday
