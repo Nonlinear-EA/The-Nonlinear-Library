@@ -1,14 +1,17 @@
-import os
-import os.path as path
-import subprocess
 import logging
-
 import re
 import ssl
-import toml
+
 import feedparser
 
-def main(data, context):
+
+def create_main_nonlinear_library_rss():
+    """Create an RSS file containing input from all three of the forums.
+
+    The RSS file that is output is read by BeyondWords to create a new RSS file that has XML elements containing the MP3
+    links to the audio synthesis of the text. This new RSS file with MP3s is then used as input to the other files which
+    split it into EA, AF, etc. streams.
+    """
 
     config = {
         'feed': {
@@ -200,6 +203,4 @@ def main(data, context):
 
             return news_feed
 
-    feed = Feed(config)
-    list_modified_sources = feed.modify_feed()
-
+    Feed(config).modify_feed()
