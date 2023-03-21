@@ -29,7 +29,8 @@ def af_daily_main():
             'removed_authors_filename': 'removed_authors.txt'
         }
     }
-
+    # String variable that provides the skeleton of a feed string.
+    # This is later modified by Feed._modify_feed
     feed_initial_str = """<?xml version="1.0" encoding="{_encoding}"?>\
         <rss xmlns:atom="{_namespaces_}" xmlns:itunes="{_namespaces_itunes}" xmlns:content="{_namespaces_content}" \
         version="2.0"><channel><title>{_feed_title}</title>\
@@ -51,6 +52,7 @@ def af_daily_main():
         <itunes:summary><![CDATA[{_feed_subtitle}]]></itunes:summary>\
         <lastBuildDate>{_feed_updated}</lastBuildDate>"""
 
+    # If posts are found a formatted item_str is added to the rss_feed
     item_str = """<item><guid isPermaLink="{item_guidislink}">{item_guid}</guid>\
         <title>{item_title}</title>\
         <description><![CDATA[{item_summary}]]></description>\
@@ -105,6 +107,9 @@ def af_daily_main():
         return formatted_datetime
 
     def is_datetime_between(target, before, after):
+        """
+        Returns whether a target date between a before and after date.
+        """
         return before < target < after
 
     def string_similarity(a, b):
@@ -140,6 +145,9 @@ def af_daily_main():
                 self.list_removed_authors = [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
         def modify_feed(self):
+            """
+            Iterates through sources and calls _modify_feed on each (if contains 'http' in url)
+            """
             print('ENTERING THE modify_feed FUNCTION')
             for i in range(len(self.sources_list)):
                 if ('http' in self.sources_list[i]):
@@ -148,14 +156,23 @@ def af_daily_main():
                                           '_AF-day'))
 
         def _modify_feed(self, url, title_beginning, feed_title, guid_suffix):
+            """
+            Parses the rss feed found on the provided url and produces and produces a xml file which is saved to
+            local storage or to a GCP bucket.
+            """
             print('ENTERING THE _modify_feed subFUNCTION')
+            # Parse rss file from url to a FeedParserDict
             news_feed = feedparser.parse(url)
+            # TODO: Regex seems to be unused, remove if that's the case.
             reg = "(?<=%s).*?(?=%s)" % ('rss&', 'karma')
             r = re.compile(reg, re.DOTALL)
 
+            # Change values from the obtained feed file using provided parameters.
             news_feed['feed']['title'] = feed_title
             news_feed['feed']['image']['href'] = self.image_url
 
+            # Use the feed_initial_str variable declared above to produce a formatted xml using data obtained from
+            # the rss file
             rss_feed = feed_initial_str.format(
                 _encoding=news_feed['encoding'].upper(),
                 _namespaces_=news_feed['namespaces'][''],
@@ -176,6 +193,7 @@ def af_daily_main():
                 _feed_updated=news_feed['feed']['updated'],
             )
 
+            # Retrieve history titles from storage
             if self.local:
                 with open(os.path.basename(self.history_titles_filename), 'r') as f:
                     self.history_titles = [line.rstrip() for line in f.readlines()]
@@ -190,45 +208,65 @@ def af_daily_main():
             list_indices_karmas = []
             days_back = 0
             weeks_back = 0
+            # Create a list to contain the indexes of entries to be added to the new feed file
+            # Entries in history_titles as well as new entries with max karma will end up in list_indices
             list_indices = []
             while not list_indices_karmas:
+                # Specify a time "search period"
                 days_back += 1
                 if days_back == 8:
                     days_back = 1
                     weeks_back += 1
                 print(f'\n\n\n~ ~ ~ ~ ~ Trying with days_back = {days_back} ~ ~ ~ ~ ~')
+                # Iterate through news feed entries
                 for i in range(len(news_feed.entries)):
                     item = news_feed.entries[i]
-
+                    # Check if the title corresponds to the title provided to this function
+                    # TODO: Use filter to only process entries that match the provided title
                     if item['title'].startswith(title_beginning):
                         # check for removed authors
                         if item['author'] in self.list_removed_authors:
+                            # Skip entries from removed authors
                             continue
-
+                        # Get datetime of entry publication
                         published_datetime_str = item['published']
                         published_datetime_object = format_published_datetime(published_datetime_str)
 
                         # published_datetime_int = datetime_to_int(published_datetime_object) # not necessary yet
+                        # Find similar titles to the current one in the history_titles
                         for title in self.history_titles:
                             if string_similarity(item['title'], title) > 0.9:
                                 list_indices += [i]
+                        # Remove duplicates and sort
+                        # list_indices contains the indices of entries also found in history_titles
                         list_indices = sorted(list(set(list_indices)))
 
+                        # Get the start and end time of the "search period" using variables initiated at the start of
+                        # the while loop
                         start_of_previous_day, end_of_previous_day = get_previous_day_start_and_end(days_back=days_back,
                                                                                                     weeks_back=weeks_back)
                         print('\n\n\n', i, item['title'], published_datetime_object, start_of_previous_day,
                               end_of_previous_day)
+                        # Check if the current entry was published within the current search period
                         if is_datetime_between(
                                 target=published_datetime_object,
                                 before=start_of_previous_day,
                                 after=end_of_previous_day
                         ):
+                            # Entry was published within the search period Append a tuple with the entries index (
+                            # from rss file), the post's karma, the entry's title and link
                             list_indices_karmas.append((i, int(get_karma(item['link'])), item['title'], item['link']))
 
             print('\n\n\n\n', list_indices_karmas)
+            # Check if any entries were found
             if list_indices_karmas:
+                # Entries found
+                # Select post with max karma
                 max_karma_post = sorted(list_indices_karmas, key=lambda x: x[1])[-1]
+                # TODO: Why only appending the post with max karma? why not for example posts above a karma threshold?
+                # Append the index of the post with the most karma to the list_indices
                 list_indices += [max_karma_post[0]]
+                # Append the link of the post with the most karma to history titles if it's not there already
                 if max_karma_post[2] not in self.history_titles:
                     self.history_titles += [max_karma_post[2]]
                 print('MAX KARMA POST FOUND!', max_karma_post)
@@ -244,7 +282,7 @@ def af_daily_main():
                 bucket = client.get_bucket(self.gcp_bucket_name)
                 blob = bucket.blob(self.history_titles_filename)
                 blob.upload_from_string('\n'.join(self.history_titles))
-
+            # Iterate through list_indices, which contains history_titles as well as entries from the rss feed with most karma
             for i in list_indices:
                 item = news_feed.entries[i]
                 if item['title'].startswith(title_beginning):
@@ -253,8 +291,9 @@ def af_daily_main():
 
                     # check for removed authors
                     if item['author'] in self.list_removed_authors:
+                        # Skip if post was from a removed author
                         continue
-
+                    # Format item_str variable declared at the beginning of the file with the post's data
                     rss_feed += item_str.format(
                         item_guidislink=str(item['guidislink']).lower(),
                         # does the guid have to be unique PER SHOW or GLOBALLY? ==>> GLOBALLY :(
@@ -283,6 +322,7 @@ def af_daily_main():
 
             filename = '{}.xml'.format(self.output_file_basename)
 
+            # Write modified rss_feed to storage.
             if self.local:
                 with open(filename, 'w') as f:
                     f.write(rss_feed + feed_final_str)
