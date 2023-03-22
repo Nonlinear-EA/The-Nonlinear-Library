@@ -1,13 +1,8 @@
 from dataclasses import dataclass
-from typing import List, IO
+from typing import IO
 
 import feedparser
 from feedparser import FeedParserDict
-
-
-@dataclass
-class AggregatorConfig:
-    sources: List[str]
 
 
 @dataclass
@@ -43,24 +38,6 @@ class Feed:
 
     def to_xml(self):
         pass
-
-
-def get_feed_from_source(src: str):
-    pass
-
-
-def aggregate_feed(feed: Feed):
-    """
-    Produce an RSS file (.xml) containing the new podcasts produced by BeyondWords. This file can later be used to
-    publish the podcasts on podcast apps.
-
-    Args:
-        source (str): URL of feed to be aggregated
-
-    """
-    feed = feedparser.parse(feed.source)
-
-    pass
 
 
 class StorageIfc():
