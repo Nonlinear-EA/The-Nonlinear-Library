@@ -13,6 +13,7 @@ def create_main_nonlinear_library_rss():
     split it into EA, AF, etc. streams.
     """
 
+    # TODO: Consider implementing config as a data class
     config = {
         'feed': {
             'max_articles': 30,
@@ -38,7 +39,7 @@ def create_main_nonlinear_library_rss():
 
     print('ENTERING THE MAIN FUNCTION')
 
-    feed_initial_str="""<?xml version="1.0" encoding="{_encoding}"?>\
+    feed_initial_str = """<?xml version="1.0" encoding="{_encoding}"?>\
         <rss xmlns:dc="{_namespaces_dc}" xmlns:content="{_namespaces_content}" \
         xmlns:atom="{_namespaces_}" version="2.0"><channel><title><![CDATA[{_feed_title}]]></title>\
         <description><![CDATA[{_feed_subtitle}]]></description><link>{_feed_link}</link>\
@@ -48,7 +49,7 @@ def create_main_nonlinear_library_rss():
         href="{_feed_titledetail_base}" \
         rel="self" type="application/rss+xml"/>"""
 
-    item_str="""<item><title><![CDATA[{item_web_short} - {item_title} by {item_author}]]></title><description>\
+    item_str = """<item><title><![CDATA[{item_web_short} - {item_title} by {item_author}]]></title><description>\
         <![CDATA[{item_summary}]]></description>
         <link>{item_link}</link><guid isPermaLink="{item_guidislink}">{item_id}</guid><dc:creator><![CDATA[{item_author}]]></dc:creator><pubDate>{item_published}</pubDate></item>"""
 
@@ -57,7 +58,6 @@ def create_main_nonlinear_library_rss():
     intro_str = """ Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. 
     This is: {item_title}, published by {item_author} on {item_date} on {item_web_long}. """
     outro_str = ' <p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org. </p>'
-
 
     def find_website_short(url):
         website = 'Unknown'
@@ -80,7 +80,6 @@ def create_main_nonlinear_library_rss():
             website = 'The AI Alignment Forum'
 
         return website
-
 
     class Feed(object):
         def __init__(self, config, local=False):
@@ -114,13 +113,11 @@ def create_main_nonlinear_library_rss():
                 if ('http' in self.sources_list[i]):
                     self.list_modified_sources.append(self._modify_feed(self.sources_list[i], i))
 
-
-
         def _modify_feed(self, url, src_idx):
             print('ENTERING THE _modify_feed subFUNCTION')
             news_feed = feedparser.parse(url)
-            reg = "(?<=%s).*?(?=%s)" % ('rss&','karma')
-            r = re.compile(reg,re.DOTALL)
+            reg = "(?<=%s).*?(?=%s)" % ('rss&', 'karma')
+            r = re.compile(reg, re.DOTALL)
 
             rss_feed = feed_initial_str.format(
                 _encoding=news_feed['encoding'].upper(),
@@ -156,9 +153,9 @@ def create_main_nonlinear_library_rss():
                 authors_str = ''
                 for j, auth in enumerate(item['authors']):
                     authors_str += auth['name'].replace('_', ' ')
-                    if j == (len(item['authors'])-2):
+                    if j == (len(item['authors']) - 2):
                         authors_str += ' and '
-                    elif j == (len(item['authors'])-1):
+                    elif j == (len(item['authors']) - 1):
                         pass
                     else:
                         authors_str += ', '
