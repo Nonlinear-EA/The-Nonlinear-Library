@@ -1,9 +1,12 @@
 from dataclasses import dataclass, field
 from datetime import datetime, date, timezone, timedelta
+from time import mktime
 from typing import List
 
 import feedparser
 from feedparser import FeedParserDict
+
+from functions.feed_entry import FeedEntry
 
 
 @dataclass
@@ -30,29 +33,37 @@ class Feed:
     publisher_name: str = None
     publisher_email: str = None
     tags: List[str] = field(default_factory=list)
-    itunes_explicit: str = 'yes'
+    itunes_explicit: bool = True
     updated: datetime = field(default=datetime.combine(
         date.today(), datetime.min.time(), tzinfo=timezone(offset=timedelta(0))))
+    entries: List[FeedEntry] = field(default_factory=list)
     feeddict: dict = None
 
     @classmethod
-    def dict_from_url(cls, source: str):
-        feed_obj = feedparser.parse(source)
-        feed = Feed.from_feedparserdict(feed_obj)
-        feed.source = source
-        return feed
-
-    @classmethod
     def from_url(cls, source: str):
-        feed_obj = Feed.dict_from_url(source)
-        return Feed.from_feedparserdict(feed_obj)
+        feed_obj = feedparser.parse(source)
+        return Feed.from_feedparserdict(feed_obj, source=source)
 
     @classmethod
-    def from_feedparserdict(cls, feeddict: FeedParserDict):
+    def from_feedparserdict(cls, d: FeedParserDict, source: str = None):
+        feed = d['feed']
         return Feed(
-            title=feeddict['feed']['title'],
-            image=feeddict['feed']['image']['href'],
-            feeddict=feeddict
+            source=source,
+            encoding=d['encoding'].upper(),
+            namespaces=d['namespaces'],
+            title=feed['title'],
+            subtitle=feed['subtitle'],
+            author=feed['author'],
+            rights=feed['rights'],
+            language=feed['language'],
+            link=feed['link'],
+            image=feed['image']['href'],
+            publisher_name=feed['publisher_detail']['name'],
+            publisher_email=feed['publisher_detail']['email'],
+            tags=[tag.term for tag in feed['tags']],
+            itunes_explicit=True if feed['itunes_explicit'] else False,
+            updated=datetime.fromtimestamp(mktime(feed['updated_parsed'])),
+            feeddict=feed
         )
 
     def to_xml(self):
@@ -76,4 +87,8 @@ class Feed:
                 <itunes:image href="{self.image}"/>\
                 <itunes:author>{self.publisher_name}</itunes:author>\
                 <itunes:summary><![CDATA[{self.subtitle}]]></itunes:summary>\
-                <lastBuildDate>{self.updated}</lastBuildDate>')
+                <lastBuildDate>{self.updated}</lastBuildDate>\
+                <channel> \
+                </channel> \
+            </rss>'
+        )
