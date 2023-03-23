@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from typing import IO
 
-import feedparser
-from feedparser import FeedParserDict
-
 
 @dataclass
 class FeedConfig:
@@ -14,37 +11,12 @@ class FeedConfig:
     history_titles_file: str
 
 
-@dataclass
-class Feed:
-    title: str
-    image: str
-    source: str = None
-    feeddict: dict = None
-
-    @classmethod
-    def from_url(self, source: str):
-        feed_obj = feedparser.parse(source)
-        feed = Feed.from_feedparserdict(feed_obj)
-        feed.source = source
-        return feed
-
-    @classmethod
-    def from_feedparserdict(self, feeddict: FeedParserDict):
-        return Feed(
-            title=feeddict['feed']['title'],
-            image=feeddict['feed']['image']['href'],
-            feeddict=feeddict
-        )
-
-    def to_xml(self):
-        pass
-
-
 class StorageIfc():
     """
     Interface to read and write text files.
     """
 
+    # TODO: Figure out how to use a context manager for handling files, either from the cloud or from memory.
     def get_file(self, filename: str, mode: str = 'r') -> IO:
         raise NotImplementedError()
 
@@ -58,7 +30,7 @@ class LocalStorage(StorageIfc):
     """
 
     def get_file(self, filename: str, mode: str = 'r') -> IO:
-        return open(filename, mode)
+        open(filename, mode)
 
     def write_file(self, payload: str):
         pass
@@ -92,7 +64,7 @@ def get_storage(local=False):
 
 
 def daily_aggregator(feedconfig: FeedConfig):
-    feed = Feed.from_url(feedconfig.source_url)
+    feed = Feed.dict_from_url(feedconfig.source_url)
 
     # Retrieve history titles from storage
     storage = get_storage(local=True)
