@@ -7,6 +7,15 @@ from feedparser import FeedParserDict
 
 
 @dataclass
+class FeedConfig:
+    source: str
+    image_url: str
+    email: str
+    author: str
+    history_titles_file: str
+
+
+@dataclass
 class Feed:
     title: str
     image: str
@@ -35,7 +44,8 @@ class Feed:
 
     @classmethod
     def from_url(cls, source: str):
-        pass
+        feed_obj = Feed.dict_from_url(source)
+        return Feed.from_feedparserdict(feed_obj)
 
     @classmethod
     def from_feedparserdict(cls, feeddict: FeedParserDict):
