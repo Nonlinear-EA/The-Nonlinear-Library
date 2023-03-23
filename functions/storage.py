@@ -1,7 +1,7 @@
 from typing import IO
 
 
-class StorageIfc():
+class StorageInterface():
     """
     Interface to read and write text files.
     """
@@ -14,7 +14,7 @@ class StorageIfc():
         raise NotImplementedError()
 
 
-class LocalStorage(StorageIfc):
+class LocalStorage(StorageInterface):
     """
     StorageIfc implementation to work with local files.
     """
@@ -26,7 +26,7 @@ class LocalStorage(StorageIfc):
         pass
 
 
-class GoogleCloudStorage(StorageIfc):
+class GoogleCloudStorage(StorageInterface):
     """
     StorageIfc implementation to work with files on the cloud.
     """
