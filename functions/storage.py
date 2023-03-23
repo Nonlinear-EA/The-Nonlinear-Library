@@ -1,7 +1,7 @@
 from typing import IO
 
 
-class StorageInterface():
+class StorageInterface:
     """
     Interface to read and write text files.
     """
