@@ -1,13 +1,13 @@
-from functions.af.aggregator_af import af_all_main
-from functions.af.aggregator_af_daily import af_daily_main
-from functions.af.aggregator_af_weekly import af_weekly_main
-from functions.ea.aggregator_ea import ea_all_main
-from functions.ea.aggregator_ea_daily import ea_daily_main
-from functions.ea.aggregator_ea_weekly import ea_weekly_main
-from functions.first_generator import create_main_nonlinear_library_rss
-from functions.lw.aggregator_lw import lw_all_main
-from functions.lw.aggregator_lw_daily import lw_daily_main
-from functions.lw.aggregator_lw_weekly import lw_weekly_main
+from functions.af.alignment_forum import af_all_main
+from functions.af.alignment_forum_daily import af_daily_main
+from functions.af.alignment_forum_weekly import af_weekly_main
+from functions.ea.effective_altruism_forum import ea_all_main
+from functions.ea.effective_altruism_forum_daily import ea_daily_main
+from functions.ea.effective_altruism_forum_weekly import ea_weekly_main
+from functions.lw.lesswrong import lw_all_main
+from functions.lw.lesswrong_daily import lw_daily_main
+from functions.lw.lesswrong_weekly import lw_weekly_main
+from functions.nnl import create_main_nonlinear_library_rss
 
 
 def af_daily():
