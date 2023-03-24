@@ -9,7 +9,7 @@ from functions.feed import FeedConfig
 from functions.storage import get_storage
 
 
-def get_karma(url):
+def get_post_karma(url):
     # disguising the request using headers
     page = requests.get(url, headers={
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'})
@@ -20,7 +20,7 @@ def get_karma(url):
     return soup.find('h1', {'class': 'PostsVote-voteScore'}).text
 
 
-def daily_aggregator(feedconfig: FeedConfig):
+def get_podcast_feed(feedconfig: FeedConfig):
     # Get feed from source
     feed = feedparser.parse(feedconfig.source)
     # Get storage handler
@@ -57,7 +57,7 @@ def daily_aggregator(feedconfig: FeedConfig):
     print(f"Found {len(history_entries)} file(s) from history.")
 
     # Get post karma
-    history_entries = map(lambda e: {**e, 'karma': get_karma(e['link'])}, history_entries)
+    history_entries = map(lambda e: {**e, 'karma': get_post_karma(e['link'])}, history_entries)
     print("\n".join([f"{e['title']} - Karma: {e['karma']}" for e in history_entries]))
 
     # Pseudo-code:
