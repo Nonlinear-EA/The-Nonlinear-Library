@@ -9,8 +9,9 @@ class FeedGeneratorConfig:
     image_url: str
     email: str
     author: str
-    history_titles_file: str
-    removed_authors_file: str
+    history_titles_filename: str
+    removed_authors_filename: str
+    gcp_bucket: str
     title: str
     guid_suffix: str
     search_period: str

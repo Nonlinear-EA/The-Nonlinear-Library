@@ -1,4 +1,6 @@
-from typing import IO
+import os
+
+from functions.feed import FeedGeneratorConfig
 
 
 class StorageInterface:
@@ -6,11 +8,10 @@ class StorageInterface:
     Interface to read and write text files.
     """
 
-    # TODO: Figure out how to use a context manager for handling files, either from the cloud or from memory.
-    def get_file(self, filename: str, mode: str = 'r') -> IO:
+    def read_history_titles(self):
         raise NotImplementedError()
 
-    def write_file(self, payload: str):
+    def read_removed_authors(self):
         raise NotImplementedError()
 
 
@@ -18,27 +19,53 @@ class LocalStorage(StorageInterface):
     """
     StorageIfc implementation to work with local files.
     """
+    history_titles_filename: str
+    removed_authors_filename: str
 
-    def get_file(self, filename: str, mode: str = 'r') -> IO:
-        return open(filename, mode)
+    def __init__(self, history_titles_filename, removed_authors_filename):
+        self.history_titles_filename = history_titles_filename
+        self.removed_authors_filename = removed_authors_filename
 
-    def write_file(self, payload: str):
-        pass
+    def read_history_titles(self):
+        return self.__read_file(self.history_titles_filename)
+
+    def read_removed_authors(self):
+        return self.__read_file(self.removed_authors_filename)
+
+    def __read_file(self, filename: str):
+        with open(os.path.basename(filename), 'r') as f:
+            return [line.rstrip() for line in f.readlines()]
 
 
 class GoogleCloudStorage(StorageInterface):
     """
     StorageIfc implementation to work with files on the cloud.
     """
+    history_titles_filename: str
+    removed_authors_filename: str
+    gcp_bucket: str
 
-    def get_file(self, filename: str, mode: str = 'r') -> IO:
-        pass
+    def __init__(self, history_titles_filename, removed_authors_filename, gcp_bucket):
+        self.history_titles_filename = history_titles_filename
+        self.removed_authors_filename = removed_authors_filename
+        self.gcp_bucket = gcp_bucket
 
-    def write_file(self, payload: str):
-        pass
+    def read_history_titles(self):
+        return self.__read_file(self.history_titles_filename)
+
+    def read_removed_authors(self):
+        return self.__read_file(self.removed_authors_filename)
+
+    def __read_file(self, filename: str):
+        from google.cloud import storage
+        client = storage.Client()
+        bucket = client.get_bucket(self.gcp_bucket)
+        blob = bucket.get_blob(filename)
+        downloaded_blob = blob.download_as_string()
+        return [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
 
-def get_storage(local=False):
+def get_storage(feed_config: FeedGeneratorConfig, local=False):
     """
     Factory to retrieve a storage interface implementation for local or cloud environments.
     Args:
@@ -48,6 +75,9 @@ def get_storage(local=False):
 
     """
     if local:
-        return LocalStorage()
+        return LocalStorage(removed_authors_filename=feed_config.removed_authors_filename,
+                            history_titles_filename=feed_config.history_titles_filename)
     else:
-        return GoogleCloudStorage()
+        return GoogleCloudStorage(removed_authors_filename=feed_config.removed_authors_filename,
+                                  history_titles_filename=feed_config.history_titles_filename,
+                                  gcp_bucket=feed_config.gcp_bucket)

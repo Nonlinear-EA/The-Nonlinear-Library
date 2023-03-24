@@ -47,12 +47,10 @@ def get_podcast_feed(feedconfig: FeedGeneratorConfig):
     n_entries = len(feed['entries'])
 
     # Get storage handler
-    storage = get_storage(local=True)
+    storage = get_storage(feedconfig, local=True)
 
     # Retrieve removed authors
-    removed_authors_file = storage.get_file(feedconfig.removed_authors_file)
-    removed_authors = [l for l in removed_authors_file.readlines()]
-    removed_authors_file.close()
+    removed_authors = storage.read_removed_authors()
 
     # Filter out entries from removed authors
     feed['entries'] = [e for e in feed['entries'] if e['author'] not in removed_authors]
@@ -77,10 +75,8 @@ def get_podcast_feed(feedconfig: FeedGeneratorConfig):
                        mktime(strptime(e['published'], feedconfig.date_format)) >= oldest_post_time.timestamp()]
     print(f'{n_entries - len(feed["entries"])} outside search period removed')
 
-    # Retrieve history titles from storage
-    history_titles_file = storage.get_file(feedconfig.history_titles_file)
-    history_titles = [l.rstrip() for l in history_titles_file.readlines()]
-    history_titles_file.close()
+    # Read history titles from storage
+    history_titles = storage.read_history_titles()
 
     # Find posts that are also in the history. This list comprehension compares every entry title with the history
     # titles and adds entries with a result greater than 0.9
