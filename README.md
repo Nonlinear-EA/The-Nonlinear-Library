@@ -5,18 +5,25 @@ uses to create The Nonlinear Library podcast and its variations.
 
 ## Overview
 
-The Python code in `The-Nonlinear-Library/main.py` and `The-Nonlinear-Library/aggregations` has been copy / pasted into
-Google Cloud Functions, and is triggered by Cloud Pub/Sub and Cloud Scheduler on a recurring basis.
+This project cleans up and organizes several RSS files which are read by podcast services such as Spotify, Apple
+Podcasts, etc., to create The Nonlinear Library and several related podcasts.
 
-The flow through this project begins when `main.py` parses new posts from each of the 3 forums, then outputs that to a
+The Python files you see in this project can be run locally by running the files in the `manual_tests` directory. They
+have also been uploaded to GCP Functions where they are triggered periodically.
+
+### The control flow
+
+The control flow through this project is illustrated in ![control flow](flow.svg) and described below.
+
+The control flow through this project begins when `nnl.py` parses new posts from each of the 3 forums, then outputs that
+to a
 public file in Cloud Bucket which
 [this BeyondWords project](https://dash.beyondwords.io/dashboard/project/8692/content) takes in and synthesizes to form
 a new RSS feed containing XML segments linking to the audio MP3 synthesis of each of the posts in the RSS / XML file.
 
-Next, each of the Python files within `aggregations` periodically take the output RSS feed that was output
+Next, the other Python files will be triggered by GCP to take the RSS feed that was output
 by [that BeyondWords Project](https://dash.beyondwords.io/dashboard/project/8692/content)
-and create a new RSS file in XML format in Cloud Bucket, which we use to create podcasts specific to the EA, AF, and LW
-forums.
+and create new RSS files in Cloud Bucket, which we use to create podcasts specific to the EA, AF, and LW forums.
 
 ## Testing
 

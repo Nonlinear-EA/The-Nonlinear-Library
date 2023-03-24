@@ -4,10 +4,10 @@ from functions.af.aggregator_af_weekly import af_weekly_main
 from functions.ea.aggregator_ea import ea_all_main
 from functions.ea.aggregator_ea_daily import ea_daily_main
 from functions.ea.aggregator_ea_weekly import ea_weekly_main
-from functions.first_generator import create_main_nonlinear_library_rss
 from functions.lw.aggregator_lw import lw_all_main
 from functions.lw.aggregator_lw_daily import lw_daily_main
 from functions.lw.aggregator_lw_weekly import lw_weekly_main
+from functions.nnl import create_main_nonlinear_library_rss
 
 
 def af_daily():
