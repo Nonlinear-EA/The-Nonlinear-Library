@@ -13,3 +13,5 @@ class FeedConfig:
     guid_suffix: str
     search_period: str
     title_regex: str = None
+
+

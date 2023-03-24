@@ -1,4 +1,4 @@
-from functions.daily_aggregator import FeedConfig, daily_aggregator
+from functions.podcast_feed_generator import FeedConfig, get_podcast_feed
 
 if __name__ == "__main__":
     af_feed_cfg = FeedConfig(
@@ -14,4 +14,4 @@ if __name__ == "__main__":
         search_period='-1 day'
     )
 
-    daily_aggregator(af_feed_cfg)
+    get_podcast_feed(af_feed_cfg)
