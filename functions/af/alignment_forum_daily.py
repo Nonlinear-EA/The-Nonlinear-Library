@@ -81,7 +81,6 @@ def af_daily_main():
         page = requests.get(url, headers={
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'})
         soup = BeautifulSoup(page.content, "html.parser")
-
         if soup.title and soup.title == '403 Forbidden':
             raise AssertionError(
                 '403 Forbidden error when trying to access ' + url + ' You may need to change the headers to something else.')
