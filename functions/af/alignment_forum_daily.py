@@ -253,7 +253,7 @@ def af_daily_main():
                                 before=start_of_previous_day,
                                 after=end_of_previous_day
                         ):
-                            # Entry was published within the search period Append a tuple with the entries index (
+                            # Entry was published within the search period. Append a tuple with the entries index (
                             # from rss file), the post's karma, the entry's title and link
                             list_indices_karmas.append((i, int(get_karma(item['link'])), item['title'], item['link']))
 
