@@ -20,7 +20,7 @@ class LocalStorage(StorageInterface):
     """
 
     def get_file(self, filename: str, mode: str = 'r') -> IO:
-        open(filename, mode)
+        return open(filename, mode)
 
     def write_file(self, payload: str):
         pass

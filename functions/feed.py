@@ -16,6 +16,9 @@ class FeedConfig:
     email: str
     author: str
     history_titles_file: str
+    title: str
+    guid_suffix: str
+    title_regex: str = None
 
 
 @dataclass
