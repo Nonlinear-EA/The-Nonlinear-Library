@@ -11,5 +11,5 @@ class FeedConfig:
     removed_authors_file: str
     title: str
     guid_suffix: str
-    title_regex: str = None
     search_period: str
+    title_regex: str = None
