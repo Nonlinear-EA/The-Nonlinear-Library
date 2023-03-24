@@ -1,11 +1,13 @@
 import re
+from datetime import datetime, timezone, timedelta
 from difflib import SequenceMatcher
+from time import strptime, mktime
 
 import feedparser
 import requests
 from bs4 import BeautifulSoup
 
-from functions.feed import FeedConfig
+from functions.feed import FeedGeneratorConfig
 from functions.storage import get_storage
 
 
@@ -20,15 +22,13 @@ def get_post_karma(url):
     return soup.find('h1', {'class': 'PostsVote-voteScore'}).text
 
 
-def get_podcast_feed(feedconfig: FeedConfig):
+def get_podcast_feed(feedconfig: FeedGeneratorConfig):
     # Get feed from source
     feed = feedparser.parse(feedconfig.source)
+    n_entries = len(feed['entries'])
+
     # Get storage handler
     storage = get_storage(local=True)
-
-    # Update values from provided configuration
-    feed['feed']['title'] = feedconfig.title
-    feed['feed']['image']['href'] = feedconfig.image_url
 
     # Retrieve removed authors
     removed_authors_file = storage.get_file(feedconfig.removed_authors_file)
@@ -37,13 +37,26 @@ def get_podcast_feed(feedconfig: FeedConfig):
 
     # Filter out entries from removed authors
     feed['entries'] = [e for e in feed['entries'] if e['author'] not in removed_authors]
+    print(f'{n_entries - len(feed["entries"])} removed because of removed authors...')
+    n_entries = len(feed['entries'])
 
     # Filter entries by forum using the provided title regex
     if feedconfig.title_regex:
         regex = re.compile(feedconfig.title_regex)
         feed['entries'] = list(filter(lambda s: regex.match(s['title']), feed['entries']))
+        print(f'{n_entries - len(feed["entries"])} removed because of title mismatch...')
+        n_entries = len(feed['entries'])
 
-    # TODO: Filter out entries based on the search period.
+    # Filter posts based on the requested search period
+    # Get search period as timedelta
+    search_period = feedconfig.get_search_period_timedelta()
+    # Define the time of the oldest post that should come through
+    oldest_post_time = datetime.now(tz=timezone(timedelta(0))).replace(hour=0, minute=0, second=0,
+                                                                       microsecond=0) - search_period
+    # Filter out posts published later than oldest_post_time
+    feed['entries'] = [e for e in feed['entries'] if
+                       mktime(strptime(e['published'], feedconfig.date_format)) >= oldest_post_time.timestamp()]
+    print(f'{n_entries - len(feed["entries"])} outside search period removed')
 
     # Retrieve history titles from storage
     history_titles_file = storage.get_file(feedconfig.history_titles_file)
@@ -60,9 +73,10 @@ def get_podcast_feed(feedconfig: FeedConfig):
     history_entries = map(lambda e: {**e, 'karma': get_post_karma(e['link'])}, history_entries)
     print("\n".join([f"{e['title']} - Karma: {e['karma']}" for e in history_entries]))
 
-    # Pseudo-code:
-    # feed = retrieve_feed_from_url(url) - done
-    # values_for_podcast_feed = get_values_for_podcast_feed('Alignment Forum')
-    # feed.update_values(values_for_podcast_feed) - done
-    # Filter out entries from removed authors - done
-    # feed.entries = [e for entry in feed.entries if e.author not in removed_authors] - done
+    print(f'{len(feed["entries"])} entries remaining')
+
+    # Update values from provided configuration
+    feed['feed']['title'] = feedconfig.title
+    feed['feed']['image']['href'] = feedconfig.image_url
+
+    return feed
