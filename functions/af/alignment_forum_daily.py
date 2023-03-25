@@ -298,6 +298,7 @@ def af_daily_main():
                     rss_feed += item_str.format(
                         item_guidislink=str(item['guidislink']).lower(),
                         # does the guid have to be unique PER SHOW or GLOBALLY? ==>> GLOBALLY :(
+                        # TODO: Where does the guid key/value come from? it does not appear when debugging!
                         item_guid=item['guid'] + guid_suffix,
                         item_title=item['title'],
                         item_summary=html_hyperlink_format_spotify.format(

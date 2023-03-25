@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from functions.feed import FeedGeneratorConfig
 
@@ -8,10 +9,13 @@ class StorageInterface:
     Interface to read and write text files.
     """
 
-    def read_history_titles(self):
+    def read_history_titles(self) -> List[str]:
         raise NotImplementedError()
 
-    def read_removed_authors(self):
+    def write_history_titles(self, history_titles: List[str]) -> int:
+        raise NotImplementedError()
+
+    def read_removed_authors(self) -> List[str]:
         raise NotImplementedError()
 
 
@@ -29,12 +33,19 @@ class LocalStorage(StorageInterface):
     def read_history_titles(self):
         return self.__read_file(self.history_titles_filename)
 
+    def write_history_titles(self, history_titles: List[str]) -> int:
+        return self.__write_file(self.history_titles_filename, "\n".join(history_titles))
+
     def read_removed_authors(self):
         return self.__read_file(self.removed_authors_filename)
 
     def __read_file(self, filename: str):
         with open(os.path.basename(filename), 'r') as f:
             return [line.rstrip() for line in f.readlines()]
+
+    def __write_file(self, filename: str, content: str):
+        with open(os.path.basename(filename), 'w') as f:
+            return f.write(content)
 
 
 class GoogleCloudStorage(StorageInterface):
@@ -56,6 +67,9 @@ class GoogleCloudStorage(StorageInterface):
     def read_removed_authors(self):
         return self.__read_file(self.removed_authors_filename)
 
+    def write_history_titles(self, history_titles: List[str]) -> int:
+        return self.__write_file(self.history_titles_filename, "\n".join(history_titles))
+
     def __read_file(self, filename: str):
         from google.cloud import storage
         client = storage.Client()
@@ -63,6 +77,10 @@ class GoogleCloudStorage(StorageInterface):
         blob = bucket.get_blob(filename)
         downloaded_blob = blob.download_as_string()
         return [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
+
+    def __write_file(self, history_titles_filename: str, content: str) -> int:
+        # TODO: Implement write file for cloud storage.
+        return 0
 
 
 def create_storage(feed_config: FeedGeneratorConfig, local=False):

@@ -25,6 +25,26 @@ Next, the other Python files will be triggered by GCP to take the RSS feed that 
 by [that BeyondWords Project](https://dash.beyondwords.io/dashboard/project/8692/content)
 and create new RSS files in Cloud Bucket, which we use to create podcasts specific to the EA, AF, and LW forums.
 
+### The Podcast Feed Generator
+
+```mermaid
+flowchart TD
+   Step1[Download RSS Feed from BeyondWords] --> FilterByRemovedAuthors[Filter out entries from removed authors]
+   FilterByRemovedAuthors --> FilterBySearchPeriod[Filter out entries outside the search period]
+   FilterBySearchPeriod --> FilterByEntriesInHistory[Filter out entries not in history titles]
+   FilterByEntriesInHistory --> GetKarma[Get karma for each entry]
+   GetKarma --> GetMaxKarmaEntry[Get entry with the most karma]
+   GetMaxKarmaEntry --> IfMaxKarmaEntryInHistoryTitles{Max karma entry in history titles?}
+   IfMaxKarmaEntryInHistoryTitles -- no --> AddMaxKarmaEntryToHistoryTitles[Add entry to history titles]
+   AddMaxKarmaEntryToHistoryTitles --> SaveHistoryTitles[Save history titles]
+   IfMaxKarmaEntryInHistoryTitles -- yes --> Continue[Continue]
+   Continue --> ModifyEntriesValues[Update entries' values]
+   SaveHistoryTitles --> ModifyEntriesValues
+   ModifyEntriesValues --> ReturnXml[Return an xml file]
+```
+
+###
+
 ## Testing
 
 First run the code in `aggregations` manually to output files to your local system. After you've committed and pushed

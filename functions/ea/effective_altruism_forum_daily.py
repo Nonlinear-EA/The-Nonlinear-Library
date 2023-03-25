@@ -199,7 +199,7 @@ def ea_daily_main():
                 print(f'\n\n\n~ ~ ~ ~ ~ Trying with days_back = {days_back} ~ ~ ~ ~ ~')
                 for i in range(len(news_feed.entries)):
                     item = news_feed.entries[i]
-
+                    # Only process from the right forum (forum prefix passed as parameter)
                     if item['title'].startswith(title_beginning):
                         # check for removed authors
                         if item['author'] in self.list_removed_authors:
@@ -212,22 +212,27 @@ def ea_daily_main():
                         for title in self.history_titles:
                             if string_similarity(item['title'], title) > 0.9:
                                 list_indices += [i]
+                        # List indices now has the index to the entries that were also found in the history titles
                         list_indices = sorted(list(set(list_indices)))
 
                         start_of_previous_day, end_of_previous_day = get_previous_day_start_and_end(days_back=days_back,
                                                                                                     weeks_back=weeks_back)
                         print('\n\n\n', i, item['title'], published_datetime_object, start_of_previous_day,
                               end_of_previous_day)
+                        # For the entries posted within the requested period, get the karma
                         if is_datetime_between(
                                 target=published_datetime_object,
                                 before=start_of_previous_day,
                                 after=end_of_previous_day
                         ):
                             print(int(get_karma(item['link'])))
+                            # list_indices_karmas has the index of entries posted within the search period together with their karma
                             list_indices_karmas.append((i, int(get_karma(item['link'])), item['title'], item['link']))
 
             print('\n\n\n\n', list_indices_karmas)
             if list_indices_karmas:
+                # Entries with karma were found.
+                # Select the post with most karma from the search period.
                 max_karma_post = sorted(list_indices_karmas, key=lambda x: x[1])[-1]
                 list_indices += [max_karma_post[0]]
                 if max_karma_post[2] not in self.history_titles:
