@@ -171,14 +171,14 @@ def filter_entries_by_search_period(entries: List[dict], feed_config: FeedGenera
     return [entry for entry in entries if get_entry_published_time(entry) >= oldest_post_time.timestamp()]
 
 
-def get_podcast_feed(feed_config: FeedGeneratorConfig):
+def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None, str | None]:
     """
     Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
     provided feed_config object.
 
-    Args: feed_config: Object with meta-data and filtering criteria to produce a RSS feed file.
+    Args: feed_config: Object with meta-data and filtering criteria to produce an RSS feed file.
 
-    Returns: xml string
+    Returns: The file name of the produced xml string and the xml string.
     """
 
     # Get feed from source
@@ -200,7 +200,7 @@ def get_podcast_feed(feed_config: FeedGeneratorConfig):
         print(f'{n_entries - len(feed["entries"])} removed because of title mismatch...')
 
     if feed_config.search_period:
-        feed['entries'] = filter_entries_by_search_period(feed['entries'], feed_config.search_period)
+        feed['entries'] = filter_entries_by_search_period(feed['entries'], feed_config)
 
     # Get entry with the most karma
     max_karma_entry = max(feed['entries'], key=lambda entry: get_post_karma(entry['link']))
@@ -213,7 +213,7 @@ def get_podcast_feed(feed_config: FeedGeneratorConfig):
         return max([SequenceMatcher(None, entry['title'], h).ratio() for h in history_titles]) > 0.9
 
     if entry_title_is_in_history(max_karma_entry):
-        return
+        return None, None
 
     history_titles += [max_karma_entry['title']]
     storage.write_history_titles(history_titles)
@@ -232,4 +232,6 @@ def get_podcast_feed(feed_config: FeedGeneratorConfig):
     feed['entries'] = list(map(get_entry_with_updated_guid, feed['entries']))
     xml_feed = get_feed_xml(feed)
 
-    return xml_feed
+    storage.save_podcast_feed(xml_feed)
+
+    return storage.output_feed_filename, xml_feed

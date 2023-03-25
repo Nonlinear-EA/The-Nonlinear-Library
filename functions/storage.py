@@ -9,10 +9,22 @@ class StorageInterface:
     Interface to read and write text files.
     """
 
+    def __init__(self,
+                 history_titles_filename,
+                 removed_authors_filename,
+                 output_feed_filename_base
+                 ):
+        self.history_titles_filename = history_titles_filename
+        self.removed_authors_filename = removed_authors_filename
+        self.output_feed_filename = f'{output_feed_filename_base}.xml'
+
     def read_history_titles(self) -> List[str]:
         raise NotImplementedError()
 
     def write_history_titles(self, history_titles: List[str]) -> int:
+        raise NotImplementedError()
+
+    def save_podcast_feed(self, feed: str):
         raise NotImplementedError()
 
     def read_removed_authors(self) -> List[str]:
@@ -25,10 +37,12 @@ class LocalStorage(StorageInterface):
     """
     history_titles_filename: str
     removed_authors_filename: str
+    output_feed_filename: str
 
-    def __init__(self, history_titles_filename, removed_authors_filename):
-        self.history_titles_filename = history_titles_filename
-        self.removed_authors_filename = removed_authors_filename
+    def __init__(
+            self, history_titles_filename: str, removed_authors_filename: str, output_feed_filename_base: str
+    ):
+        super().__init__(history_titles_filename, removed_authors_filename, output_feed_filename_base)
 
     def read_history_titles(self):
         return self.__read_file(self.history_titles_filename)
@@ -38,6 +52,9 @@ class LocalStorage(StorageInterface):
 
     def read_removed_authors(self):
         return self.__read_file(self.removed_authors_filename)
+
+    def save_podcast_feed(self, feed):
+        self.__write_file(self.output_feed_filename, feed)
 
     def __read_file(self, filename: str):
         with open(os.path.basename(filename), 'r') as f:
@@ -52,13 +69,13 @@ class GoogleCloudStorage(StorageInterface):
     """
     StorageInterface implementation to work with files on the cloud.
     """
+
     history_titles_filename: str
     removed_authors_filename: str
     gcp_bucket: str
 
-    def __init__(self, history_titles_filename, removed_authors_filename, gcp_bucket):
-        self.history_titles_filename = history_titles_filename
-        self.removed_authors_filename = removed_authors_filename
+    def __init__(self, history_titles_filename, removed_authors_filename, output_feed_filename_base, gcp_bucket):
+        super().__init__(history_titles_filename, removed_authors_filename, output_feed_filename_base)
         self.gcp_bucket = gcp_bucket
 
     def read_history_titles(self):
@@ -69,6 +86,10 @@ class GoogleCloudStorage(StorageInterface):
 
     def write_history_titles(self, history_titles: List[str]) -> int:
         return self.__write_file(self.history_titles_filename, "\n".join(history_titles))
+
+    def save_podcast_feed(self, feed: str):
+        # TODO: Implement save_podcast_feed for cloud storage.
+        pass
 
     def __read_file(self, filename: str):
         from google.cloud import storage
@@ -95,8 +116,10 @@ def create_storage(feed_config: FeedGeneratorConfig, local=False):
     """
     if local:
         return LocalStorage(removed_authors_filename=feed_config.removed_authors_filename,
-                            history_titles_filename=feed_config.history_titles_filename)
+                            history_titles_filename=feed_config.history_titles_filename,
+                            output_feed_filename_base=feed_config.output_file_basename)
     else:
         return GoogleCloudStorage(removed_authors_filename=feed_config.removed_authors_filename,
                                   history_titles_filename=feed_config.history_titles_filename,
+                                  output_feed_filename_base=feed_config.output_file_basename,
                                   gcp_bucket=feed_config.gcp_bucket)

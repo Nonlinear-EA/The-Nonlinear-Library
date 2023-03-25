@@ -1,4 +1,3 @@
-import re
 from dataclasses import dataclass
 from datetime import timedelta
 from enum import Enum
@@ -16,6 +15,7 @@ class FeedGeneratorConfig:
     author: str
     history_titles_filename: str
     removed_authors_filename: str
+    output_file_basename: str
     gcp_bucket: str
     title: str
     guid_suffix: str

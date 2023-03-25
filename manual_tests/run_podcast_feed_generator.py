@@ -1,4 +1,4 @@
-from functions.podcast_feed_generator import FeedGeneratorConfig, get_podcast_feed
+from functions.podcast_feed_generator import FeedGeneratorConfig, generate_podcast_feed
 
 if __name__ == "__main__":
     # Empty history_titles_empty.txt to guarantee an entry.
@@ -19,4 +19,4 @@ if __name__ == "__main__":
         gcp_bucket='rssfile'
     )
 
-    feed = get_podcast_feed(af_feed_cfg)
+    feed = generate_podcast_feed(af_feed_cfg)
