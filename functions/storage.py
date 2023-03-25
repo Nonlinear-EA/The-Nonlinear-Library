@@ -17,7 +17,7 @@ class StorageInterface:
 
 class LocalStorage(StorageInterface):
     """
-    StorageIfc implementation to work with local files.
+    StorageInterface implementation to work with local files.
     """
     history_titles_filename: str
     removed_authors_filename: str
@@ -39,7 +39,7 @@ class LocalStorage(StorageInterface):
 
 class GoogleCloudStorage(StorageInterface):
     """
-    StorageIfc implementation to work with files on the cloud.
+    StorageInterface implementation to work with files on the cloud.
     """
     history_titles_filename: str
     removed_authors_filename: str
@@ -65,13 +65,14 @@ class GoogleCloudStorage(StorageInterface):
         return [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
 
-def get_storage(feed_config: FeedGeneratorConfig, local=False):
+def create_storage(feed_config: FeedGeneratorConfig, local=False):
     """
     Factory to retrieve a storage interface implementation for local or cloud environments.
     Args:
+        feed_config: Feed configuration data
         local: Flag to signal local or cloud environment.
 
-    Returns: StorageIfc implementation.
+    Returns: StorageInterface implementation.
 
     """
     if local:

@@ -1,10 +1,15 @@
 import re
 from dataclasses import dataclass
 from datetime import timedelta
+from enum import Enum
 
 
 @dataclass
 class FeedGeneratorConfig:
+    class SearchPeriod(Enum):
+        ONE_WEEK = 7
+        ONE_DAY = 1
+
     source: str
     image_url: str
     email: str
@@ -14,19 +19,16 @@ class FeedGeneratorConfig:
     gcp_bucket: str
     title: str
     guid_suffix: str
-    search_period: str
-    title_regex: str = None
+    search_period: SearchPeriod = SearchPeriod.ONE_WEEK
+    title_prefix: str = None
     date_format: str = '%a, %d %b %Y %H:%M:%S %z'
 
-    # TODO: Check python version on the cloud since this syntax works for python >= 3.10
     def get_search_period_timedelta(self) -> timedelta | None:
         """
         Returns a timedelta based on the string provided as search period
         """
-        search_period_re = re.compile(
-            r'((?P<days>\d+?)days)?((?P<hours>\d+?)hr)?((?P<minutes>\d+?)m)?((?P<seconds>\d+?)s)?')
-        parts = search_period_re.match(self.search_period)
-        if not parts:
-            return None
-        parts_dict = {n: float(p) for n, p in parts.groupdict().items() if p}
-        return timedelta(**parts_dict)
+
+        if self.search_period == FeedGeneratorConfig.SearchPeriod.ONE_WEEK:
+            return timedelta(weeks=1)
+        elif self.search_period == FeedGeneratorConfig.SearchPeriod.ONE_DAY:
+            return timedelta(days=1)

@@ -10,8 +10,8 @@ if __name__ == "__main__":
         removed_authors_filename='./removed_authors.txt',
         guid_suffix='_AF-day',
         title="The Nonlinear Library: Alignment Forum Daily",
-        title_regex=r'^AF -',
-        search_period='7days',
+        title_prefix='AF -',
+        search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket='rssfile'
     )
 

@@ -8,10 +8,10 @@ import requests
 from bs4 import BeautifulSoup
 
 from functions.feed import FeedGeneratorConfig
-from functions.storage import get_storage
+from functions.storage import create_storage
 
 
-def get_post_karma(url) -> str | None:
+def get_post_karma(url) -> str:
     """
     Return a post's karma based on the provided url
     Args:
@@ -27,7 +27,8 @@ def get_post_karma(url) -> str | None:
     soup = BeautifulSoup(page.content, "html.parser")
     if soup.title and soup.title == '403 Forbidden':
         raise AssertionError(
-            '403 Forbidden error when trying to access ' + url + ' You may need to change the headers to something else.')
+            '403 Forbidden error when trying to access ' + url + 'You may need to change the headers to something '
+                                                                 'else.')
     return soup.find('h1', {'class': 'PostsVote-voteScore'}).text
 
 
@@ -42,12 +43,18 @@ def get_podcast_feed(feedconfig: FeedGeneratorConfig):
 
     TODO: Document usage in readme?
     """
+
+    import feedparser
+    import ssl
+    if hasattr(ssl, '_create_unverified_context'):
+        # noinspection PyProtectedMember
+        ssl._create_default_https_context = ssl._create_unverified_context
     # Get feed from source
     feed = feedparser.parse(feedconfig.source)
     n_entries = len(feed['entries'])
 
     # Get storage handler
-    storage = get_storage(feedconfig, local=True)
+    storage = create_storage(feedconfig, local=True)
 
     # Retrieve removed authors
     removed_authors = storage.read_removed_authors()
@@ -57,10 +64,11 @@ def get_podcast_feed(feedconfig: FeedGeneratorConfig):
     print(f'{n_entries - len(feed["entries"])} removed because of removed authors...')
     n_entries = len(feed['entries'])
 
-    # Filter entries by forum using the provided title regex
-    if feedconfig.title_regex:
-        regex = re.compile(feedconfig.title_regex)
-        feed['entries'] = list(filter(lambda s: regex.match(s['title']), feed['entries']))
+    # Filter entries by checking if their titles match the provided title_prefix
+    if feedconfig.title_prefix:
+        def title_starts_with_config_prefix(entry):
+            return entry['title'].startswith(feedconfig.title_prefix)
+        feed['entries'] = list(filter(title_starts_with_config_prefix, feed['entries']))
         print(f'{n_entries - len(feed["entries"])} removed because of title mismatch...')
         n_entries = len(feed['entries'])
 
@@ -68,29 +76,29 @@ def get_podcast_feed(feedconfig: FeedGeneratorConfig):
     # Get search period as timedelta
     search_period = feedconfig.get_search_period_timedelta()
     # Define the time of the oldest post that should come through
-    oldest_post_time = datetime.now(tz=timezone(timedelta(0))).replace(hour=0, minute=0, second=0,
-                                                                       microsecond=0) - search_period
+    oldest_post_time = datetime.now() - search_period
     # Filter out posts published later than oldest_post_time
-    feed['entries'] = [e for e in feed['entries'] if
-                       mktime(strptime(e['published'], feedconfig.date_format)) >= oldest_post_time.timestamp()]
+    feed['entries'] = [entry for entry in feed['entries'] if
+                       mktime(strptime(entry['published'], feedconfig.date_format)) >= oldest_post_time.timestamp()]
     print(f'{n_entries - len(feed["entries"])} outside search period removed')
 
     # Read history titles from storage
     history_titles = storage.read_history_titles()
 
-    # Find posts that are also in the history. This list comprehension compares every entry title with the history
-    # titles and adds entries with a result greater than 0.9
-    history_entries = [e for e in feed['entries'] if
-                       max([SequenceMatcher(None, e['title'], h).ratio() for h in history_titles]) > 0.9]
+    # Find posts that are also in the history.
+    def entry_title_is_in_history(entry):
+        return max([SequenceMatcher(None, entry['title'], h).ratio() for h in history_titles]) > 0.9
+
+    history_entries = [entry for entry in feed['entries'] if entry_title_is_in_history(entry)]
     print(f"Found {len(history_entries)} file(s) from history.")
 
     # Get post karma
-    history_entries = map(lambda e: {**e, 'karma': get_post_karma(e['link'])}, history_entries)
-    print("\n".join([f"{e['title']} - Karma: {e['karma']}" for e in history_entries]))
+    history_entries = map(lambda entry: {**entry, 'karma': get_post_karma(entry['link'])}, history_entries)
+    print("\n".join([f"{entry['title']} - Karma: {entry['karma']}" for entry in history_entries]))
 
     print(f'{len(feed["entries"])} entries remaining')
 
-    # Update values from provided configuration
+    # Update values from the provided configuration
     feed['feed']['title'] = feedconfig.title
     feed['feed']['image']['href'] = feedconfig.image_url
 
