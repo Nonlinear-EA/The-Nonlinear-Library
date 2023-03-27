@@ -9,51 +9,49 @@ from lw.lesswrong_daily import lw_daily_main
 from lw.lesswrong_weekly import lw_weekly_main
 from nnl import create_main_nonlinear_library_rss
 
-
 def af_daily(a, b):
     print('running af_daily')
-    af_daily_main()
-
+    af_daily_main(True)
 
 
 def af_weekly(a, b):
     print('running af_weekly')
-    af_weekly_main()
+    af_weekly_main(True)
 
 
 def af_all(a, b):
     print('running af_all')
-    af_all_main()
+    af_all_main(True)
 
 
 def ea_daily(a, b):
     print('running ea_daily')
-    ea_daily_main()
+    ea_daily_main(True)
 
 
 def ea_weekly(a, b):
     print('running ea_weekly')
-    ea_weekly_main()
+    ea_weekly_main(True)
 
 
 def ea_all(a, b):
     print('running ea_all')
-    ea_all_main()
+    ea_all_main(True)
 
 
 def lw_daily(a, b):
     print('running lw_daily')
-    lw_daily_main()
+    lw_daily_main(True)
 
 
 def lw_weekly(a, b):
     print('running lw_weekly')
-    lw_weekly_main()
+    lw_weekly_main(True)
 
 
 def lw_all(a, b):
     print('running lw_all')
-    lw_all_main()
+    lw_all_main(True)
 
 
 def create_nonlinear_library_main_feed(a, b):

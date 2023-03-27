@@ -1,9 +1,7 @@
-import re
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from difflib import SequenceMatcher
 from time import strptime, mktime
 
-import feedparser
 import requests
 from bs4 import BeautifulSoup
 
@@ -32,7 +30,7 @@ def get_post_karma(url) -> str:
     return soup.find('h1', {'class': 'PostsVote-voteScore'}).text
 
 
-def get_podcast_feed(feedconfig: FeedGeneratorConfig):
+def create_podcast_feed(feedconfig: FeedGeneratorConfig, running_on_gcp: bool):
     """
     Get a RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
     provided feedconfig object.
@@ -54,7 +52,7 @@ def get_podcast_feed(feedconfig: FeedGeneratorConfig):
     n_entries = len(feed['entries'])
 
     # Get storage handler
-    storage = create_storage(feedconfig, local=True)
+    storage = create_storage(feedconfig, running_on_gcp)
 
     # Retrieve removed authors
     removed_authors = storage.read_removed_authors()

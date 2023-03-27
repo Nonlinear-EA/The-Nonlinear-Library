@@ -4,7 +4,7 @@ import ssl
 import feedparser
 
 
-def ea_all_main():
+def ea_all_main(running_on_gcp):
     config = {
         'feed': {
             'max_articles': 30,
