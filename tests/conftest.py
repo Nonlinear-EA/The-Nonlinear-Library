@@ -34,7 +34,7 @@ def alignment_forum_config_weekly(rss_source):
         title_prefix='AF -',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket='rssfile',
-        output_file_basename='../manual_tests/nonlinear-library-aggregated-AF-daily-new'
+        output_file_basename='../manual_tests/nonlinear-library-aggregated-AF-weekly-new'
     )
 
 
@@ -52,5 +52,5 @@ def alignment_forum_config_daily(rss_source):
         title_prefix='AF -',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         gcp_bucket='rssfile',
-        output_file_basename='nonlinear-library-aggregated-AF-daily-new'
+        output_file_basename='../manual_tests/nonlinear-library-aggregated-AF-daily-new'
     )

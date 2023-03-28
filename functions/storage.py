@@ -65,7 +65,7 @@ class LocalStorage(StorageInterface):
             mode = 'wb'
         else:
             mode = 'w'
-        with open(os.path.basename(filename), mode) as f:
+        with open(filename, mode) as f:
             return f.write(content)
 
 

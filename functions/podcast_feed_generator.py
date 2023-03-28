@@ -12,26 +12,6 @@ from functions.feed import FeedGeneratorConfig
 from functions.storage import StorageInterface, create_storage
 
 
-# if hasattr(ssl, '_create_unverified_context'):
-#     # noinspection PyProtectedMember
-#     ssl._create_default_https_context = ssl._create_unverified_context
-
-
-def get_enclosure_data(entry) -> Tuple[str, str, str]:
-    """
-    Receives a dict that represents a feed entry and, if found, returns its enclosure's data (length, type and url).
-    Args:
-        entry: Dict representing a feed entry
-
-    Returns: Tuple containing enclosure's length, type and url
-
-    """
-    enclosure_data = next(filter(lambda link: link['rel'] == 'enclosure', entry['links']), None)
-    if not enclosure_data:
-        raise Exception(f'No enclosure data found for entry: {entry["title"]}')
-    return enclosure_data['length'], enclosure_data['type'], enclosure_data['url']
-
-
 def get_post_karma(url) -> int:
     """
     Return a post's karma based on the provided url
@@ -58,7 +38,7 @@ def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInter
     Take a list of entries and remove those whose author is in the list of removed authors.
 
     Args:
-        feed: List of feed entries
+        feed: An xml element tree
         storage: Storage handler
 
     """
@@ -87,19 +67,23 @@ def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGenerato
     # Define the time of the oldest post that should come through
     oldest_post_time = datetime.now() - search_period
 
-    # Filter out posts published later than oldest_post_time
-    # def get_entry_published_time(entry: dict):
-    #     return mktime(strptime(entry['published'], feed_config.date_format))
-
     for entry in feed.findall('./channel/item'):
         published_date_str = entry.find('pubDate').text
         published_date = mktime(strptime(published_date_str, feed_config.date_format))
         if published_date <= oldest_post_time.timestamp():
             feed.find('./channel').remove(entry)
-    # return [entry for entry in entries if get_entry_published_time(entry) >= oldest_post_time.timestamp()]
 
 
-def get_feed_tree_from_source(url):
+def get_feed_tree_from_source(url) -> ElementTree:
+    """
+    Provided an url (or path to local file) returns a xml element tree.
+
+    Args:
+        url: Url to a xml document
+
+    Returns: A xml element tree
+    """
+    
     parsed_uri = urlparse(url)
     if not parsed_uri.scheme:
         # If url has no scheme, treat it as a local path.
@@ -114,14 +98,6 @@ def get_feed_tree_from_source(url):
                       'Chrome/83.0.4103.97 Safari/537.36'}
     response = requests.get(url, headers=headers)
     xml_data = response.text
-    # # The namespaces must be registered so the resulting xml file can incorporate them
-    # namespaces = {
-    #     "atom": "http://www.w3.org/2005/Atom",
-    #     "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
-    #     "content": "http://purl.org/rss/1.0/modules/content/"
-    # }
-    # for prefix, uri in namespaces.items():
-    #     ElementTree.register_namespace(prefix, uri)
 
     # Parse to a xml tree
     return ElementTree.fromstring(xml_data)
@@ -187,12 +163,14 @@ def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None,
 
     # Register namespaces before parsing to string.
     namespaces = {
+        # The atom namespace is not used in the resulting feeds and is not added to the xml files.
         "atom": "http://www.w3.org/2005/Atom",
         "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
         "content": "http://purl.org/rss/1.0/modules/content/"
     }
     for prefix, uri in namespaces.items():
         ElementTree.register_namespace(prefix, uri)
+
     # Remove reference date tag if present
     reference_date_tag = feed.find('reference_date')
     if reference_date_tag is not None:
