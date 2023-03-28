@@ -4,7 +4,12 @@ from datetime import datetime, timedelta, timezone
 import requests
 
 
-def save_beyondwords_snapshot(days=7, output_filename: str = None):
+def save_beyondwords_snapshot(n_days=7, output_filename: str = None):
+    """
+    Saves a rss feed based on the current BeyondWords feed, reduced to the number of posts published within the last
+    `n_days`
+
+    """
     # Download rss feed from BeyondWords
     url = 'https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143'
     headers = {
@@ -38,7 +43,7 @@ def save_beyondwords_snapshot(days=7, output_filename: str = None):
     for item in items:
         date_format = '%a, %d %b %Y %H:%M:%S %z'
         date_published = datetime.strptime(item.find('pubDate').text, date_format)
-        if date_published <= reference_date - timedelta(days=days):
+        if date_published <= reference_date - timedelta(days=n_days):
             items.remove(item)
             n_items_removed += 1
     print(f"Removed {n_items_removed} items.")
@@ -47,7 +52,7 @@ def save_beyondwords_snapshot(days=7, output_filename: str = None):
     if not output_filename:
         # Format an output_filename
         output_filename_template = 'beyondwords_snapshot_{_days_}_days.xml'
-        output_filename = output_filename_template.format(_days_=days, _date_=reference_date.strftime('%Y-%m-%d'))
+        output_filename = output_filename_template.format(_days_=n_days, _date_=reference_date.strftime('%Y-%m-%d'))
 
     # Save xml file
     tree = ET.ElementTree(root)
