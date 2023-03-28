@@ -35,7 +35,7 @@ def get_post_karma(url) -> int:
 
 def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInterface):
     """
-    Take a list of entries and remove those whose author is in the list of removed authors.
+    Take an element tree and remove the entries whose author is in the list of removed authors.
 
     Args:
         feed: An xml element tree
@@ -54,11 +54,10 @@ def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInter
 def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGeneratorConfig):
     """
     Return entries that were published within a period defined in the FeedGeneratorConfig object.
+    
     Args:
         feed: An xml element tree
         feed_config: Parameters for podcast feed generation
-
-    Returns:
 
     """
     # Filter posts based on the requested search period
@@ -76,7 +75,7 @@ def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGenerato
 
 def get_feed_tree_from_source(url) -> ElementTree:
     """
-    Provided an url (or path to local file) returns a xml element tree.
+    Return an element tree from the provided url (or path to local file).
 
     Args:
         url: Url to a xml document
