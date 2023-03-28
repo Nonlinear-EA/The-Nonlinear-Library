@@ -1,2 +1,1 @@
 This is a sample entry that won't match anything from the feed!
-AF - More information about the dangerous capability evaluations we did with GPT-4 and Claude. by Beth Barnes

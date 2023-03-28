@@ -1,10 +1,6 @@
 from functions.podcast_feed_generator import FeedGeneratorConfig, generate_podcast_feed
 
 if __name__ == "__main__":
-    # Empty history_titles_empty.txt to guarantee an entry.
-    with open('./history_titles_empty.txt', 'w') as f:
-        f.write("This is a sample entry that won't match anything from the feed!")
-
     af_feed_cfg = FeedGeneratorConfig(
         source='./beyondwords_feed_snapshot.xml',
         author='The Nonlinear Fund',
@@ -16,7 +12,8 @@ if __name__ == "__main__":
         title="The Nonlinear Library: Alignment Forum Daily",
         title_prefix='AF -',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
-        gcp_bucket='rssfile'
+        gcp_bucket='rssfile',
+        output_file_basename='nonlinear-library-aggregated-AF-daily-new'
     )
 
     feed = generate_podcast_feed(af_feed_cfg)

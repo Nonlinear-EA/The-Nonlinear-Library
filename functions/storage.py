@@ -60,8 +60,12 @@ class LocalStorage(StorageInterface):
         with open(os.path.basename(filename), 'r') as f:
             return [line.rstrip() for line in f.readlines()]
 
-    def __write_file(self, filename: str, content: str):
-        with open(os.path.basename(filename), 'w') as f:
+    def __write_file(self, filename: str, content: str | bytes):
+        if isinstance(content, bytes):
+            mode = 'wb'
+        else:
+            mode = 'w'
+        with open(os.path.basename(filename), mode) as f:
             return f.write(content)
 
 

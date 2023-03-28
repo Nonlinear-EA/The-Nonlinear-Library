@@ -1,20 +1,20 @@
-import ssl
 from datetime import datetime
 from difflib import SequenceMatcher
 from time import strptime, mktime
-from typing import Tuple, List
+from typing import Tuple
+from urllib.parse import urlparse
+from xml.etree import ElementTree
 
-import feedparser
 import requests
 from bs4 import BeautifulSoup
-from feedparser import FeedParserDict
 
 from functions.feed import FeedGeneratorConfig
-from functions.storage import create_storage, StorageInterface
+from functions.storage import StorageInterface, create_storage
 
-if hasattr(ssl, '_create_unverified_context'):
-    # noinspection PyProtectedMember
-    ssl._create_default_https_context = ssl._create_unverified_context
+
+# if hasattr(ssl, '_create_unverified_context'):
+#     # noinspection PyProtectedMember
+#     ssl._create_default_https_context = ssl._create_unverified_context
 
 
 def get_enclosure_data(entry) -> Tuple[str, str, str]:
@@ -30,85 +30,6 @@ def get_enclosure_data(entry) -> Tuple[str, str, str]:
     if not enclosure_data:
         raise Exception(f'No enclosure data found for entry: {entry["title"]}')
     return enclosure_data['length'], enclosure_data['type'], enclosure_data['url']
-
-
-def get_entry_xml(entry: dict, image_url: str) -> str:
-    """
-    Returns a xml substring representing a single feed entry.
-    Args:
-        entry: Dict representing a single feed entry
-        image_url: An url for the image to attach to this feed entry's xml
-
-    Returns:
-
-    """
-    enclosure_length, enclosure_type, enclosure_url = get_enclosure_data(entry)
-
-    def get_html_hyperlink_from_spotify(entry):
-        return (f'<a href=\"{entry["link"]}\">Link to original article</a>'
-                f'<br/>'
-                f'<br/>')
-
-    return (
-        f'<item>'
-        f'  <guid isPermaLink="{entry["guidislink"]}">{entry["guid"]}</guid>'
-        f'  <title>{entry["title"].replace("&", "and")}</title>'
-        f'  <description><![CDATA[{entry["summary"]}]]></description>'
-        f'  <author>{entry["author"]}</author>'
-        f'  <link>{entry["link"]}</link>'
-        f'  <content:encoded><![CDATA[{get_html_hyperlink_from_spotify(entry)}]]></content:encoded>'
-        f'  <enclosure length="{enclosure_length}" type="{enclosure_type}" url="{enclosure_url}"/>'
-        f'  <pubDate>{entry["published"]}</pubDate>'
-        f'  <itunes:title>{entry["title"]}</itunes:title>'
-        f'  <itunes:subtitle><![CDATA[{entry["subtitle"]}]]></itunes:subtitle>'
-        f'  <itunes:summary><![CDATA[{entry["summary"]}]]></itunes:summary>'
-        f'  <itunes:author>{entry["author"]}</itunes:author>'
-        f'  <itunes:image>{image_url}</itunes:image>'
-        f'  <itunes:duration>{entry["itunes_duration"]}</itunes:duration>'
-        f'  <itunes:keywords></itunes:keywords>'
-        f'  <itunes:explicit>{entry["itunes_explicit"]}</itunes:explicit>'
-        f'  <itunes:episodeType>{entry["itunes_episodetype"]}</itunes:episodeType>'
-        f'  <itunes:episode>{entry["itunes_episode"]}</itunes:episode>'
-        f'</item>')
-
-
-def get_feed_xml(feed: FeedParserDict):
-    """
-    Returns a xml string representing an RSS feed from a dictionary.
-    Args:
-        feed: Dict representing a feed.
-
-    Returns: xml string representing a feed.
-
-    """
-    entries_xml = "\n".join([get_entry_xml(entry, feed["feed"]["image"]["href"]) for entry in feed['entries']])
-    return (
-        f'<?xml version="1.0" encoding="{feed["encoding"]}"?>'
-        f'  <rss xmlns:atom="{feed["namespaces"][""]}" xmlns:itunes="{feed["namespaces"]["itunes"]}" '
-        f'      xmlns:content="{feed["namespaces"]["content"]}"'
-        f'      version="2.0">'
-        f'      <channel>'
-        f'          <title>{feed["feed"]["title"]}</title>'
-        f'          <description>{feed["feed"]["subtitle"]}</description>'
-        f'          <author>{feed["feed"]["author"]}</author>'
-        f'          <copyright>{feed["feed"]["rights"]}</copyright>'
-        f'          <language>{feed["feed"]["language"]}</language>'
-        f'          <link>{feed["feed"]["link"]}</link>'
-        f'          <image><url>{feed["feed"]["image"]["href"]}</url></image>'
-        f'          <itunes:keywords></itunes:keywords>'
-        f'          <itunes:owner>'
-        f'            <itunes:name>{feed["feed"]["publisher_detail"]["name"]}</itunes:name>'
-        f'            <itunes:email>{feed["feed"]["publisher_detail"]["email"]}</itunes:email>'
-        f'          </itunes:owner>'
-        f'          <itunes:explicit>{"yes" if feed["feed"]["itunes_explicit"] else "no"}</itunes:explicit>'
-        f'          <itunes:image href="{feed["feed"]["image"]["href"]}"/>'
-        f'          <itunes:author>{feed["feed"]["publisher_detail"]["name"]}</itunes:author>'
-        f'          <itunes:summary><![CDATA[{feed["feed"]["summary"]}]]></itunes:summary>'
-        f'          <lastBuildDate>{feed["feed"]["updated"]}</lastBuildDate>'
-        f'          {entries_xml}'
-        '       </channel>'
-        '   </rss>'
-    )
 
 
 def get_post_karma(url) -> int:
@@ -132,27 +53,29 @@ def get_post_karma(url) -> int:
     return int(soup.find('h1', {'class': 'PostsVote-voteScore'}).text)
 
 
-def remove_entries_from_removed_authors(entries: List[dict], storage: StorageInterface):
+def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInterface):
     """
     Take a list of entries and remove those whose author is in the list of removed authors.
 
     Args:
-        entries: List of feed entries
+        feed: List of feed entries
         storage: Storage handler
 
     """
     # Retrieve removed authors
     removed_authors = storage.read_removed_authors()
 
-    # Filter out entries from removed authors
-    return [e for e in entries if e['author'] not in removed_authors]
+    for item in feed.findall('./channel/item'):
+        author = item.find('author').text
+        if author in removed_authors:
+            feed.remove(item)
 
 
-def filter_entries_by_search_period(entries: List[dict], feed_config: FeedGeneratorConfig):
+def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGeneratorConfig):
     """
     Return entries that were published within a period defined in the FeedGeneratorConfig object.
     Args:
-        entries: List of feed entries
+        feed: An xml element tree
         feed_config: Parameters for podcast feed generation
 
     Returns:
@@ -165,10 +88,43 @@ def filter_entries_by_search_period(entries: List[dict], feed_config: FeedGenera
     oldest_post_time = datetime.now() - search_period
 
     # Filter out posts published later than oldest_post_time
-    def get_entry_published_time(entry: dict):
-        return mktime(strptime(entry['published'], feed_config.date_format))
+    # def get_entry_published_time(entry: dict):
+    #     return mktime(strptime(entry['published'], feed_config.date_format))
 
-    return [entry for entry in entries if get_entry_published_time(entry) >= oldest_post_time.timestamp()]
+    for entry in feed.findall('./channel/item'):
+        published_date_str = entry.find('pubDate').text
+        published_date = mktime(strptime(published_date_str, feed_config.date_format))
+        if published_date <= oldest_post_time.timestamp():
+            feed.find('./channel').remove(entry)
+    # return [entry for entry in entries if get_entry_published_time(entry) >= oldest_post_time.timestamp()]
+
+
+def get_feed_tree_from_source(url):
+    parsed_uri = urlparse(url)
+    if not parsed_uri.scheme:
+        # If url has no scheme, treat it as a local path.
+        tree = ElementTree.parse(url)
+        return tree.getroot()
+
+    if parsed_uri.scheme not in ['http', 'https']:
+        raise ValueError('Invalid url scheme')
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/83.0.4103.97 Safari/537.36'}
+    response = requests.get(url, headers=headers)
+    xml_data = response.text
+    # # The namespaces must be registered so the resulting xml file can incorporate them
+    # namespaces = {
+    #     "atom": "http://www.w3.org/2005/Atom",
+    #     "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
+    #     "content": "http://purl.org/rss/1.0/modules/content/"
+    # }
+    # for prefix, uri in namespaces.items():
+    #     ElementTree.register_namespace(prefix, uri)
+
+    # Parse to a xml tree
+    return ElementTree.fromstring(xml_data)
 
 
 def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None, str | None]:
@@ -182,56 +138,67 @@ def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None,
     """
 
     # Get feed from source
-    feed = feedparser.parse(feed_config.source)
-    n_entries = len(feed['entries'])
+    feed = get_feed_tree_from_source(feed_config.source)
+    n_entries = len(feed.findall('./channel/item'))
 
     # Get storage handler
     storage = create_storage(feed_config, local=True)
 
     # Remove entries from removed authors
-    feed['entries'] = remove_entries_from_removed_authors(feed['entries'], storage)
-
+    remove_entries_from_removed_authors(feed, storage)
+    print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries due to removed author.')
+    n_entries = len(feed.findall("./channel/item"))
     # Filter entries by checking if their titles match the provided title_prefix
-    if feed_config.title_prefix:
-        def title_starts_with_config_prefix(entry):
-            return entry['title'].startswith(feed_config.title_prefix)
 
-        feed['entries'] = list(filter(title_starts_with_config_prefix, feed['entries']))
-        print(f'{n_entries - len(feed["entries"])} removed because of title mismatch...')
+    if feed_config.title_prefix:
+        for entry in feed.findall('./channel/item'):
+            if not entry.find('title').text.startswith(feed_config.title_prefix):
+                feed.find('channel').remove(entry)
+        # feed['entries'] = list(filter(title_starts_with_config_prefix, entries))
+    print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries because of title mismatch...')
+    n_entries = len(feed.findall('./channel/item'))
 
     if feed_config.search_period:
-        feed['entries'] = filter_entries_by_search_period(feed['entries'], feed_config)
+        filter_entries_by_search_period(feed, feed_config)
+    print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries outside search period...')
 
     # Get entry with the most karma
-    max_karma_entry = max(feed['entries'], key=lambda entry: get_post_karma(entry['link']))
+    max_karma_entry = max(feed.findall('./channel/item'), key=lambda entry: get_post_karma(entry.find('link').text))
 
     # Read history titles from storage
     history_titles = storage.read_history_titles()
 
     # Check if max karma post is in history
     def entry_title_is_in_history(entry):
-        return max([SequenceMatcher(None, entry['title'], h).ratio() for h in history_titles]) > 0.9
+        return max([SequenceMatcher(None, entry.find('title').text, h).ratio() for h in history_titles]) > 0.9
 
     if entry_title_is_in_history(max_karma_entry):
         return None, None
 
-    history_titles += [max_karma_entry['title']]
+    history_titles += [max_karma_entry.find('title').text]
     storage.write_history_titles(history_titles)
 
     # Update values from the provided configuration
-    feed['feed']['title'] = feed_config.title
-    feed['feed']['image']['href'] = feed_config.image_url
+    feed.find('./channel/title').text = feed_config.title
+    feed.find('./channel/image/url').text = feed_config.image_url
+    for item in feed.findall('./channel/item'):
+        guid = item.find('guid')
+        guid.text += feed_config.guid_suffix
 
-    def get_entry_with_updated_guid(entry):
-        return {
-            **entry,
-            "guidislink": 'true' if entry['guidislink'] else 'false',
-            # TODO: Original code accesses the 'guid' value, but it is not found in this case. For now use id
-            "guid": entry['id'] + feed_config.guid_suffix}
+    # Register namespaces before parsing to string.
+    namespaces = {
+        "atom": "http://www.w3.org/2005/Atom",
+        "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
+        "content": "http://purl.org/rss/1.0/modules/content/"
+    }
+    for prefix, uri in namespaces.items():
+        ElementTree.register_namespace(prefix, uri)
+    # Remove reference date tag if present
+    reference_date_tag = feed.find('reference_date')
+    if reference_date_tag is not None:
+        feed.remove(reference_date_tag)
 
-    feed['entries'] = list(map(get_entry_with_updated_guid, feed['entries']))
-    xml_feed = get_feed_xml(feed)
-
+    xml_feed = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
     storage.save_podcast_feed(xml_feed)
 
     return storage.output_feed_filename, xml_feed
