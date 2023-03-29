@@ -83,7 +83,7 @@ def get_feed_tree_from_source(url) -> ElementTree:
 
     Returns: A xml element tree
     """
-    
+
     parsed_uri = urlparse(url)
     if not parsed_uri.scheme:
         # If url has no scheme, treat it as a local path.
@@ -124,13 +124,13 @@ def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None,
     remove_entries_from_removed_authors(feed, storage)
     print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries due to removed author.')
     n_entries = len(feed.findall("./channel/item"))
-    # Filter entries by checking if their titles match the provided title_prefix
 
+    # Filter entries by checking if their titles match the provided title_prefix
     if feed_config.title_prefix:
         for entry in feed.findall('./channel/item'):
             if not entry.find('title').text.startswith(feed_config.title_prefix):
                 feed.find('channel').remove(entry)
-        # feed['entries'] = list(filter(title_starts_with_config_prefix, entries))
+
     print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries because of title mismatch...')
     n_entries = len(feed.findall('./channel/item'))
 
@@ -141,25 +141,29 @@ def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None,
     # Get entry with the most karma
     max_karma_entry = max(feed.findall('./channel/item'), key=lambda entry: get_post_karma(entry.find('link').text))
 
-    # Read history titles from storage
-    history_titles = storage.read_history_titles()
+    if feed_config.history_titles_filename:
+        # Read history titles from storage
+        history_titles = storage.read_history_titles()
 
-    # Check if max karma post is in history
-    def entry_title_is_in_history(entry):
-        return max([SequenceMatcher(None, entry.find('title').text, h).ratio() for h in history_titles]) > 0.9
+        # Check if max karma post is in history
+        def entry_title_is_in_history(entry):
+            return max([SequenceMatcher(None, entry.find('title').text, h).ratio() for h in history_titles]) > 0.9
 
-    if entry_title_is_in_history(max_karma_entry):
-        return None, None
+        if entry_title_is_in_history(max_karma_entry):
+            return None, None
 
-    history_titles += [max_karma_entry.find('title').text]
-    storage.write_history_titles(history_titles)
+        history_titles += [max_karma_entry.find('title').text]
+        storage.write_history_titles(history_titles)
 
     # Update values from the provided configuration
     feed.find('./channel/title').text = feed_config.title
     feed.find('./channel/image/url').text = feed_config.image_url
-    for item in feed.findall('./channel/item'):
-        guid = item.find('guid')
-        guid.text += feed_config.guid_suffix
+
+    # Update guid if provided in the feed_config
+    if feed_config.guid_suffix:
+        for item in feed.findall('./channel/item'):
+            guid = item.find('guid')
+            guid.text += feed_config.guid_suffix
 
     # Register namespaces before parsing to string.
     namespaces = {
@@ -171,12 +175,11 @@ def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None,
     for prefix, uri in namespaces.items():
         ElementTree.register_namespace(prefix, uri)
 
-    # Remove reference date tag if present
-    reference_date_tag = feed.find('reference_date')
-    if reference_date_tag is not None:
-        feed.remove(reference_date_tag)
-
     xml_feed = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
     storage.save_podcast_feed(xml_feed)
 
     return storage.output_feed_filename, xml_feed
+
+
+def generate_beyondwords_feed():
+    pass
