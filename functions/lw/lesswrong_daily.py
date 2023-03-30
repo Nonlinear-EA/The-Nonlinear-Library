@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def lw_daily_main(running_on_gcp):
+def lw_daily_main():
     config = {
         'feed': {
             'max_articles': 30,

@@ -1,3 +1,3 @@
-from functions.af.alignment_forum import af_all_main
+from functions.main import af_all
 
-af_all_main(False)
+af_all()

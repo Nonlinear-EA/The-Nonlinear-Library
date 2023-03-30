@@ -1,3 +1,3 @@
-from functions.ea.effective_altruism_forum_weekly import ea_weekly_main
+from functions.main import ea_weekly
 
-ea_weekly_main(False)
+ea_weekly()

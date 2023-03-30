@@ -65,20 +65,20 @@ class GoogleCloudStorage(StorageInterface):
         return [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
 
-def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
+def create_storage(feed_config: FeedGeneratorConfig, local=False):
     """
     Factory to retrieve a storage interface implementation for local or cloud environments.
     Args:
         feed_config: Feed configuration data
-        running_on_gcp: True if running on GCP. False if running locally.
+        local: Flag to signal local or cloud environment.
 
     Returns: StorageInterface implementation.
 
     """
-    if running_on_gcp:
+    if local:
+        return LocalStorage(removed_authors_filename=feed_config.removed_authors_filename,
+                            history_titles_filename=feed_config.history_titles_filename)
+    else:
         return GoogleCloudStorage(removed_authors_filename=feed_config.removed_authors_filename,
                                   history_titles_filename=feed_config.history_titles_filename,
                                   gcp_bucket=feed_config.gcp_bucket)
-    else:
-        return LocalStorage(removed_authors_filename=feed_config.removed_authors_filename,
-                            history_titles_filename=feed_config.history_titles_filename)

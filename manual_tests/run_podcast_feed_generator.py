@@ -1,4 +1,4 @@
-from functions.podcast_feed_generator import FeedGeneratorConfig, create_podcast_feed
+from functions.podcast_feed_generator import FeedGeneratorConfig, get_podcast_feed
 
 if __name__ == "__main__":
     af_feed_cfg = FeedGeneratorConfig(
@@ -15,4 +15,4 @@ if __name__ == "__main__":
         gcp_bucket='rssfile'
     )
 
-    feed = create_podcast_feed(af_feed_cfg, False)
+    feed = get_podcast_feed(af_feed_cfg)

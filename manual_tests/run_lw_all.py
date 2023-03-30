@@ -1,3 +1,3 @@
-from functions.lw.lesswrong import lw_all_main
+from functions.main import lw_all
 
-lw_all_main(False)
+lw_all()

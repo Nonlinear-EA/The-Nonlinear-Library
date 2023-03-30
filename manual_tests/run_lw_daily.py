@@ -1,3 +1,3 @@
-from functions.lw.lesswrong_daily import lw_daily_main
+from functions.main import lw_daily
 
-lw_daily_main(False)
+lw_daily()
