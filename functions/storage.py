@@ -24,7 +24,7 @@ class StorageInterface:
     def write_history_titles(self, history_titles: List[str]) -> int:
         raise NotImplementedError()
 
-    def save_podcast_feed(self, feed: str):
+    def write_podcast_feed(self, feed: str):
         raise NotImplementedError()
 
     def read_removed_authors(self) -> List[str]:
@@ -53,11 +53,11 @@ class LocalStorage(StorageInterface):
     def read_removed_authors(self):
         return self.__read_file(self.removed_authors_filename)
 
-    def save_podcast_feed(self, feed):
+    def write_podcast_feed(self, feed):
         self.__write_file(self.output_feed_filename, feed)
 
     def __read_file(self, filename: str):
-        with open(os.path.basename(filename), 'r') as f:
+        with open(filename, 'r') as f:
             return [line.rstrip() for line in f.readlines()]
 
     def __write_file(self, filename: str, content: str | bytes):
@@ -91,9 +91,9 @@ class GoogleCloudStorage(StorageInterface):
     def write_history_titles(self, history_titles: List[str]) -> int:
         return self.__write_file(self.history_titles_filename, "\n".join(history_titles))
 
-    def save_podcast_feed(self, feed: str):
+    def write_podcast_feed(self, feed: str):
         # TODO: Implement save_podcast_feed for cloud storage.
-        pass
+        raise NotImplementedError()
 
     def __read_file(self, filename: str):
         from google.cloud import storage

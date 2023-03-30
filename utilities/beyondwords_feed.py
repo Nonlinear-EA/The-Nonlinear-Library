@@ -1,14 +1,48 @@
-import xml.etree.ElementTree as ET
+import os
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
+from xml.etree import ElementTree
 
 import requests
 
 
-def save_beyondwords_snapshot(n_days=7, output_filename: str = None, reference_date=datetime.now(tz=timezone.utc),
-                              max_entries: int = None):
+@lru_cache
+def get_beyondwords_feed():
     """
-    Saves a rss feed based on the current BeyondWords feed, reduced to the number of posts published within the last
-    `n_days`
+    Returns the root of the beyondwords_snapshot.xml file.
+
+    """
+    if not os.path.exists('./beyondwords_snapshot.xml'):
+        write_beyondwords_snapshot(n_days=14, output_filename='./beyondwords_snapshot.xml', max_entries=100)
+    return ElementTree.parse('./beyondwords_snapshot.xml').getroot()
+
+
+@lru_cache
+def get_feed_reference_date_str(date_format='%Y-%m-%d %H:%M:%S'):
+    return get_feed_reference_date().strftime(date_format)
+
+
+@lru_cache
+def get_feed_reference_date() -> datetime:
+    rss_feed = get_beyondwords_feed()
+    if rss_feed.find('./reference_date') is not None:
+        return datetime.fromtimestamp(float(rss_feed.find('./reference_date').text))
+
+
+def write_beyondwords_snapshot(
+        n_days=7,
+        output_filename: str = None,
+        reference_date=datetime.now(tz=timezone.utc),
+        max_entries: int = None
+):
+    """
+    Saves a rss feed to `output_filename` based on the current BeyondWords feed, reduced to the number of posts
+    published within the last `n_days`.
+
+    The number of entries in the feed is limited to `max_entries`.
+
+    A reference date can be passed, which is used instead of the current time to filter entries. The reference date will
+    be attached to the xml file as `reference_date`
 
     """
     # Download rss feed from BeyondWords
@@ -26,13 +60,13 @@ def save_beyondwords_snapshot(n_days=7, output_filename: str = None, reference_d
         "content": "http://purl.org/rss/1.0/modules/content/"
     }
     for prefix, uri in namespaces.items():
-        ET.register_namespace(prefix, uri)
+        ElementTree.register_namespace(prefix, uri)
 
     # Parse to a xml tree
-    root = ET.fromstring(xml_data)
+    root = ElementTree.fromstring(xml_data)
 
     # Save a reference date. It needs timezone info otherwise we get an error when comparing with dates from the feed.
-    reference_date_element = ET.SubElement(root, 'reference_date')
+    reference_date_element = ElementTree.SubElement(root, 'reference_date')
     reference_date_element.text = str(reference_date.timestamp())
 
     # Get podcast entries
@@ -62,11 +96,11 @@ def save_beyondwords_snapshot(n_days=7, output_filename: str = None, reference_d
             root.find('channel').remove(item)
 
     print(f'Saving feed with {len(channel.findall("item"))} entries.')
+
     # Save xml file
-    tree = ET.ElementTree(root)
+    tree = ElementTree.ElementTree(root)
     tree.write(output_filename, encoding='UTF-8', xml_declaration=True)
 
 
 if __name__ == '__main__':
-    save_beyondwords_snapshot(reference_date=datetime(2023, 3, 27, 9, tzinfo=timezone.utc), max_entries=100)
-    save_beyondwords_snapshot(1, reference_date=datetime(2023, 3, 27, 9, tzinfo=timezone.utc), max_entries=100)
+    write_beyondwords_snapshot(n_days=14, output_filename='../tests/beyondwords_snapshot.xml', max_entries=200)

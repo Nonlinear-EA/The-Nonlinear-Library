@@ -102,7 +102,7 @@ def get_feed_tree_from_source(url) -> ElementTree:
     return ElementTree.fromstring(xml_data)
 
 
-def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None, str | None]:
+def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None, ElementTree.ElementTree | None]:
     """
     Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
     provided feed_config object.
@@ -175,9 +175,9 @@ def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None,
         ElementTree.register_namespace(prefix, uri)
 
     xml_feed = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
-    storage.save_podcast_feed(xml_feed)
+    storage.write_podcast_feed(xml_feed)
 
-    return storage.output_feed_filename, xml_feed
+    return storage.output_feed_filename, feed
 
 
 def generate_beyondwords_feed():
