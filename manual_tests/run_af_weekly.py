@@ -1,3 +1,3 @@
-from functions.main import af_weekly
+from functions.af.alignment_forum_weekly import af_weekly_main
 
-af_weekly()
+af_weekly_main(False)

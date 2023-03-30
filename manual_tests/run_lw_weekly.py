@@ -1,3 +1,3 @@
-from functions.main import lw_weekly
+from functions.lw.lesswrong_weekly import lw_weekly_main
 
-lw_weekly()
+lw_weekly_main(False)

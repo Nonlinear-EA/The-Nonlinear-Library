@@ -4,7 +4,7 @@ import ssl
 import feedparser
 
 
-def af_all_main():
+def af_all_main(running_on_gcp):
     config = {
         'feed': {
             'max_articles': 30,

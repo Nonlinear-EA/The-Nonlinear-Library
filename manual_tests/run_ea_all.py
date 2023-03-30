@@ -1,3 +1,3 @@
-from functions.main import ea_all
+from functions.ea.effective_altruism_forum import ea_all_main
 
-ea_all()
+ea_all_main(False)

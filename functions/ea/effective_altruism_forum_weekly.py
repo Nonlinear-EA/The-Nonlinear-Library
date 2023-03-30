@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def ea_weekly_main():
+def ea_weekly_main(running_on_gcp):
     config = {
         'feed': {
             'max_articles': 30,
