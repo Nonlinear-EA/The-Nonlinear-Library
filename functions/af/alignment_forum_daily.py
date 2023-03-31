@@ -13,7 +13,7 @@ def get_af_daily_config():
         guid_suffix='_AF-day',
         title="The Nonlinear Library: Alignment Forum Daily",
         title_prefix='AF - ',
-        search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
+        search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         gcp_bucket='rssfile',
         output_file_basename='nonlinear-library-aggregated-AF-daily'
     )

@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from functions.af.alignment_forum_daily import get_af_daily_config
+from functions.feed import FeedGeneratorConfig
 from functions.storage import LocalStorage
 from utilities.beyondwords_feed import get_feed_reference_date, get_beyondwords_feed
 
@@ -79,10 +79,18 @@ def mock_write_history_titles():
 
 
 @pytest.fixture
-def alignment_forum_config_daily():
-    return get_af_daily_config()
-
-
-@pytest.fixture()
-def alignment_forum_config_weekly(rss_source):
-    return get_af_daily_config()
+def default_config() -> FeedGeneratorConfig:
+    return FeedGeneratorConfig(
+        source='https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143',
+        author='The Nonlinear Fund',
+        email='podcast@nonlinear.org',
+        image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
+        history_titles_filename='./history_titles_empty.txt',
+        removed_authors_filename='./removed_authors.txt',
+        guid_suffix='',
+        title="The Nonlinear Library: Your title goes here!",
+        title_prefix='Generic - ',
+        search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
+        gcp_bucket='rssfile',
+        output_file_basename='nonlinear-library-aggregated'
+    )

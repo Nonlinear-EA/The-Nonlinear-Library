@@ -103,8 +103,10 @@ def get_feed_tree_from_source(url) -> ElementTree:
     return ElementTree.fromstring(xml_data)
 
 
-def generate_podcast_feed(feed_config: FeedGeneratorConfig, running_on_gcp) -> Tuple[
-    str | None, ElementTree.ElementTree | None]:
+def generate_podcast_feed(
+        feed_config: FeedGeneratorConfig,
+        running_on_gcp
+) -> Tuple[str | None, ElementTree.ElementTree | None]:
     """
     Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
     provided feed_config object.
@@ -124,8 +126,11 @@ def generate_podcast_feed(feed_config: FeedGeneratorConfig, running_on_gcp) -> T
     # Remove entries from removed authors
     remove_entries_from_removed_authors(feed, storage)
     print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries due to removed author.')
-    n_entries = len(feed.findall("./channel/item"))
 
+    def get_number_of_entries():
+        return len(feed.findall('channel/item'))
+
+    n_entries = get_number_of_entries()
     # Filter entries by checking if their titles match the provided title_prefix
     if feed_config.title_prefix:
         for entry in feed.findall('./channel/item'):
@@ -133,7 +138,7 @@ def generate_podcast_feed(feed_config: FeedGeneratorConfig, running_on_gcp) -> T
                 feed.find('channel').remove(entry)
 
     print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries because of title mismatch...')
-    n_entries = len(feed.findall('./channel/item'))
+    n_entries = get_number_of_entries()
 
     if feed_config.search_period:
         filter_entries_by_search_period(feed, feed_config)
