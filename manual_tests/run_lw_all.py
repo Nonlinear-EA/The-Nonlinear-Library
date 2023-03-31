@@ -1,4 +1,4 @@
-from functions.main import lw_all
+from functions.lw.lesswrong import lw_all_main
 
 if __name__ == '__main__':
-    lw_all()
+    lw_all_main(False)

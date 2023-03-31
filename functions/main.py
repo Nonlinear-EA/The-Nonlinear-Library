@@ -1,3 +1,4 @@
+
 from functions.af.alignment_forum import af_all_main
 from functions.af.alignment_forum_daily import af_daily_main
 from functions.af.alignment_forum_weekly import af_weekly_main
@@ -12,47 +13,46 @@ from functions.nnl import create_main_nonlinear_library_rss
 
 def af_daily(a=None, b=None):
     print('running af_daily')
-    af_daily_main()
-
+    af_daily_main(True)
 
 def af_weekly(a=None, b=None):
     print('running af_weekly')
-    af_weekly_main()
+    af_weekly_main(True)
 
 
 def af_all(a=None, b=None):
     print('running af_all')
-    af_all_main()
+    af_all_main(True)
 
 
 def ea_daily(a=None, b=None):
     print('running ea_daily')
-    ea_daily_main()
+    ea_daily_main(True)
 
 
 def ea_weekly(a=None, b=None):
     print('running ea_weekly')
-    ea_weekly_main()
+    ea_weekly_main(True)
 
 
 def ea_all(a=None, b=None):
     print('running ea_all')
-    ea_all_main()
+    ea_all_main(True)
 
 
 def lw_daily(a=None, b=None):
     print('running lw_daily')
-    lw_daily_main()
+    lw_daily_main(True)
 
 
 def lw_weekly(a=None, b=None):
     print('running lw_weekly')
-    lw_weekly_main()
+    lw_weekly_main(True)
 
 
 def lw_all(a=None, b=None):
     print('running lw_all')
-    lw_all_main()
+    lw_all_main(True)
 
 
 def create_nonlinear_library_main_feed(a=None, b=None):

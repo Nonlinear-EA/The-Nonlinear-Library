@@ -42,6 +42,7 @@ def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInter
         storage: Storage handler
 
     """
+    
     # Retrieve removed authors
     removed_authors = storage.read_removed_authors()
 
