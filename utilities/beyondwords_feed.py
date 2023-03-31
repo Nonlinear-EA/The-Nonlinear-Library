@@ -7,13 +7,13 @@ import requests
 
 
 @lru_cache
-def get_beyondwords_feed():
+def get_beyondwords_feed(max_entries=500):
     """
     Returns the root of the beyondwords_snapshot.xml file.
 
     """
     if not os.path.exists('./beyondwords_snapshot.xml'):
-        write_beyondwords_snapshot(n_days=14, output_filename='./beyondwords_snapshot.xml', max_entries=100)
+        write_beyondwords_snapshot(n_days=14, output_filename='./beyondwords_snapshot.xml', max_entries=max_entries)
     return ElementTree.parse('./beyondwords_snapshot.xml').getroot()
 
 
