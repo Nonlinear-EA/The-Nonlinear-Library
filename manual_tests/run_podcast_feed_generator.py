@@ -16,5 +16,4 @@ if __name__ == "__main__":
         output_file_basename='nonlinear-library-aggregated-AF-daily-new'
     )
 
-
-    feed = generate_podcast_feed(af_feed_cfg)
+    feed = generate_podcast_feed(af_feed_cfg, False)

@@ -42,7 +42,7 @@ def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInter
         storage: Storage handler
 
     """
-    
+
     # Retrieve removed authors
     removed_authors = storage.read_removed_authors()
 
@@ -103,7 +103,8 @@ def get_feed_tree_from_source(url) -> ElementTree:
     return ElementTree.fromstring(xml_data)
 
 
-def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None, ElementTree.ElementTree | None]:
+def generate_podcast_feed(feed_config: FeedGeneratorConfig, running_on_gcp) -> Tuple[
+    str | None, ElementTree.ElementTree | None]:
     """
     Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
     provided feed_config object.
@@ -118,7 +119,7 @@ def generate_podcast_feed(feed_config: FeedGeneratorConfig) -> Tuple[str | None,
     n_entries = len(feed.findall('./channel/item'))
 
     # Get storage handler
-    storage = create_storage(feed_config, local=True)
+    storage = create_storage(feed_config, running_on_gcp)
 
     # Remove entries from removed authors
     remove_entries_from_removed_authors(feed, storage)

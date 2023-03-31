@@ -18,6 +18,5 @@ def get_af_all_config():
     )
 
 
-
-def af_all_main():
-    generate_podcast_feed(get_af_all_config())
+def af_all_main(running_on_gcp):
+    generate_podcast_feed(get_af_all_config(), running_on_gcp)

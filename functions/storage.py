@@ -1,4 +1,3 @@
-import os
 from typing import List
 
 from functions.feed import FeedGeneratorConfig
@@ -126,4 +125,5 @@ def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
                                   gcp_bucket=feed_config.gcp_bucket)
     else:
         return LocalStorage(removed_authors_filename=feed_config.removed_authors_filename,
-                            history_titles_filename=feed_config.history_titles_filename)
+                            history_titles_filename=feed_config.history_titles_filename,
+                            output_feed_filename_base=feed_config.output_file_basename)

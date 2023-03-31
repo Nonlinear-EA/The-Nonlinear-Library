@@ -19,5 +19,5 @@ def get_af_daily_config():
     )
 
 
-def af_daily_main():
-    generate_podcast_feed(get_af_daily_config())
+def af_daily_main(running_on_gcp):
+    generate_podcast_feed(get_af_daily_config(), running_on_gcp)
