@@ -1,3 +1,5 @@
 from functions.af.alignment_forum_weekly import af_weekly_main
 
-af_weekly_main(False)
+if __name__ == '__main__':
+    af_weekly_main(False)
+

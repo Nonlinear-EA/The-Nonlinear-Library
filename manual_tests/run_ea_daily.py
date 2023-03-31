@@ -1,3 +1,6 @@
 from functions.ea.effective_altruism_forum_daily import ea_daily_main
 
-ea_daily_main(False)
+
+if __name__ == '__main__':
+  ea_daily_main(False)
+

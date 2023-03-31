@@ -1,3 +1,4 @@
 from functions.af.alignment_forum_daily import af_daily_main
 
-af_daily_main(False)
+if __name__ == '__main__':
+    af_daily_main(False)
