@@ -15,7 +15,7 @@ def lw_daily_main(running_on_gcp):
             guid_suffix='_LW-day',
             search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
             title_prefix='LW - ',
-            gcp_bucket='rssfile',
+            gcp_bucket='temp',
             output_file_basename='nonlinear-library-aggregated-LW-daily'
         ),
         running_on_gcp

@@ -15,7 +15,7 @@ def ea_daily_main(running_on_gcp):
             guid_suffix='_EA-day',
             search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
             title_prefix='EA - ',
-            gcp_bucket='rssfile',
+            gcp_bucket='temp',
             output_file_basename='nonlinear-library-aggregated-EA-daily'
         ),
         running_on_gcp

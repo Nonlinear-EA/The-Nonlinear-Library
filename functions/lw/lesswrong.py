@@ -13,7 +13,7 @@ def lw_all_main(running_on_gcp):
             guid_suffix='_LW',
             title='The Nonlinear Library: LessWrong',
             title_prefix='LW - ',
-            gcp_bucket='rssfile',
+            gcp_bucket='temp',
             output_file_basename='nonlinear-library-aggregated-LW'
         ),
         running_on_gcp

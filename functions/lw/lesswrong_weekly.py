@@ -16,7 +16,7 @@ def lw_weekly_main(running_on_gcp):
             title_prefix='LW - ',
             search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
             output_file_basename='nonlinear-library-aggregated-LW-weekly',
-            gcp_bucket='rssfile'
+            gcp_bucket='temp'
         ),
         running_on_gcp
     )

@@ -14,7 +14,7 @@ def af_all_main(running_on_gcp):
             title="The Nonlinear Library: Alignment Forum",
             title_prefix='AF -',
             guid_suffix='_AF',
-            gcp_bucket='rssfile',
+            gcp_bucket='temp',
             output_file_basename='nonlinear-library-aggregated-AF'
         ),
         running_on_gcp)

@@ -13,7 +13,7 @@ def ea_all_main(running_on_gcp):
             guid_suffix='_AF',
             title='The Nonlinear Library: EA Forum',
             title_prefix='AF - ',
-            gcp_bucket='rssfile',
+            gcp_bucket='temp',
             output_file_basename='nonlinear-library-aggregated-EA'
         ),
         running_on_gcp

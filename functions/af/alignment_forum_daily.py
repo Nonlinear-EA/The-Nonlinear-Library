@@ -15,6 +15,6 @@ def af_daily_main(running_on_gcp):
             title="The Nonlinear Library: Alignment Forum Daily",
             title_prefix='AF - ',
             search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
-            gcp_bucket='rssfile',
+            gcp_bucket='temp',
             output_file_basename='nonlinear-library-aggregated-AF-daily'
         ), running_on_gcp)
