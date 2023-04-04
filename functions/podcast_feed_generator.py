@@ -72,8 +72,6 @@ def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGenerato
         published_date = mktime(strptime(published_date_str, feed_config.date_format))
         if published_date <= oldest_post_time.timestamp():
             feed.find('./channel').remove(entry)
-        else:
-            print('adding entry with title', entry)
 
 
 def get_feed_tree_from_source(url) -> ElementTree:
