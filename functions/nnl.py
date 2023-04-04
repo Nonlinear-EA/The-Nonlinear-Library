@@ -12,8 +12,6 @@ def create_main_nonlinear_library_rss():
     links to the audio synthesis of the text. This new RSS file with MP3s is then used as input to the other files which
     split it into EA, AF, etc. streams.
     """
-
-    # TODO: Consider implementing config as a data class
     config = {
         'feed': {
             'max_articles': 30,
