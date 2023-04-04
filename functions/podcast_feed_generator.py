@@ -42,7 +42,6 @@ def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInter
         storage: Storage handler
 
     """
-
     # Retrieve removed authors
     removed_authors = storage.read_removed_authors()
 
@@ -160,14 +159,16 @@ def generate_podcast_feed(
 
     # Check if max karma post is in history
     def entry_title_is_in_history(entry):
-        return max([SequenceMatcher(None, entry.find('title').text, h).ratio() for h in history_titles]) > 0.9
+        for history_title in history_titles:
+            entry_title = entry.find('title').text
+            # If the title matches the history_title by more than 90%, then we have added the title to the history_titles file in the past.
+            if SequenceMatcher(None, entry_title, history_title).ratio() > 0.9:
+                return True
+        return False
 
     if entry_title_is_in_history(max_karma_entry):
         print('max_karma_entry is in history. exiting.')
         return None, None
-
-    history_titles += [max_karma_entry.find('title').text]
-    storage.write_history_titles(history_titles)
 
     # Update values from the provided configuration
     feed.find('./channel/title').text = feed_config.title
@@ -190,6 +191,10 @@ def generate_podcast_feed(
         ElementTree.register_namespace(prefix, uri)
 
     xml_feed = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
+
+    history_titles += [max_karma_entry.find('title').text]
+    storage.write_history_titles(history_titles)
+
     storage.write_podcast_feed(xml_feed)
 
     return storage.output_feed_filename, feed
