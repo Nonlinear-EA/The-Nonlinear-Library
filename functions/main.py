@@ -7,7 +7,7 @@ from configs import ea_weekly_config
 from configs import lw_all_config
 from configs import lw_daily_config
 from configs import lw_weekly_config
-from nnl import main_create_beyondwords_nonlinear_library_project_inputs
+from create_beyondwords_inputs import main_create_beyondwords_nonlinear_library_project_inputs
 from podcast_feed_generator import generate_podcast_feed
 
 
