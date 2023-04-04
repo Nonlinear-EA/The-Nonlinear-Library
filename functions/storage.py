@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from functions.feed import FeedGeneratorConfig
@@ -8,11 +9,8 @@ class StorageInterface:
     Interface to read and write text files.
     """
 
-    def __init__(self,
-                 removed_authors_filename,
-                 output_basename
-                 ):
-        self.removed_authors_filename = removed_authors_filename
+    def __init__(self, output_basename):
+        self.removed_authors_filename = 'removed_authors.txt'
         self.output_basename = output_basename
         self.history_titles_path = './history_titles/' + self.output_basename + '.txt'
         self.rss_file = './rss_files/' + self.output_basename + '.xml'
@@ -34,15 +32,14 @@ class LocalStorage(StorageInterface):
     """
     StorageInterface implementation to work with local files.
     """
-    removed_authors_filename: str
-    output_basename: str
-
     def __init__(
-            self, removed_authors_filename: str, output_basename: str
+            self, output_basename: str
     ):
-        super().__init__(removed_authors_filename, output_basename)
+        super().__init__(output_basename)
 
     def read_history_titles(self):
+        if not os.path.isfile(self.history_titles_path):
+            return []
         return self.__read_file(self.history_titles_path)
 
     def write_history_titles(self, history_titles: List[str]) -> int:
@@ -73,8 +70,8 @@ class GoogleCloudStorage(StorageInterface):
     """
     gcp_bucket: str
 
-    def __init__(self, removed_authors_filename, output_basename, gcp_bucket):
-        super().__init__(removed_authors_filename, output_basename)
+    def __init__(self, output_basename, gcp_bucket):
+        super().__init__(output_basename)
         self.gcp_bucket = gcp_bucket
 
     def read_history_titles(self):
@@ -117,9 +114,7 @@ def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
     """
 
     if running_on_gcp:
-        return GoogleCloudStorage(removed_authors_filename=feed_config.removed_authors_filename,
-                                  output_basename=feed_config.output_basename,
+        return GoogleCloudStorage(output_basename=feed_config.output_basename,
                                   gcp_bucket=feed_config.gcp_bucket)
     else:
-        return LocalStorage(removed_authors_filename=feed_config.removed_authors_filename,
-                            output_basename=feed_config.output_basename)
+        return LocalStorage(output_basename=feed_config.output_basename)

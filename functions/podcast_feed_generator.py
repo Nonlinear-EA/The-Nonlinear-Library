@@ -72,6 +72,8 @@ def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGenerato
         published_date = mktime(strptime(published_date_str, feed_config.date_format))
         if published_date <= oldest_post_time.timestamp():
             feed.find('./channel').remove(entry)
+        else:
+            print('adding entry with title', entry)
 
 
 def get_feed_tree_from_source(url) -> ElementTree:
@@ -118,17 +120,18 @@ def generate_podcast_feed(
 
     # Get feed from source
     feed = get_feed_tree_from_source(feed_config.source)
-    n_entries = len(feed.findall('./channel/item'))
 
     # Get storage handler
     storage = create_storage(feed_config, running_on_gcp)
 
-    # Remove entries from removed authors
-    remove_entries_from_removed_authors(feed, storage)
-    print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries due to removed author.')
-
     def get_number_of_entries():
         return len(feed.findall('channel/item'))
+
+    n_entries = get_number_of_entries()
+
+    # Remove entries from removed authors
+    remove_entries_from_removed_authors(feed, storage)
+    print(f'Removed {n_entries - get_number_of_entries()} entries due to removed author.')
 
     n_entries = get_number_of_entries()
     # Filter entries by checking if their titles match the provided title_prefix
@@ -137,15 +140,22 @@ def generate_podcast_feed(
             if not entry.find('title').text.startswith(feed_config.title_prefix):
                 feed.find('channel').remove(entry)
 
-    print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries because of title mismatch...')
+    print(
+        f'Removed {n_entries - get_number_of_entries()} entries because of title mismatch. {get_number_of_entries()} entries remaining.')
     n_entries = get_number_of_entries()
 
     if feed_config.search_period:
         filter_entries_by_search_period(feed, feed_config)
-    print(f'Removed {n_entries - len(feed.findall("./channel/item"))} entries outside search period...')
+    print(
+        f'Removed {n_entries - get_number_of_entries()} entries because they were not within the search period. {get_number_of_entries()} entries remaining.')
 
     # Get entry with the most karma
-    max_karma_entry = max(feed.findall('./channel/item'), key=lambda entry: get_post_karma(entry.find('link').text))
+    max_karma_entry = max(feed.findall('./channel/item'), key=lambda entry: get_post_karma(entry.find('link').text),
+                          default=None)
+    no_max_karma_entry = max_karma_entry is None
+    if no_max_karma_entry:
+        print('no max karma entry found. exiting.')
+        return None, None
 
     # Read history titles from storage
     history_titles = storage.read_history_titles()
@@ -155,6 +165,7 @@ def generate_podcast_feed(
         return max([SequenceMatcher(None, entry.find('title').text, h).ratio() for h in history_titles]) > 0.9
 
     if entry_title_is_in_history(max_karma_entry):
+        print('max_karma_entry is in history. exiting.')
         return None, None
 
     history_titles += [max_karma_entry.find('title').text]
