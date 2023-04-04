@@ -196,7 +196,7 @@ def generate_podcast_feed(
     history_titles += [max_karma_entry_title]
     storage.write_history_titles(history_titles)
 
-    print('writing to RSS feed with new entry ' + max_karma_entry_title)
+    print('writing to RSS feed with new entry ', max_karma_entry_title)
     storage.write_podcast_feed(xml_feed)
 
     return storage.output_basename, feed
