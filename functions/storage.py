@@ -11,9 +11,8 @@ class StorageInterface:
 
     def __init__(self, output_basename):
         self.removed_authors_filename = 'removed_authors.txt'
-        self.output_basename = output_basename
-        self.history_titles_path = './history_titles/' + self.output_basename + '.txt'
-        self.rss_file = './rss_files/' + self.output_basename + '.xml'
+        self.history_titles_path = os.path.join('history_titles', output_basename + '.txt')
+        self.rss_file = os.path.join('rss_files', output_basename + '.xml')
 
     def read_history_titles(self) -> List[str]:
         raise NotImplementedError()

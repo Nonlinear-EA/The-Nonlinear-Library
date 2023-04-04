@@ -198,7 +198,7 @@ def generate_podcast_feed(
     print('writing to RSS feed with new entry ', max_karma_entry_title)
     storage.write_podcast_feed(xml_feed)
 
-    return storage.output_basename, feed
+    return feed_config.output_basename, feed
 
 
 def generate_beyondwords_feed():

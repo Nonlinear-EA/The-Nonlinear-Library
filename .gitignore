@@ -1,5 +1,5 @@
 .idea/
 venv
 .venv
-/manual_tests/rss_files/*
-/manual_tests/history_titles/*
+/functions/rss_files/*
+/functions/history_titles/*
