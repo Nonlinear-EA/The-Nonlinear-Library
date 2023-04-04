@@ -28,8 +28,8 @@ def create_main_nonlinear_library_rss():
             ]
         },
         'system': {
-            'output_file_basename': 'nonlinear-library-v2',
-            'gcp_bucket_name': 'rssfile',
+            'output_file_basename': 'nonlinear-library',
+            'gcp_bucket_name': 'newcode',
             'removed_authors_filename': 'removed_authors.txt'
         }
     }
