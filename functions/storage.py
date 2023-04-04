@@ -43,24 +43,24 @@ class LocalStorage(StorageInterface):
         return self.__read_file(self.history_titles_path)
 
     def write_history_titles(self, history_titles: List[str]) -> int:
-        return self.__write_file(self.history_titles_path, "\n".join(history_titles))
+        return self.__write_file(self.history_titles_path, '\n'.join(history_titles))
 
     def read_removed_authors(self):
         return self.__read_file('./removed_authors.txt')
 
     def write_podcast_feed(self, feed):
-        self.__write_file(self.rss_file, feed)
+        self.__write_file_as_bytes(self.rss_file, feed)
 
     def __read_file(self, filename: str):
         with open(filename, 'r') as f:
             return [line.rstrip() for line in f.readlines()]
 
-    def __write_file(self, filename: str, content: str | bytes):
-        if isinstance(content, bytes):
-            mode = 'wb'
-        else:
-            mode = 'w'
-        with open(filename, mode) as f:
+    def __write_file_as_bytes(self, filename: str, content: bytes):
+        with open(filename, 'wb') as f:
+            return f.write(content)
+
+    def __write_file(self, filename: str, content: str):
+        with open(filename, 'w') as f:
             return f.write(content)
 
 

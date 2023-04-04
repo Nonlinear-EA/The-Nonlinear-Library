@@ -197,7 +197,7 @@ def generate_podcast_feed(
 
     storage.write_podcast_feed(xml_feed)
 
-    return storage.output_feed_filename, feed
+    return storage.output_basename, feed
 
 
 def generate_beyondwords_feed():
