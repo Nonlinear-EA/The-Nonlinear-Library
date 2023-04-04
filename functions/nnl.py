@@ -182,9 +182,7 @@ def create_main_nonlinear_library_rss():
 
             print('WRITING THE MODIFIED FEED TO AN XML FILE')
 
-            filename = '{}-{}.xml'.format(
-                self.output_file_basename, feed_web_short.replace(' ', '_')
-            )
+            filename = '{}-{}.xml'.format(self.output_file_basename, feed_web_short)
 
             if self.local:
                 with open(filename, 'w') as f:
