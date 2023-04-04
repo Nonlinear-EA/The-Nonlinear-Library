@@ -157,7 +157,6 @@ def generate_podcast_feed(
     # Read history titles from storage
     history_titles = storage.read_history_titles()
 
-    # Check if max karma post is in history
     def entry_title_is_in_history(entry):
         for history_title in history_titles:
             entry_title = entry.find('title').text
