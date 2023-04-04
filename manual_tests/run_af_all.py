@@ -1,4 +1,5 @@
-from functions.af.alignment_forum import af_all_main
+from functions.configs import af_config
+from functions.podcast_feed_generator import generate_podcast_feed
 
 if __name__ == '__main__':
-    af_all_main(False)
+    generate_podcast_feed(af_config(), False)

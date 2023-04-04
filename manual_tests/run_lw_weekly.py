@@ -1,4 +1,5 @@
-from functions.lw.lesswrong_weekly import lw_weekly_main
+from functions.configs import lw_weekly_config
+from functions.podcast_feed_generator import generate_podcast_feed
 
 if __name__ == '__main__':
-    lw_weekly_main(False)
+    generate_podcast_feed(lw_weekly_config(), False)

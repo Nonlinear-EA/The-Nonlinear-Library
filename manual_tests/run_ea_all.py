@@ -1,4 +1,5 @@
-from functions.ea.effective_altruism_forum import ea_all_main
+from functions.configs import ea_config
+from functions.podcast_feed_generator import generate_podcast_feed
 
 if __name__ == '__main__':
-    ea_all_main(False)
+    generate_podcast_feed(ea_config(), False)
