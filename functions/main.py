@@ -8,7 +8,7 @@ from functions.ea.effective_altruism_forum_weekly import ea_weekly_main
 from functions.lw.lesswrong import lw_all_main
 from functions.lw.lesswrong_daily import lw_daily_main
 from functions.lw.lesswrong_weekly import lw_weekly_main
-from functions.nnl import create_main_nonlinear_library_rss
+from functions.nnl import main_create_beyondwords_nonlinear_library_project_inputs
 
 
 def af_daily(a=None, b=None):
@@ -55,6 +55,6 @@ def lw_all(a=None, b=None):
     lw_all_main(True)
 
 
-def create_nonlinear_library_main_feed(a=None, b=None):
+def create_beyondwords_nonlinear_library_project_inputs(a=None, b=None):
     print('running create_nonlinear_library_main_feed')
-    create_main_nonlinear_library_rss()
+    main_create_beyondwords_nonlinear_library_project_inputs()

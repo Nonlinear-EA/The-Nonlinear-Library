@@ -5,7 +5,7 @@ import ssl
 import feedparser
 
 
-def create_main_nonlinear_library_rss():
+def main_create_beyondwords_nonlinear_library_project_inputs():
     """Create an RSS file containing input from all three of the forums.
 
     The RSS file that is output is read by BeyondWords to create a new RSS file that has XML elements containing the MP3
