@@ -147,19 +147,18 @@ def generate_podcast_feed(
     # Get entry with the most karma
     max_karma_entry = max(feed.findall('./channel/item'), key=lambda entry: get_post_karma(entry.find('link').text))
 
-    if feed_config.history_titles_filename:
-        # Read history titles from storage
-        history_titles = storage.read_history_titles()
+    # Read history titles from storage
+    history_titles = storage.read_history_titles()
 
-        # Check if max karma post is in history
-        def entry_title_is_in_history(entry):
-            return max([SequenceMatcher(None, entry.find('title').text, h).ratio() for h in history_titles]) > 0.9
+    # Check if max karma post is in history
+    def entry_title_is_in_history(entry):
+        return max([SequenceMatcher(None, entry.find('title').text, h).ratio() for h in history_titles]) > 0.9
 
-        if entry_title_is_in_history(max_karma_entry):
-            return None, None
+    if entry_title_is_in_history(max_karma_entry):
+        return None, None
 
-        history_titles += [max_karma_entry.find('title').text]
-        storage.write_history_titles(history_titles)
+    history_titles += [max_karma_entry.find('title').text]
+    storage.write_history_titles(history_titles)
 
     # Update values from the provided configuration
     feed.find('./channel/title').text = feed_config.title

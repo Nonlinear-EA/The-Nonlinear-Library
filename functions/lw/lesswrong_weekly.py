@@ -9,14 +9,12 @@ def lw_weekly_main(running_on_gcp):
             author='The Nonlinear Fund',
             email='podcast@nonlinear.org',
             image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong%20Weekly.png',
-            history_titles_filename='./history_titles_nonlinear-library-aggregated-LW-weekly.txt',
-            removed_authors_filename='./removed_authors.txt',
             guid_suffix='_LW-week',
             title='The Nonlinear Library: LessWrong Weekly',
             title_prefix='LW - ',
             search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
-            output_file_basename='nonlinear-library-aggregated-LW-weekly',
-            gcp_bucket='rssfile'
+            gcp_bucket='newcode',
+            output_basename='lw_weekly',
         ),
         running_on_gcp
     )

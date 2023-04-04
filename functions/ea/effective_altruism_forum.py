@@ -9,12 +9,11 @@ def ea_all_main(running_on_gcp):
             author='The Nonlinear Fund',
             email='podcast@nonlinear.org',
             image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20EA%20Forum.png',
-            removed_authors_filename='./removed_authors.txt',
             guid_suffix='_AF',
             title='The Nonlinear Library: EA Forum',
             title_prefix='AF - ',
-            gcp_bucket='rssfile',
-            output_file_basename='nonlinear-library-aggregated-EA'
+            gcp_bucket='newcode',
+            output_basename='ea'
         ),
         running_on_gcp
     )

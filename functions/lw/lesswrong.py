@@ -9,12 +9,11 @@ def lw_all_main(running_on_gcp):
             author='The Nonlinear Fund',
             email='podcast@nonlinear.org',
             image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong.png',
-            removed_authors_filename='./removed_authors.txt',
             guid_suffix='_LW',
             title='The Nonlinear Library: LessWrong',
             title_prefix='LW - ',
-            gcp_bucket='rssfile',
-            output_file_basename='nonlinear-library-aggregated-LW'
+            gcp_bucket='newcode',
+            output_basename='lw'
         ),
         running_on_gcp
     )

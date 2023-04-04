@@ -9,12 +9,10 @@ def af_daily_main(running_on_gcp):
             author='The Nonlinear Fund',
             email='podcast@nonlinear.org',
             image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
-            history_titles_filename='./history_titles_nonlinear-library-aggregated-AF-daily.txt',
-            removed_authors_filename='./removed_authors.txt',
             guid_suffix='_AF-day',
             title="The Nonlinear Library: Alignment Forum Daily",
             title_prefix='AF - ',
             search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
-            gcp_bucket='rssfile',
-            output_file_basename='nonlinear-library-aggregated-AF-daily'
+            gcp_bucket='newcode',
+            output_basename='af_daily'
         ), running_on_gcp)
