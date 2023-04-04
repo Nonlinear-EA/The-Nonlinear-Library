@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from functions.feed import FeedGeneratorConfig
+from feed import FeedGeneratorConfig
 
 
 class StorageInterface:

@@ -1,5 +1,5 @@
-from functions.feed import FeedGeneratorConfig
-from functions.podcast_feed_generator import generate_podcast_feed
+from feed import FeedGeneratorConfig
+from podcast_feed_generator import generate_podcast_feed
 
 
 def lw_daily_main(running_on_gcp):
