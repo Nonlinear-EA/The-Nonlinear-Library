@@ -6,7 +6,7 @@ gcp_bucket_newcode = 'newcode'
 nonlinear_email = 'podcast@nonlinear.org'
 
 
-def af_config():
+def af_all_config():
     return FeedGeneratorConfig(
         source=beyondwords_rss_output,
         author=nll_author,
@@ -16,7 +16,7 @@ def af_config():
         title_prefix='AF -',
         guid_suffix='_AF',
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='af'
+        output_basename='af_all'
     )
 
 
@@ -50,7 +50,7 @@ def af_weekly_config():
     )
 
 
-def ea_config():
+def ea_all_config():
     return FeedGeneratorConfig(
         source=beyondwords_rss_output,
         author=nll_author,
@@ -60,7 +60,7 @@ def ea_config():
         title='The Nonlinear Library: EA Forum',
         title_prefix='AF - ',
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='ea'
+        output_basename='ea_all'
     )
 
 
@@ -94,7 +94,7 @@ def ea_weekly_config():
     )
 
 
-def lw_config():
+def lw_all_config():
     return FeedGeneratorConfig(
         source=beyondwords_rss_output,
         author=nll_author,
@@ -104,7 +104,7 @@ def lw_config():
         title='The Nonlinear Library: LessWrong',
         title_prefix='LW - ',
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='lw'
+        output_basename='lw_all'
     )
 
 
