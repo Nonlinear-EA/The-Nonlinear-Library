@@ -102,6 +102,8 @@ def main_create_beyondwords_nonlinear_library_project_inputs():
                 client = storage.Client(project='crucial-alpha-321109')
                 bucket = client.get_bucket(self.gcp_bucket_name)
                 blob = bucket.get_blob(self.removed_authors_filename)
+                if blob is None:
+                    self.list_removed_authors = []
                 downloaded_blob = blob.download_as_string()
                 self.list_removed_authors = [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 

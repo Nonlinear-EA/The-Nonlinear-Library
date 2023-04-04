@@ -91,6 +91,8 @@ class GoogleCloudStorage(StorageInterface):
         client = storage.Client()
         bucket = client.get_bucket(self.gcp_bucket)
         blob = bucket.get_blob(path)
+        if blob is None:
+            return []
         downloaded_blob = blob.download_as_string()
         return [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
