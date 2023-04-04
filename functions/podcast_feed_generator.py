@@ -193,8 +193,7 @@ def generate_podcast_feed(
     xml_feed = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
 
     max_karma_entry_title = max_karma_entry.find('title').text
-    history_titles += [max_karma_entry_title]
-    storage.write_history_titles(history_titles)
+    storage.write_history_titles(history_titles + [max_karma_entry_title])
 
     print('writing to RSS feed with new entry ', max_karma_entry_title)
     storage.write_podcast_feed(xml_feed)
