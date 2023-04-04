@@ -56,5 +56,5 @@ def lw_all(a=None, b=None):
 
 
 def create_beyondwords_nonlinear_library_project_inputs(a=None, b=None):
-    print('running create_nonlinear_library_main_feed')
+    print('running create_beyondwords_nonlinear_library_project_inputs')
     main_create_beyondwords_nonlinear_library_project_inputs()
