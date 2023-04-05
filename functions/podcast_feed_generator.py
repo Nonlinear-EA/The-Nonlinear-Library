@@ -4,12 +4,13 @@ from time import strptime, mktime
 from typing import Tuple
 from urllib.parse import urlparse
 from xml.etree import ElementTree
+from xml.etree.ElementTree import Element
 
 import requests
 from bs4 import BeautifulSoup
 
-from feed import FeedGeneratorConfig
-from storage import StorageInterface, create_storage
+from functions.feed import FeedGeneratorConfig
+from functions.storage import StorageInterface, create_storage
 
 
 def get_post_karma(url) -> int:
@@ -33,7 +34,7 @@ def get_post_karma(url) -> int:
     return int(soup.find('h1', {'class': 'PostsVote-voteScore'}).text)
 
 
-def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInterface):
+def remove_entries_from_removed_authors(feed: Element, storage: StorageInterface):
     """
     Take an element tree and remove the entries whose author is in the list of removed authors.
 
@@ -44,11 +45,10 @@ def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInter
     """
     # Retrieve removed authors
     removed_authors = storage.read_removed_authors()
-
-    for item in feed.findall('./channel/item'):
+    for item in feed.findall('channel/item'):
         author = item.find('author').text
         if author in removed_authors:
-            feed.remove(item)
+            feed.find('channel').remove(item)
 
 
 def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGeneratorConfig):

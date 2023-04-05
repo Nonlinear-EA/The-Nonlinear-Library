@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from feed import FeedGeneratorConfig
+from functions.feed import FeedGeneratorConfig
 
 
 class StorageInterface:
@@ -31,6 +31,7 @@ class LocalStorage(StorageInterface):
     """
     StorageInterface implementation to work with local files.
     """
+
     def __init__(
             self, output_basename: str
     ):

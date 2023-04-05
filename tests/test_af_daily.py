@@ -3,7 +3,7 @@ import pytest
 
 from functions.feed import FeedGeneratorConfig
 from functions.podcast_feed_generator import generate_podcast_feed
-from utilities.beyondwords_feed import get_feed_reference_date_str
+from tests.conftest import get_feed_reference_date_str
 
 
 @freezegun.freeze_time(get_feed_reference_date_str())

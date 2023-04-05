@@ -17,18 +17,6 @@ def get_beyondwords_feed(max_entries=500):
     return ElementTree.parse('./beyondwords_snapshot.xml').getroot()
 
 
-@lru_cache
-def get_feed_reference_date_str(date_format='%Y-%m-%d %H:%M:%S'):
-    return get_feed_reference_date().strftime(date_format)
-
-
-@lru_cache
-def get_feed_reference_date() -> datetime:
-    rss_feed = get_beyondwords_feed()
-    if rss_feed.find('./reference_date') is not None:
-        return datetime.fromtimestamp(float(rss_feed.find('./reference_date').text))
-
-
 def write_beyondwords_snapshot(
         n_days=7,
         output_filename: str = None,
