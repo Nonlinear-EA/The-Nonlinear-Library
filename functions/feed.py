@@ -13,7 +13,7 @@ class FeedGeneratorConfig:
     image_url: str
     email: str
     author: str
-    output_basename: str
+    podcast_feed_basename: str
     gcp_bucket: str
     title: str
     guid_suffix: str = None

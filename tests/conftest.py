@@ -6,7 +6,7 @@ from xml.etree import ElementTree
 import pytest
 
 from functions.feed import FeedGeneratorConfig
-from functions.storage import LocalStorage
+from functions.storage import LocalStorage, create_storage
 
 forum_prefixes = ('AF - ', 'EA - ', 'LW - ')
 
@@ -31,13 +31,13 @@ def set_random_seed_to_reference_time():
 
 
 @pytest.fixture(autouse=True)
-def empty_history():
+def empty_history(storage):
     """
     Empties the history_titles_file file and adds a mock entry
 
     """
-    with open('history_titles.txt', 'w') as f:
-        f.write("This is a sample entry that won't match anything from the feed!")
+    yield
+    storage.write_history_titles(["This is an entry that shouldn't match anything!"])
 
 
 @pytest.fixture
@@ -54,6 +54,47 @@ def mock_get_feed_tree_from_source():
 
 
 @pytest.fixture
+def mock_read_podcast_feed():
+    with patch.object(LocalStorage, 'read_podcast_feed') as mock:
+        mock.return_value = ElementTree.parse('./podcast_feed.xml').getroot()
+        yield
+
+
+@pytest.fixture
+def mock_write_podcast_feed():
+    with patch.object(LocalStorage, 'write_podcast_feed') as mock:
+        def save_podcast_feed(*args):
+            with open('./podcast_feed.xml', 'wb') as f:
+                f.write(args[0])
+
+        mock.side_effect = save_podcast_feed
+        yield
+
+
+@pytest.fixture
+def cleanup_podcast_feed():
+    yield
+    podcast_feed = ElementTree.parse('./podcast_feed.xml').getroot()
+    i = 0
+    for item in podcast_feed.findall('channel/item'):
+        i += 1
+        if i == 1:
+            continue
+        podcast_feed.find('channel').remove(item)
+    # Register namespaces before parsing to string.
+    namespaces = {
+        # The atom namespace is not used in the resulting feeds and is not added to the xml files.
+        "atom": "http://www.w3.org/2005/Atom",
+        "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
+        "content": "http://purl.org/rss/1.0/modules/content/"
+    }
+    for prefix, uri in namespaces.items():
+        ElementTree.register_namespace(prefix, uri)
+    tree = ElementTree.ElementTree(podcast_feed)
+    tree.write('./podcast_feed.xml')
+
+
+@pytest.fixture
 def mock_get_post_karma():
     """
     The post karma function is a big bottleneck since it takes a long time to check the karma for each post.
@@ -63,20 +104,6 @@ def mock_get_post_karma():
     """
     with patch('functions.podcast_feed_generator.get_post_karma') as mock:
         mock.return_value = str(int(random.random() * 100))
-        yield
-
-
-@pytest.fixture(autouse=True)
-def mock_read_history_titles():
-    with patch.object(LocalStorage, 'read_history_titles') as mock:
-        with open('history_titles.txt', 'r') as f:
-            mock.return_value = [line for line in f.readlines()]
-            yield
-
-
-@pytest.fixture(autouse=True)
-def mock_write_history_titles():
-    with patch.object(LocalStorage, 'write_history_titles') as mock:
         yield
 
 
@@ -92,7 +119,7 @@ def default_config() -> FeedGeneratorConfig:
         title_prefix='Generic - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket='rssfile',
-        output_basename='testbucket'
+        podcast_feed_basename='podcast_feed'
     )
 
 
@@ -120,3 +147,15 @@ def search_period(request):
 @pytest.fixture()
 def search_period_time_delta(search_period: FeedGeneratorConfig.SearchPeriod):
     return timedelta(days=search_period.value)
+
+
+@pytest.fixture()
+def feed_config(default_config, search_period, forum_title_prefix):
+    default_config.search_period = search_period
+    default_config.title_prefix = forum_title_prefix
+    return default_config
+
+
+@pytest.fixture()
+def storage(default_config):
+    return create_storage(default_config, False)

@@ -1,7 +1,7 @@
 from datetime import datetime
 from difflib import SequenceMatcher
 from time import strptime, mktime
-from typing import List
+from typing import List, Tuple
 from urllib.parse import urlparse
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
@@ -212,33 +212,32 @@ def get_new_episode_from_beyondwords_feed(feed_config, running_on_gcp) -> Elemen
     return max_karma_entry
 
 
-def get_podcast_feed(feed_config, running_on_gcp) -> Element:
-    storage = create_storage(feed_config, running_on_gcp)
-
-
 def add_episode_to_history(feed_config, episode: Element, running_on_gcp):
     storage = create_storage(feed_config, running_on_gcp)
+    history_titles = storage.read_history_titles()
+    history_titles += [episode.find('title').text]
+    storage.write_history_titles(history_titles)
 
 
 def update_podcast_feed(
         feed_config: FeedGeneratorConfig,
         running_on_gcp
-) -> str | None:
+) -> Tuple[str, str] | None:
     """
     Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
     provided feed_config object.
 
     Args: feed_config: Object with meta-data and filtering criteria to produce an RSS feed file.
 
-    Returns: The file name of the produced xml string and the xml string.
+    Returns: The file name of the produced xml string and the xml string and the title of the new episode
     """
 
     new_episode = get_new_episode_from_beyondwords_feed(feed_config, running_on_gcp)
 
     if len(new_episode) == 0:
         return None
-
-    podcast_feed = get_podcast_feed(feed_config, running_on_gcp)
+    storage = create_storage(feed_config, running_on_gcp)
+    podcast_feed = storage.read_podcast_feed()
 
     # Update values from the provided configuration
     podcast_feed.find('./channel/title').text = feed_config.title
@@ -260,9 +259,10 @@ def update_podcast_feed(
     xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
 
     print(f"writing to RSS feed with new entry {new_episode.find('title').text}")
-    
+
     storage = create_storage(feed_config, running_on_gcp)
     storage.write_podcast_feed(xml_feed)
+    return storage.rss_file, new_episode.find('title').text
 
 
 def generate_beyondwords_feed():

@@ -68,13 +68,45 @@ def test_filter_episodes_filters_out_entries_outside_search_period(
 
 
 @freezegun.freeze_time(get_feed_reference_date_str())
-def test_update_podcast_feed_updates_channel_title(default_config):
-    updated_feed = update_podcast_feed()
+def test_update_podcast_feed_updates_channel_title(
+        feed_config,
+        mock_get_feed_tree_from_source,
+        mock_read_podcast_feed,
+        mock_write_podcast_feed,
+        mock_get_post_karma,
+        storage,
+        cleanup_podcast_feed
+):
+    update_podcast_feed(feed_config, False)
+    feed = storage.read_podcast_feed()
+    assert feed.find('channel/title').text == feed_config.title
 
 
-def test_update_podcast_feed_updates_channel_image_url():
-    assert False
+@freezegun.freeze_time(get_feed_reference_date_str())
+def test_update_podcast_feed_updates_channel_image_url(
+        feed_config,
+        mock_get_feed_tree_from_source,
+        mock_read_podcast_feed,
+        mock_write_podcast_feed,
+        mock_get_post_karma,
+        storage,
+        cleanup_podcast_feed
+):
+    update_podcast_feed(feed_config, False)
+    feed = storage.read_podcast_feed()
+    assert feed.find('channel/image/url').text == feed_config.image_url
 
 
-def test_update_podcast_feed_updates_title_history():
-    assert False
+@freezegun.freeze_time(get_feed_reference_date_str())
+def test_update_podcast_feed_updates_title_history(
+        feed_config,
+        mock_get_feed_tree_from_source,
+        mock_read_podcast_feed,
+        mock_write_podcast_feed,
+        mock_get_post_karma,
+        storage,
+        cleanup_podcast_feed
+):
+    _, new_episode_title = update_podcast_feed(feed_config, False)
+    history_titles = storage.read_history_titles()
+    assert new_episode_title in history_titles
