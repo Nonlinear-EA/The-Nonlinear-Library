@@ -5,15 +5,13 @@ import ssl
 import feedparser
 
 
-def create_main_nonlinear_library_rss():
+def main_create_beyondwords_nonlinear_library_project_inputs():
     """Create an RSS file containing input from all three of the forums.
 
     The RSS file that is output is read by BeyondWords to create a new RSS file that has XML elements containing the MP3
     links to the audio synthesis of the text. This new RSS file with MP3s is then used as input to the other files which
     split it into EA, AF, etc. streams.
     """
-
-    # TODO: Consider implementing config as a data class
     config = {
         'feed': {
             'max_articles': 30,
@@ -29,7 +27,7 @@ def create_main_nonlinear_library_rss():
         },
         'system': {
             'output_file_basename': 'nonlinear-library',
-            'gcp_bucket_name': 'rssfile',
+            'gcp_bucket_name': 'newcode',
             'removed_authors_filename': 'removed_authors.txt'
         }
     }
@@ -104,8 +102,11 @@ def create_main_nonlinear_library_rss():
                 client = storage.Client(project='crucial-alpha-321109')
                 bucket = client.get_bucket(self.gcp_bucket_name)
                 blob = bucket.get_blob(self.removed_authors_filename)
-                downloaded_blob = blob.download_as_string()
-                self.list_removed_authors = [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
+                if blob is None:
+                    self.list_removed_authors = []
+                else:
+                    downloaded_blob = blob.download_as_string()
+                    self.list_removed_authors = [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
         def modify_feed(self):
             print('ENTERING THE modify_feed FUNCTION')
@@ -182,9 +183,7 @@ def create_main_nonlinear_library_rss():
 
             print('WRITING THE MODIFIED FEED TO AN XML FILE')
 
-            filename = '{}-{}.xml'.format(
-                self.output_file_basename, feed_web_short.replace(' ', '_')
-            )
+            filename = '{}-{}.xml'.format(self.output_file_basename, feed_web_short)
 
             if self.local:
                 with open(filename, 'w') as f:

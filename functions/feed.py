@@ -13,11 +13,9 @@ class FeedGeneratorConfig:
     image_url: str
     email: str
     author: str
-    removed_authors_filename: str
-    output_file_basename: str
+    output_basename: str
     gcp_bucket: str
     title: str
-    history_titles_filename: str = None
     guid_suffix: str = None
     search_period: SearchPeriod = SearchPeriod.ONE_WEEK
     title_prefix: str = None
