@@ -11,7 +11,7 @@ from utilities.beyondwords_feed import get_feed_reference_date, get_beyondwords_
 @pytest.fixture(autouse=True)
 def set_random_seed_to_reference_time():
     """
-    Initialize the random package using the reference date from the beyondwords_snapshot.xml file.
+    Initialize the random package using the reference date from the test_beyondwords_feed.xml file.
 
     This fixture is flaged as `autouse` so it will be called before every test
 

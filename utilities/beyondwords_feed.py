@@ -103,4 +103,4 @@ def write_beyondwords_snapshot(
 
 
 if __name__ == '__main__':
-    write_beyondwords_snapshot(n_days=14, output_filename='../tests/beyondwords_snapshot.xml', max_entries=200)
+    write_beyondwords_snapshot(n_days=14, output_filename='../tests/beyondwords_snapshot.xml', max_entries=3)
