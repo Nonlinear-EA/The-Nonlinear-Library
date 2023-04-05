@@ -1,35 +1,75 @@
+from datetime import datetime
+
 import freezegun
-import pytest
+from dateutil.tz import tz
 
 from functions.feed import FeedGeneratorConfig
-from functions.podcast_feed_generator import get_new_episodes_from_beyondwords_feed
+from functions.podcast_feed_generator import filter_episodes, update_podcast_feed
 from tests.conftest import get_feed_reference_date_str
+
+search_periods = (FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_WEEK)
 
 
 @freezegun.freeze_time(get_feed_reference_date_str())
-@pytest.mark.parametrize('title_prefix', ('AF - ', 'EA - ', 'LW - '))
-def test_get_new_episodes_returns_least_one_entry(
-        title_prefix,
+def test_filter_episodes_filters_out_entries_from_removed_authors(
+        beyondwords_feed,
+        forum_title_prefix,
         default_config,
+        removed_authors,
         mock_get_feed_tree_from_source,
         mock_get_post_karma
 ):
-    default_config.title_prefix = title_prefix
-    default_config.search_period = FeedGeneratorConfig.SearchPeriod.ONE_DAY
-    new_episodes = get_new_episodes_from_beyondwords_feed(default_config, False)
-    assert len(new_episodes) == 1
+    default_config.title_prefix = forum_title_prefix
+
+    new_episodes = filter_episodes(beyondwords_feed, default_config, False)
+    posts_from_removed_authors = [episode for episode in new_episodes if episode.find('author').text in removed_authors]
+
+    assert not posts_from_removed_authors
 
 
-def test_get_new_episodes_filters_out_entries_from_removed_authors():
-    assert False
+@freezegun.freeze_time(get_feed_reference_date_str())
+def test_filter_episode_filters_out_entries_from_other_forums(
+        beyondwords_feed,
+        forum_title_prefix,
+        default_config
+):
+    default_config.title_prefix = forum_title_prefix
+    episodes = filter_episodes(beyondwords_feed, default_config, False)
+
+    def title_matches_forum_prefix(episode):
+        episode.find('title').text.startswith(forum_title_prefix)
+
+    episodes_from_other_forums = [episode for episode in episodes if title_matches_forum_prefix(episode)]
+
+    assert not episodes_from_other_forums
 
 
-def test_get_new_episodes_filters_out_entries_outside_search_period():
-    assert False
+@freezegun.freeze_time(get_feed_reference_date_str())
+def test_filter_episodes_filters_out_entries_outside_search_period(
+        search_period,
+        beyondwords_feed,
+        forum_title_prefix,
+        default_config
+):
+    default_config.title_prefix = forum_title_prefix
+    default_config.search_period = search_period
+
+    episodes = filter_episodes(beyondwords_feed, default_config, False)
+
+    def episode_pub_date(episode):
+        return datetime.strptime(episode.find('pubDate').text, default_config.date_format)
+
+    episode_publication_dates = [episode_pub_date(episode) for episode in episodes]
+    oldest_episode_date = datetime.now(tz=tz.tzutc()) - default_config.get_search_period_timedelta()
+    episodes_outside_search_period = [publication_date for publication_date in episode_publication_dates if
+                                      publication_date < oldest_episode_date]
+
+    assert not episodes_outside_search_period
 
 
-def test_update_podcast_feed_updates_channel_title():
-    assert False
+@freezegun.freeze_time(get_feed_reference_date_str())
+def test_update_podcast_feed_updates_channel_title(default_config):
+    updated_feed = update_podcast_feed()
 
 
 def test_update_podcast_feed_updates_channel_image_url():

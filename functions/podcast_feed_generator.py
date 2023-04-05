@@ -102,9 +102,24 @@ def get_feed_tree_from_source(url) -> Element:
     return ElementTree.fromstring(xml_data)
 
 
-def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Element] | None:
-    # Get feed from source
-    feed = get_feed_tree_from_source(feed_config.source)
+def filter_episodes(feed, feed_config, running_on_gcp) -> List[Element] | None:
+    """
+    Return a list of xml elements representing episodes which have been filtered by author, forum and date.
+
+    Episodes
+    - written by an author present in the list of removed authors,
+    - not matching the forum prefix from the `feed_config` object or
+    - published outside the search period defined in the `feed_config` object
+    won't be returned
+
+
+    Args:
+        feed: xml Element representing the feed
+        feed_config: Configuration object with meta-data to filter episodes
+
+    Returns: List of episodes from the feed
+
+    """
 
     # Get storage handler
     storage = create_storage(feed_config, running_on_gcp)
@@ -126,6 +141,12 @@ def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[
             if not entry.find('title').text.startswith(feed_config.title_prefix):
                 feed.find('channel').remove(entry)
 
+    # Update guid if provided in the feed_config
+    if feed_config.guid_suffix:
+        for item in feed.findall('channel/item'):
+            guid = item.find('guid')
+            guid.text += feed_config.guid_suffix
+
     print(
         f'Removed {n_entries - get_number_of_entries()} entries because of title mismatch. {get_number_of_entries()} entries remaining.')
     n_entries = get_number_of_entries()
@@ -135,40 +156,68 @@ def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[
     print(
         f'Removed {n_entries - get_number_of_entries()} entries because they were not within the search period. {get_number_of_entries()} entries remaining.')
 
+    return feed.findall('channel/item')
+
+
+def episode_is_in_history(episode_title: str, feed_config, running_on_gcp) -> bool:
+    storage = create_storage(feed_config, running_on_gcp)
+    # Read history titles from storage
+    history_titles = storage.read_history_titles()
+
+    for history_title in history_titles:
+        # If the title matches the history_title by more than 90%, then we have added the title to the history_titles file in the past.
+        if SequenceMatcher(None, episode_title, history_title).ratio() > 0.9:
+            return True
+    return False
+
+
+def get_new_episode_from_beyondwords_feed(feed_config, running_on_gcp) -> Element | None:
+    """
+    Return an xml element representing an individual episode's feed. The returned episode is selected from the
+    BeyondWords feed after filtering by removed author, date and forum using the meta-data in the `feed_config` object.
+
+    Args:
+        feed_config: Object with meta-data and filtering criteria
+
+    Returns: The xml element that fulfilled the filtering criteria and has the most karma amongst the posts that made
+    it through the filter
+
+    """
+    # Get feed from source
+    feed = get_feed_tree_from_source(feed_config.source)
+
+    # Filter episodes from feed
+    new_episodes = filter_episodes(feed, feed_config, running_on_gcp)
+
     # Get entry with the most karma
-    max_karma_entry = max(feed.findall('channel/item'), key=lambda post: get_post_karma(post.find('link').text),
+    max_karma_entry = max(new_episodes, key=lambda post: get_post_karma(post.find('link').text),
                           default=None)
+
     no_max_karma_entry = max_karma_entry is None
+
     if no_max_karma_entry:
         print('no max karma entry found. exiting.')
         return None
 
-    # Read history titles from storage
-    history_titles = storage.read_history_titles()
+    max_karma_entry_title = max_karma_entry.find('title').text
 
-    def entry_title_is_in_history(entry):
-        for history_title in history_titles:
-            entry_title = entry.find('title').text
-            # If the title matches the history_title by more than 90%, then we have added the title to the history_titles file in the past.
-            if SequenceMatcher(None, entry_title, history_title).ratio() > 0.9:
-                return True
-        return False
+    print(f"Max karma entry found: '{max_karma_entry_title}'")
 
-    if entry_title_is_in_history(max_karma_entry):
-        print('max_karma_entry is in history. exiting.')
+    if episode_is_in_history(max_karma_entry_title, feed_config, running_on_gcp):
+        print('max_karma_entry is in history, exiting.')
         return None
 
-    # Update guid if provided in the feed_config
-    if feed_config.guid_suffix:
-        for item in feed.findall('channel/item'):
-            guid = item.find('guid')
-            guid.text += feed_config.guid_suffix
+    print('max_karma_entry not in history, returning max_karma_entry')
 
-    return feed.findall('channel/item')
+    return max_karma_entry
 
 
 def get_podcast_feed(feed_config, running_on_gcp) -> Element:
-    pass
+    storage = create_storage(feed_config, running_on_gcp)
+
+
+def add_episode_to_history(feed_config, episode: Element, running_on_gcp):
+    storage = create_storage(feed_config, running_on_gcp)
 
 
 def update_podcast_feed(
@@ -184,9 +233,9 @@ def update_podcast_feed(
     Returns: The file name of the produced xml string and the xml string.
     """
 
-    new_episodes = get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp)
+    new_episode = get_new_episode_from_beyondwords_feed(feed_config, running_on_gcp)
 
-    if len(new_episodes) == 0:
+    if len(new_episode) == 0:
         return None
 
     podcast_feed = get_podcast_feed(feed_config, running_on_gcp)
@@ -205,14 +254,15 @@ def update_podcast_feed(
     for prefix, uri in namespaces.items():
         ElementTree.register_namespace(prefix, uri)
 
-    # TODO: Write new items in history.
-    # max_karma_entry_title = max_karma_entry.find('title').text
-    # storage.write_history_titles(history_titles + [max_karma_entry_title])
+    podcast_feed.find('channel').append(new_episode)
+    add_episode_to_history(feed_config, new_episode, running_on_gcp)
 
-    # xml_feed = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
-    #
-    # print('writing to RSS feed with new entry ', max_karma_entry_title)
-    # storage.write_podcast_feed(xml_feed)
+    xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
+
+    print(f"writing to RSS feed with new entry {new_episode.find('title').text}")
+    
+    storage = create_storage(feed_config, running_on_gcp)
+    storage.write_podcast_feed(xml_feed)
 
 
 def generate_beyondwords_feed():

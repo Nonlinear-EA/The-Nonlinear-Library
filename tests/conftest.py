@@ -1,5 +1,5 @@
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch
 from xml.etree import ElementTree
 
@@ -7,6 +7,8 @@ import pytest
 
 from functions.feed import FeedGeneratorConfig
 from functions.storage import LocalStorage
+
+forum_prefixes = ('AF - ', 'EA - ', 'LW - ')
 
 
 def get_feed_reference_date_str(date_format='%Y-%m-%d %H:%M:%S'):
@@ -92,3 +94,29 @@ def default_config() -> FeedGeneratorConfig:
         gcp_bucket='rssfile',
         output_basename='testbucket'
     )
+
+
+@pytest.fixture()
+def removed_authors():
+    with open('./removed_authors.txt', 'r') as f:
+        return [author for author in f.readlines()]
+
+
+@pytest.fixture(params=forum_prefixes)
+def forum_title_prefix(request):
+    return request.param
+
+
+@pytest.fixture
+def beyondwords_feed():
+    return ElementTree.parse('./test_beyondwords_feed.xml').getroot()
+
+
+@pytest.fixture(params=(FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_DAY))
+def search_period(request):
+    return request.param
+
+
+@pytest.fixture()
+def search_period_time_delta(search_period: FeedGeneratorConfig.SearchPeriod):
+    return timedelta(days=search_period.value)

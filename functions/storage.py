@@ -1,4 +1,5 @@
 import os
+from functools import lru_cache
 from typing import List
 
 from functions.feed import FeedGeneratorConfig
@@ -104,6 +105,7 @@ class GoogleCloudStorage(StorageInterface):
         blob.upload_from_string(content)
 
 
+@lru_cache
 def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
     """
     Factory to retrieve a storage interface implementation for local or cloud environments.
