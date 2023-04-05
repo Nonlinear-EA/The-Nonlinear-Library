@@ -1,6 +1,7 @@
+import os
 from typing import List
 
-from functions.feed import FeedGeneratorConfig
+from feed import FeedGeneratorConfig
 
 
 class StorageInterface:
@@ -8,14 +9,10 @@ class StorageInterface:
     Interface to read and write text files.
     """
 
-    def __init__(self,
-                 history_titles_filename,
-                 removed_authors_filename,
-                 output_feed_filename_base
-                 ):
-        self.history_titles_filename = history_titles_filename
-        self.removed_authors_filename = removed_authors_filename
-        self.output_feed_filename = f'{output_feed_filename_base}.xml'
+    def __init__(self, output_basename):
+        self.removed_authors_filename = 'removed_authors.txt'
+        self.history_titles_path = os.path.join('history_titles', output_basename + '.txt')
+        self.rss_file = os.path.join('rss_files', output_basename + '.xml')
 
     def read_history_titles(self) -> List[str]:
         raise NotImplementedError()
@@ -34,37 +31,35 @@ class LocalStorage(StorageInterface):
     """
     StorageInterface implementation to work with local files.
     """
-    history_titles_filename: str
-    removed_authors_filename: str
-    output_feed_filename: str
-
     def __init__(
-            self, history_titles_filename: str, removed_authors_filename: str, output_feed_filename_base: str
+            self, output_basename: str
     ):
-        super().__init__(history_titles_filename, removed_authors_filename, output_feed_filename_base)
+        super().__init__(output_basename)
 
     def read_history_titles(self):
-        return self.__read_file(self.history_titles_filename)
+        if not os.path.isfile(self.history_titles_path):
+            return []
+        return self.__read_file(self.history_titles_path)
 
     def write_history_titles(self, history_titles: List[str]) -> int:
-        return self.__write_file(self.history_titles_filename, "\n".join(history_titles))
+        return self.__write_file(self.history_titles_path, '\n'.join(history_titles))
 
     def read_removed_authors(self):
-        return self.__read_file(self.removed_authors_filename)
+        return self.__read_file('./removed_authors.txt')
 
     def write_podcast_feed(self, feed):
-        self.__write_file(self.output_feed_filename, feed)
+        self.__write_file_as_bytes(self.rss_file, feed)
 
     def __read_file(self, filename: str):
         with open(filename, 'r') as f:
             return [line.rstrip() for line in f.readlines()]
 
-    def __write_file(self, filename: str, content: str | bytes):
-        if isinstance(content, bytes):
-            mode = 'wb'
-        else:
-            mode = 'w'
-        with open(filename, mode) as f:
+    def __write_file_as_bytes(self, filename: str, content: bytes):
+        with open(filename, 'wb') as f:
+            return f.write(content)
+
+    def __write_file(self, filename: str, content: str):
+        with open(filename, 'w') as f:
             return f.write(content)
 
 
@@ -72,39 +67,40 @@ class GoogleCloudStorage(StorageInterface):
     """
     StorageInterface implementation to work with files on the cloud.
     """
-
-    history_titles_filename: str
-    removed_authors_filename: str
     gcp_bucket: str
 
-    def __init__(self, history_titles_filename, removed_authors_filename, output_feed_filename_base, gcp_bucket):
-        super().__init__(history_titles_filename, removed_authors_filename, output_feed_filename_base)
+    def __init__(self, output_basename, gcp_bucket):
+        super().__init__(output_basename)
         self.gcp_bucket = gcp_bucket
 
     def read_history_titles(self):
-        return self.__read_file(self.history_titles_filename)
+        return self.__read_file(self.history_titles_path)
 
     def read_removed_authors(self):
-        return self.__read_file(self.removed_authors_filename)
+        return self.__read_file('./removed_authors.txt')
 
     def write_history_titles(self, history_titles: List[str]) -> int:
-        return self.__write_file(self.history_titles_filename, "\n".join(history_titles))
+        return self.__write_file(self.history_titles_path, "\n".join(history_titles))
 
     def write_podcast_feed(self, feed: str):
-        # TODO: Implement save_podcast_feed for cloud storage.
-        raise NotImplementedError()
+        self.__write_file(self.rss_file, feed)
 
-    def __read_file(self, filename: str):
+    def __read_file(self, path: str):
         from google.cloud import storage
         client = storage.Client()
         bucket = client.get_bucket(self.gcp_bucket)
-        blob = bucket.get_blob(filename)
+        blob = bucket.get_blob(path)
+        if blob is None:
+            return []
         downloaded_blob = blob.download_as_string()
         return [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
-    def __write_file(self, history_titles_filename: str, content: str) -> int:
-        # TODO: Implement write file for cloud storage.
-        return 0
+    def __write_file(self, path: str, content: str) -> int:
+        from google.cloud import storage
+        client = storage.Client()
+        bucket = client.get_bucket(self.gcp_bucket)
+        blob = bucket.blob(path)
+        blob.upload_from_string(content)
 
 
 def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
@@ -119,11 +115,7 @@ def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
     """
 
     if running_on_gcp:
-        return GoogleCloudStorage(removed_authors_filename=feed_config.removed_authors_filename,
-                                  history_titles_filename=feed_config.history_titles_filename,
-                                  output_feed_filename_base=feed_config.output_file_basename,
+        return GoogleCloudStorage(output_basename=feed_config.output_basename,
                                   gcp_bucket=feed_config.gcp_bucket)
     else:
-        return LocalStorage(removed_authors_filename=feed_config.removed_authors_filename,
-                            history_titles_filename=feed_config.history_titles_filename,
-                            output_feed_filename_base=feed_config.output_file_basename)
+        return LocalStorage(output_basename=feed_config.output_basename)

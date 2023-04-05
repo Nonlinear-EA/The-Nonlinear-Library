@@ -1,4 +1,4 @@
-from functions.podcast_feed_generator import FeedGeneratorConfig, generate_podcast_feed
+from podcast_feed_generator import FeedGeneratorConfig, generate_podcast_feed
 
 if __name__ == "__main__":
     af_feed_cfg = FeedGeneratorConfig(

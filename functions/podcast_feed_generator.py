@@ -4,13 +4,12 @@ from time import strptime, mktime
 from typing import Tuple
 from urllib.parse import urlparse
 from xml.etree import ElementTree
-from xml.etree.ElementTree import Element
 
 import requests
 from bs4 import BeautifulSoup
 
-from functions.feed import FeedGeneratorConfig
-from functions.storage import StorageInterface, create_storage
+from feed import FeedGeneratorConfig
+from storage import StorageInterface, create_storage
 
 
 def get_post_karma(url) -> int:
@@ -34,11 +33,7 @@ def get_post_karma(url) -> int:
     return int(soup.find('h1', {'class': 'PostsVote-voteScore'}).text)
 
 
-def get_number_of_entries(feed: Element, path='channel/item'):
-    return len(feed.findall(path))
-
-
-def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInterface) -> int:
+def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInterface):
     """
     Take an element tree and remove the entries whose author is in the list of removed authors.
 
@@ -46,21 +41,17 @@ def remove_entries_from_removed_authors(feed: ElementTree, storage: StorageInter
         feed: An xml element tree
         storage: Storage handler
 
-    Returns: Number of entries removed
     """
-
     # Retrieve removed authors
     removed_authors = storage.read_removed_authors()
-    n_entries = get_number_of_entries(feed)
+
     for item in feed.findall('./channel/item'):
         author = item.find('author').text
         if author in removed_authors:
             feed.remove(item)
 
-    return n_entries - get_number_of_entries(feed)
 
-
-def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGeneratorConfig) -> int:
+def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGeneratorConfig):
     """
     Return entries that were published within a period defined in the FeedGeneratorConfig object.
     
@@ -68,21 +59,18 @@ def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGenerato
         feed: An xml element tree
         feed_config: Parameters for podcast feed generation
 
-    Returns: Number of removed entries
     """
     # Filter posts based on the requested search period
     # Get search period as timedelta
     search_period = feed_config.get_search_period_timedelta()
     # Define the time of the oldest post that should come through
     oldest_post_time = datetime.now() - search_period
-    n_entries = get_number_of_entries(feed)
-    for entry in feed.findall('channel/item'):
+
+    for entry in feed.findall('./channel/item'):
         published_date_str = entry.find('pubDate').text
         published_date = mktime(strptime(published_date_str, feed_config.date_format))
         if published_date <= oldest_post_time.timestamp():
-            feed.find('channel').remove(entry)
-
-    return n_entries - get_number_of_entries(feed)
+            feed.find('./channel').remove(entry)
 
 
 def get_feed_tree_from_source(url) -> ElementTree:
@@ -114,23 +102,6 @@ def get_feed_tree_from_source(url) -> ElementTree:
     return ElementTree.fromstring(xml_data)
 
 
-def filter_entries_by_title_prefix(feed, title_prefix) -> int:
-    """
-    Removes entries from a feed that don't match the provided title_prefix.
-    Args:
-        feed: Feed to filter.
-        title_prefix: Title prefix to filter the feed by.
-
-    Returns: Number of items removed.
-
-    """
-    n_entries = get_number_of_entries(feed)
-    for entry in feed.findall('./channel/item'):
-        if not entry.find('title').text.startswith(title_prefix):
-            feed.find('channel').remove(entry)
-    return n_entries - get_number_of_entries(feed)
-
-
 def generate_podcast_feed(
         feed_config: FeedGeneratorConfig,
         running_on_gcp
@@ -150,39 +121,53 @@ def generate_podcast_feed(
     # Get storage handler
     storage = create_storage(feed_config, running_on_gcp)
 
-    # Remove entries from removed authors
-    n_entries_removed = remove_entries_from_removed_authors(feed, storage)
-    print(f'Removed {n_entries_removed} entries due to removed author.')
+    def get_number_of_entries():
+        return len(feed.findall('channel/item'))
 
+    n_entries = get_number_of_entries()
+
+    # Remove entries from removed authors
+    remove_entries_from_removed_authors(feed, storage)
+    print(f'Removed {n_entries - get_number_of_entries()} entries due to removed author.')
+
+    n_entries = get_number_of_entries()
     # Filter entries by checking if their titles match the provided title_prefix
     if feed_config.title_prefix:
-        n_entries_removed = filter_entries_by_title_prefix(feed, feed_config.title_prefix)
-        print(f'Removed {n_entries_removed} entries because of title mismatch...')
+        for entry in feed.findall('./channel/item'):
+            if not entry.find('title').text.startswith(feed_config.title_prefix):
+                feed.find('channel').remove(entry)
+
+    print(
+        f'Removed {n_entries - get_number_of_entries()} entries because of title mismatch. {get_number_of_entries()} entries remaining.')
+    n_entries = get_number_of_entries()
 
     if feed_config.search_period:
-        n_entries_removed = filter_entries_by_search_period(feed, feed_config)
-    print(f'Removed {n_entries_removed} entries outside search period...')
-
-    if get_number_of_entries(feed) == 0:
-        # How to handle this case??
-        return None, None
+        filter_entries_by_search_period(feed, feed_config)
+    print(
+        f'Removed {n_entries - get_number_of_entries()} entries because they were not within the search period. {get_number_of_entries()} entries remaining.')
 
     # Get entry with the most karma
-    max_karma_entry = max(feed.findall('./channel/item'), key=lambda entry: get_post_karma(entry.find('link').text))
+    max_karma_entry = max(feed.findall('./channel/item'), key=lambda entry: get_post_karma(entry.find('link').text),
+                          default=None)
+    no_max_karma_entry = max_karma_entry is None
+    if no_max_karma_entry:
+        print('no max karma entry found. exiting.')
+        return None, None
 
-    if feed_config.history_titles_filename:
-        # Read history titles from storage
-        history_titles = storage.read_history_titles()
+    # Read history titles from storage
+    history_titles = storage.read_history_titles()
 
-        # Check if max karma post is in history
-        def entry_title_is_in_history(entry):
-            return max([SequenceMatcher(None, entry.find('title').text, h).ratio() for h in history_titles]) > 0.9
+    def entry_title_is_in_history(entry):
+        for history_title in history_titles:
+            entry_title = entry.find('title').text
+            # If the title matches the history_title by more than 90%, then we have added the title to the history_titles file in the past.
+            if SequenceMatcher(None, entry_title, history_title).ratio() > 0.9:
+                return True
+        return False
 
-        if entry_title_is_in_history(max_karma_entry):
-            return None, None
-
-        history_titles += [max_karma_entry.find('title').text]
-        storage.write_history_titles(history_titles)
+    if entry_title_is_in_history(max_karma_entry):
+        print('max_karma_entry is in history. exiting.')
+        return None, None
 
     # Update values from the provided configuration
     feed.find('./channel/title').text = feed_config.title
@@ -205,9 +190,14 @@ def generate_podcast_feed(
         ElementTree.register_namespace(prefix, uri)
 
     xml_feed = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
+
+    max_karma_entry_title = max_karma_entry.find('title').text
+    storage.write_history_titles(history_titles + [max_karma_entry_title])
+
+    print('writing to RSS feed with new entry ', max_karma_entry_title)
     storage.write_podcast_feed(xml_feed)
 
-    return storage.output_feed_filename, feed
+    return feed_config.output_basename, feed
 
 
 def generate_beyondwords_feed():

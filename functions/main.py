@@ -1,60 +1,61 @@
-
-from functions.af.alignment_forum import af_all_main
-from functions.af.alignment_forum_daily import af_daily_main
-from functions.af.alignment_forum_weekly import af_weekly_main
-from functions.ea.effective_altruism_forum import ea_all_main
-from functions.ea.effective_altruism_forum_daily import ea_daily_main
-from functions.ea.effective_altruism_forum_weekly import ea_weekly_main
-from functions.lw.lesswrong import lw_all_main
-from functions.lw.lesswrong_daily import lw_daily_main
-from functions.lw.lesswrong_weekly import lw_weekly_main
-from functions.nnl import create_main_nonlinear_library_rss
+from configs import af_all_config
+from configs import af_daily_config
+from configs import af_weekly_config
+from configs import ea_all_config
+from configs import ea_daily_config
+from configs import ea_weekly_config
+from configs import lw_all_config
+from configs import lw_daily_config
+from configs import lw_weekly_config
+from create_beyondwords_inputs import main_create_beyondwords_nonlinear_library_project_inputs
+from podcast_feed_generator import generate_podcast_feed
 
 
 def af_daily(a=None, b=None):
     print('running af_daily')
-    af_daily_main(True)
+    generate_podcast_feed(af_daily_config(), True)
+
 
 def af_weekly(a=None, b=None):
     print('running af_weekly')
-    af_weekly_main(True)
+    generate_podcast_feed(af_weekly_config(), True)
 
 
 def af_all(a=None, b=None):
     print('running af_all')
-    af_all_main(True)
+    generate_podcast_feed(af_all_config(), True)
 
 
 def ea_daily(a=None, b=None):
     print('running ea_daily')
-    ea_daily_main(True)
+    generate_podcast_feed(ea_daily_config(), True)
 
 
 def ea_weekly(a=None, b=None):
     print('running ea_weekly')
-    ea_weekly_main(True)
+    generate_podcast_feed(ea_weekly_config(), True)
 
 
 def ea_all(a=None, b=None):
     print('running ea_all')
-    ea_all_main(True)
+    generate_podcast_feed(ea_all_config(), True)
 
 
 def lw_daily(a=None, b=None):
     print('running lw_daily')
-    lw_daily_main(True)
+    generate_podcast_feed(lw_daily_config(), True)
 
 
 def lw_weekly(a=None, b=None):
     print('running lw_weekly')
-    lw_weekly_main(True)
+    generate_podcast_feed(lw_weekly_config(), True)
 
 
 def lw_all(a=None, b=None):
     print('running lw_all')
-    lw_all_main(True)
+    generate_podcast_feed(lw_all_config(), True)
 
 
-def create_nonlinear_library_main_feed(a=None, b=None):
-    print('running create_nonlinear_library_main_feed')
-    create_main_nonlinear_library_rss()
+def create_beyondwords_nonlinear_library_project_inputs(a=None, b=None):
+    print('running create_beyondwords_nonlinear_library_project_inputs')
+    main_create_beyondwords_nonlinear_library_project_inputs()
