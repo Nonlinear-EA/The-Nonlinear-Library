@@ -145,7 +145,106 @@
             <enclosure length="10997324" type="audio/mpeg"
                        url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6602620/media/a2fa71b1b26e3178a816e37b996a8541_compiled.mp3"/>
             <pubDate>Tue, 04 Apr 2023 20:56:11 +0000</pubDate>
-            <itunes:title>AF - This is an AF episode</itunes:title>
+            <itunes:title>AF - This is an AF episode from a removed author</itunes:title>
+            <itunes:subtitle>
+                Subtitle
+            </itunes:subtitle>
+            <itunes:summary>
+                Summary
+            </itunes:summary>
+            <itunes:author>1a3orn</itunes:author>
+            <itunes:image>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </itunes:image>
+            <itunes:duration>09:09</itunes:duration>
+            <itunes:keywords/>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:episodeType>full</itunes:episodeType>
+            <itunes:episode>5479</itunes:episode>
+        </item>
+        <item>
+            <guid isPermaLink="false">GkC6YTu4DWp2zwf9k_NL_LW</guid>
+            <title>LW - This is an LW episode from a removed author</title>
+            <description>
+                A LW episode
+            </description>
+            <author>RemovedAuthor</author>
+            <link>
+                https://www.lesswrong.com/posts/GkC6YTu4DWp2zwf9k/giant-in-scrutable-matrices-maybe-the-best-of-all-possible
+            </link>
+            <content:encoded>
+                Content
+            </content:encoded>
+            <enclosure length="10997324" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6602620/media/a2fa71b1b26e3178a816e37b996a8541_compiled.mp3"/>
+            <pubDate>Tue, 04 Apr 2023 20:56:11 +0000</pubDate>
+            <itunes:title>AF - This is an AF episode from a removed author</itunes:title>
+            <itunes:subtitle>
+                Subtitle
+            </itunes:subtitle>
+            <itunes:summary>
+                Summary
+            </itunes:summary>
+            <itunes:author>1a3orn</itunes:author>
+            <itunes:image>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </itunes:image>
+            <itunes:duration>09:09</itunes:duration>
+            <itunes:keywords/>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:episodeType>full</itunes:episodeType>
+            <itunes:episode>5479</itunes:episode>
+        </item>
+        <item>
+            <guid isPermaLink="false">GkC6YTu4DWp2zwf9k_NL_LW</guid>
+            <title>EA - This is an EA episode from a removed author</title>
+            <description>
+                An EA episode
+            </description>
+            <author>RemovedAuthor</author>
+            <link>
+                https://www.lesswrong.com/posts/GkC6YTu4DWp2zwf9k/giant-in-scrutable-matrices-maybe-the-best-of-all-possible
+            </link>
+            <content:encoded>
+                Content
+            </content:encoded>
+            <enclosure length="10997324" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6602620/media/a2fa71b1b26e3178a816e37b996a8541_compiled.mp3"/>
+            <pubDate>Tue, 04 Apr 2023 20:56:11 +0000</pubDate>
+            <itunes:title>AF - This is an AF episode from a removed author</itunes:title>
+            <itunes:subtitle>
+                Subtitle
+            </itunes:subtitle>
+            <itunes:summary>
+                Summary
+            </itunes:summary>
+            <itunes:author>1a3orn</itunes:author>
+            <itunes:image>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </itunes:image>
+            <itunes:duration>09:09</itunes:duration>
+            <itunes:keywords/>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:episodeType>full</itunes:episodeType>
+            <itunes:episode>5479</itunes:episode>
+        </item>
+        <item>
+            <guid isPermaLink="false">GkC6YTu4DWp2zwf9k_NL_LW</guid>
+            <title>AF - This is an old entry</title>
+            <description>
+                An AF episode
+            </description>
+            <author>AVeryOldAuthor</author>
+            <link>
+                https://www.lesswrong.com/posts/GkC6YTu4DWp2zwf9k/giant-in-scrutable-matrices-maybe-the-best-of-all-possible
+            </link>
+            <content:encoded>
+                Content
+            </content:encoded>
+            <enclosure length="10997324" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6602620/media/a2fa71b1b26e3178a816e37b996a8541_compiled.mp3"/>
+            <pubDate>Tue, 04 Jan 2023 20:56:11 +0000</pubDate>
+            <itunes:title>AF - This is an old entry</itunes:title>
             <itunes:subtitle>
                 Subtitle
             </itunes:subtitle>

@@ -1,7 +1,7 @@
 from datetime import datetime
 from difflib import SequenceMatcher
 from time import strptime, mktime
-from typing import Tuple
+from typing import List
 from urllib.parse import urlparse
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
@@ -51,7 +51,7 @@ def remove_entries_from_removed_authors(feed: Element, storage: StorageInterface
             feed.find('channel').remove(item)
 
 
-def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGeneratorConfig):
+def filter_entries_by_search_period(feed: Element, feed_config: FeedGeneratorConfig):
     """
     Return entries that were published within a period defined in the FeedGeneratorConfig object.
     
@@ -66,14 +66,14 @@ def filter_entries_by_search_period(feed: ElementTree, feed_config: FeedGenerato
     # Define the time of the oldest post that should come through
     oldest_post_time = datetime.now() - search_period
 
-    for entry in feed.findall('./channel/item'):
+    for entry in feed.findall('channel/item'):
         published_date_str = entry.find('pubDate').text
         published_date = mktime(strptime(published_date_str, feed_config.date_format))
         if published_date <= oldest_post_time.timestamp():
-            feed.find('./channel').remove(entry)
+            feed.find('channel').remove(entry)
 
 
-def get_feed_tree_from_source(url) -> ElementTree:
+def get_feed_tree_from_source(url) -> Element:
     """
     Return an element tree from the provided url (or path to local file).
 
@@ -102,19 +102,7 @@ def get_feed_tree_from_source(url) -> ElementTree:
     return ElementTree.fromstring(xml_data)
 
 
-def generate_podcast_feed(
-        feed_config: FeedGeneratorConfig,
-        running_on_gcp
-) -> Tuple[str | None, ElementTree.ElementTree | None]:
-    """
-    Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
-    provided feed_config object.
-
-    Args: feed_config: Object with meta-data and filtering criteria to produce an RSS feed file.
-
-    Returns: The file name of the produced xml string and the xml string.
-    """
-
+def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Element] | None:
     # Get feed from source
     feed = get_feed_tree_from_source(feed_config.source)
 
@@ -131,9 +119,10 @@ def generate_podcast_feed(
     print(f'Removed {n_entries - get_number_of_entries()} entries due to removed author.')
 
     n_entries = get_number_of_entries()
+
     # Filter entries by checking if their titles match the provided title_prefix
     if feed_config.title_prefix:
-        for entry in feed.findall('./channel/item'):
+        for entry in feed.findall('channel/item'):
             if not entry.find('title').text.startswith(feed_config.title_prefix):
                 feed.find('channel').remove(entry)
 
@@ -147,12 +136,12 @@ def generate_podcast_feed(
         f'Removed {n_entries - get_number_of_entries()} entries because they were not within the search period. {get_number_of_entries()} entries remaining.')
 
     # Get entry with the most karma
-    max_karma_entry = max(feed.findall('./channel/item'), key=lambda entry: get_post_karma(entry.find('link').text),
+    max_karma_entry = max(feed.findall('channel/item'), key=lambda post: get_post_karma(post.find('link').text),
                           default=None)
     no_max_karma_entry = max_karma_entry is None
     if no_max_karma_entry:
         print('no max karma entry found. exiting.')
-        return None, None
+        return None
 
     # Read history titles from storage
     history_titles = storage.read_history_titles()
@@ -167,17 +156,44 @@ def generate_podcast_feed(
 
     if entry_title_is_in_history(max_karma_entry):
         print('max_karma_entry is in history. exiting.')
-        return None, None
-
-    # Update values from the provided configuration
-    feed.find('./channel/title').text = feed_config.title
-    feed.find('./channel/image/url').text = feed_config.image_url
+        return None
 
     # Update guid if provided in the feed_config
     if feed_config.guid_suffix:
-        for item in feed.findall('./channel/item'):
+        for item in feed.findall('channel/item'):
             guid = item.find('guid')
             guid.text += feed_config.guid_suffix
+
+    return feed.findall('channel/item')
+
+
+def get_podcast_feed(feed_config, running_on_gcp) -> Element:
+    pass
+
+
+def update_podcast_feed(
+        feed_config: FeedGeneratorConfig,
+        running_on_gcp
+) -> str | None:
+    """
+    Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
+    provided feed_config object.
+
+    Args: feed_config: Object with meta-data and filtering criteria to produce an RSS feed file.
+
+    Returns: The file name of the produced xml string and the xml string.
+    """
+
+    new_episodes = get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp)
+
+    if len(new_episodes) == 0:
+        return None
+
+    podcast_feed = get_podcast_feed(feed_config, running_on_gcp)
+
+    # Update values from the provided configuration
+    podcast_feed.find('./channel/title').text = feed_config.title
+    podcast_feed.find('./channel/image/url').text = feed_config.image_url
 
     # Register namespaces before parsing to string.
     namespaces = {
@@ -189,15 +205,14 @@ def generate_podcast_feed(
     for prefix, uri in namespaces.items():
         ElementTree.register_namespace(prefix, uri)
 
-    xml_feed = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
+    # TODO: Write new items in history.
+    # max_karma_entry_title = max_karma_entry.find('title').text
+    # storage.write_history_titles(history_titles + [max_karma_entry_title])
 
-    max_karma_entry_title = max_karma_entry.find('title').text
-    storage.write_history_titles(history_titles + [max_karma_entry_title])
-
-    print('writing to RSS feed with new entry ', max_karma_entry_title)
-    storage.write_podcast_feed(xml_feed)
-
-    return feed_config.output_basename, feed
+    # xml_feed = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
+    #
+    # print('writing to RSS feed with new entry ', max_karma_entry_title)
+    # storage.write_podcast_feed(xml_feed)
 
 
 def generate_beyondwords_feed():
