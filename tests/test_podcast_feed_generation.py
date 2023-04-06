@@ -4,7 +4,8 @@ import freezegun
 from dateutil.tz import tz
 
 from functions.feed import FeedGeneratorConfig
-from functions.podcast_feed_generator import filter_episodes, update_podcast_feed
+from functions.podcast_feed_generator import filter_episodes, update_podcast_feed, \
+    get_new_episodes_from_beyondwords_feed
 from tests.conftest import get_feed_reference_date_str
 
 search_periods = (FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_WEEK)
@@ -65,7 +66,7 @@ def test_filter_episodes_filters_out_entries_outside_search_period(
 
 @freezegun.freeze_time(get_feed_reference_date_str())
 def test_update_podcast_feed_updates_channel_title(
-        feed_config,
+        feed_config_top_post,
         mock_get_feed_tree_from_source,
         mock_read_podcast_feed,
         mock_write_podcast_feed,
@@ -73,14 +74,14 @@ def test_update_podcast_feed_updates_channel_title(
         storage,
         cleanup_podcast_feed
 ):
-    update_podcast_feed(feed_config, False)
+    update_podcast_feed(feed_config_top_post, False)
     feed = storage.read_podcast_feed()
-    assert feed.find('channel/title').text == feed_config.title
+    assert feed.find('channel/title').text == feed_config_top_post.title
 
 
 @freezegun.freeze_time(get_feed_reference_date_str())
 def test_update_podcast_feed_updates_channel_image_url(
-        feed_config,
+        feed_config_top_post,
         mock_get_feed_tree_from_source,
         mock_read_podcast_feed,
         mock_write_podcast_feed,
@@ -88,14 +89,14 @@ def test_update_podcast_feed_updates_channel_image_url(
         storage,
         cleanup_podcast_feed
 ):
-    update_podcast_feed(feed_config, False)
+    update_podcast_feed(feed_config_top_post, False)
     feed = storage.read_podcast_feed()
-    assert feed.find('channel/image/url').text == feed_config.image_url
+    assert feed.find('channel/image/url').text == feed_config_top_post.image_url
 
 
 @freezegun.freeze_time(get_feed_reference_date_str())
 def test_update_podcast_feed_updates_title_history(
-        feed_config,
+        feed_config_top_post,
         mock_get_feed_tree_from_source,
         mock_read_podcast_feed,
         mock_write_podcast_feed,
@@ -103,7 +104,7 @@ def test_update_podcast_feed_updates_title_history(
         storage,
         cleanup_podcast_feed
 ):
-    _, new_episode_title = update_podcast_feed(feed_config, False)
+    _, new_episode_title = update_podcast_feed(feed_config_top_post, False)
     history_titles = storage.read_history_titles()
     assert new_episode_title in history_titles
 
@@ -117,3 +118,14 @@ def test_filter_episodes_returns_multiple_posts_if_top_post_only_flag_is_false(
     episodes = filter_episodes(beyondwords_feed, feed_config_all, False)
 
     assert len(episodes) > 1
+
+
+def test_get_new_episodes_from_beyond_words_adds_multiple_episodes_if_top_post_only_flag_is_false(
+        feed_config_all,
+        mock_get_feed_tree_from_source,
+        mock_get_post_karma,
+        cleanup_podcast_feed
+):
+    episodes = get_new_episodes_from_beyondwords_feed(feed_config_all, False)
+
+    assert isinstance(episodes, list) and len(episodes) > 1

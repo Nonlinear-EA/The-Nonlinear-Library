@@ -147,7 +147,7 @@ def search_period_time_delta(search_period: FeedGeneratorConfig.SearchPeriod):
 
 
 @pytest.fixture()
-def feed_config(
+def feed_config_top_post(
         default_config,
         search_period,
         forum_title_prefix

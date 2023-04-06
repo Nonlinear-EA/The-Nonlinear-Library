@@ -189,40 +189,45 @@ def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[
     # Filter episodes from feed
     new_episodes = filter_episodes(feed, feed_config, running_on_gcp)
 
-    # Get entry with the most karma
-    max_karma_entry = max(new_episodes, key=lambda post: get_post_karma(post.find('link').text),
-                          default=None)
+    if feed_config.top_post_only:
+        # Get entry with the most karma
+        max_karma_entry = max(new_episodes, key=lambda post: get_post_karma(post.find('link').text),
+                              default=None)
 
-    no_max_karma_entry = max_karma_entry is None
+        no_max_karma_entry = max_karma_entry is None
 
-    if no_max_karma_entry:
-        print('no max karma entry found. exiting.')
-        return None
+        if no_max_karma_entry:
+            print('no max karma entry found. exiting.')
+            return None
+        new_episodes = [max_karma_entry]
 
-    max_karma_entry_title = max_karma_entry.find('title').text
+        max_karma_entry_title = max_karma_entry.find('title').text
 
-    print(f"Max karma entry found: '{max_karma_entry_title}'")
+        print(f"Max karma entry found: '{max_karma_entry_title}'")
 
-    if episode_is_in_history(max_karma_entry_title, feed_config, running_on_gcp):
-        print('max_karma_entry is in history, exiting.')
+    all_episodes_are_in_history = all([episode_is_in_history(episode, feed_config, running_on_gcp) for episode in
+                                       new_episodes])
+
+    if all_episodes_are_in_history:
+        print('All of the episodes are already in history.')
         return None
 
     print('max_karma_entry not in history, returning max_karma_entry')
 
-    return max_karma_entry
+    return new_episodes
 
 
-def add_episode_to_history(feed_config, episode: Element, running_on_gcp):
+def add_episodes_to_history(feed_config, episodes: List[Element], running_on_gcp):
     storage = create_storage(feed_config, running_on_gcp)
     history_titles = storage.read_history_titles()
-    history_titles += [episode.find('title').text]
+    history_titles += [episode.find('title').text for episode in episodes]
     storage.write_history_titles(history_titles)
 
 
 def update_podcast_feed(
         feed_config: FeedGeneratorConfig,
         running_on_gcp
-) -> Tuple[str, str] | None:
+) -> Tuple[str, list] | None:
     """
     Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
     provided feed_config object.
@@ -232,10 +237,11 @@ def update_podcast_feed(
     Returns: The file name of the produced xml string and the xml string and the title of the new episode
     """
 
-    new_episode = get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp)
+    new_episodes = get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp)
 
-    if len(new_episode) == 0:
+    if len(new_episodes) == 0:
         return None
+
     storage = create_storage(feed_config, running_on_gcp)
     podcast_feed = storage.read_podcast_feed()
 
@@ -253,16 +259,19 @@ def update_podcast_feed(
     for prefix, uri in namespaces.items():
         ElementTree.register_namespace(prefix, uri)
 
-    podcast_feed.find('channel').append(new_episode)
-    add_episode_to_history(feed_config, new_episode, running_on_gcp)
+    for episode in new_episodes:
+        podcast_feed.find('channel').append(episode)
+
+    add_episodes_to_history(feed_config, new_episodes, running_on_gcp)
 
     xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
 
-    print(f"writing to RSS feed with new entry {new_episode.find('title').text}")
+    print(f"Writing to RSS feed with ${len(new_episodes)} new entries")
 
     storage = create_storage(feed_config, running_on_gcp)
     storage.write_podcast_feed(xml_feed)
-    return storage.rss_file, new_episode.find('title').text
+    
+    return storage.rss_file, [episode.find('title').text for episode in new_episodes]
 
 
 def generate_beyondwords_feed():
