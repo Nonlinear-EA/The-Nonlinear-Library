@@ -266,11 +266,11 @@ def update_podcast_feed(
 
     xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
 
-    print(f"Writing to RSS feed with ${len(new_episodes)} new entries")
+    print(f"Writing to RSS feed with {len(new_episodes)} new entries")
 
     storage = create_storage(feed_config, running_on_gcp)
     storage.write_podcast_feed(xml_feed)
-    
+
     return storage.rss_file, [episode.find('title').text for episode in new_episodes]
 
 

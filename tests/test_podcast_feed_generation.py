@@ -96,7 +96,7 @@ def test_update_podcast_feed_updates_channel_image_url(
 
 @freezegun.freeze_time(get_feed_reference_date_str())
 def test_update_podcast_feed_updates_title_history(
-        feed_config_top_post,
+        feed_config,
         mock_get_feed_tree_from_source,
         mock_read_podcast_feed,
         mock_write_podcast_feed,
@@ -104,9 +104,9 @@ def test_update_podcast_feed_updates_title_history(
         storage,
         cleanup_podcast_feed
 ):
-    _, new_episode_title = update_podcast_feed(feed_config_top_post, False)
+    _, new_episode_titles = update_podcast_feed(feed_config, False)
     history_titles = storage.read_history_titles()
-    assert new_episode_title in history_titles
+    assert all([episode in history_titles for episode in new_episode_titles])
 
 
 def test_filter_episodes_returns_multiple_posts_if_top_post_only_flag_is_false(

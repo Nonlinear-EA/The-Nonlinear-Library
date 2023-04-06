@@ -136,7 +136,7 @@ def beyondwords_feed():
     return ElementTree.parse('./test_beyondwords_feed.xml').getroot()
 
 
-@pytest.fixture(params=(FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_DAY))
+@pytest.fixture(params=(FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_DAY, None))
 def search_period(request):
     return request.param
 
@@ -155,6 +155,19 @@ def feed_config_top_post(
     default_config.search_period = search_period
     default_config.title_prefix = forum_title_prefix
     default_config.top_post_only = True
+    return default_config
+
+
+@pytest.fixture(params=(True, False))
+def feed_config(
+        default_config,
+        search_period,
+        forum_title_prefix,
+        request
+):
+    default_config.search_period = search_period
+    default_config.title_prefix = forum_title_prefix
+    default_config.top_post_only = request.param
     return default_config
 
 
