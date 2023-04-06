@@ -9,6 +9,11 @@ from functions.feed import FeedGeneratorConfig
 from functions.storage import LocalStorage, create_storage
 
 forum_prefixes = ('AF - ', 'EA - ', 'LW - ')
+history_titles = [
+    'AF - This is a history AF episode',
+    'EA - This is a history EA episode',
+    'LW - This is a history LW episode'
+]
 
 
 def get_feed_reference_date_str(date_format='%Y-%m-%d %H:%M:%S'):
@@ -37,7 +42,7 @@ def empty_history(storage):
 
     """
     yield
-    storage.write_history_titles(["This is an entry that shouldn't match anything!"])
+    storage.write_history_titles(history_titles)
 
 
 @pytest.fixture

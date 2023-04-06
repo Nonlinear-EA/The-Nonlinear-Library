@@ -109,6 +109,22 @@ def test_update_podcast_feed_updates_title_history(
     assert all([episode in history_titles for episode in new_episode_titles])
 
 
+@freezegun.freeze_time(get_feed_reference_date_str())
+def test_udpate_podcast_feed_does_not_write_episodes_in_history_titles(
+        feed_config,
+        mock_get_feed_tree_from_source,
+        mock_read_podcast_feed,
+        mock_get_post_karma,
+        mock_write_podcast_feed,
+        storage,
+        cleanup_podcast_feed
+):
+    history_titles = storage.read_history_titles()
+    _, new_episode_titles = update_podcast_feed(feed_config, False)
+    assert all([episode not in history_titles for episode in new_episode_titles])
+
+
+@freezegun.freeze_time(get_feed_reference_date_str())
 def test_filter_episodes_returns_multiple_posts_if_top_post_only_flag_is_false(
         feed_config_all,
         beyondwords_feed,
@@ -120,6 +136,7 @@ def test_filter_episodes_returns_multiple_posts_if_top_post_only_flag_is_false(
     assert len(episodes) > 1
 
 
+@freezegun.freeze_time(get_feed_reference_date_str())
 def test_get_new_episodes_from_beyond_words_adds_multiple_episodes_if_top_post_only_flag_is_false(
         feed_config_all,
         mock_get_feed_tree_from_source,
