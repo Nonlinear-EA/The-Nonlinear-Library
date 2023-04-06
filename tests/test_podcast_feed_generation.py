@@ -108,5 +108,12 @@ def test_update_podcast_feed_updates_title_history(
     assert new_episode_title in history_titles
 
 
-def test_filter_episodes_returns_multiple_posts_if_top_post_only_flag_is_false():
-    pass
+def test_filter_episodes_returns_multiple_posts_if_top_post_only_flag_is_false(
+        feed_config_all,
+        beyondwords_feed,
+        mock_get_feed_tree_from_source,
+        mock_get_post_karma
+):
+    episodes = filter_episodes(beyondwords_feed, feed_config_all, False)
+
+    assert len(episodes) > 1
