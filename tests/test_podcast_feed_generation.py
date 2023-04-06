@@ -19,8 +19,6 @@ def test_filter_episodes_filters_out_entries_from_removed_authors(
         mock_get_feed_tree_from_source,
         mock_get_post_karma
 ):
-    default_config.title_prefix = forum_title_prefix
-
     new_episodes = filter_episodes(beyondwords_feed, default_config, False)
     posts_from_removed_authors = [episode for episode in new_episodes if episode.find('author').text in removed_authors]
 
@@ -48,10 +46,8 @@ def test_filter_episode_filters_out_entries_from_other_forums(
 def test_filter_episodes_filters_out_entries_outside_search_period(
         search_period,
         beyondwords_feed,
-        forum_title_prefix,
         default_config
 ):
-    default_config.title_prefix = forum_title_prefix
     default_config.search_period = search_period
 
     episodes = filter_episodes(beyondwords_feed, default_config, False)
@@ -110,3 +106,7 @@ def test_update_podcast_feed_updates_title_history(
     _, new_episode_title = update_podcast_feed(feed_config, False)
     history_titles = storage.read_history_titles()
     assert new_episode_title in history_titles
+
+
+def test_filter_episodes_returns_multiple_posts_if_top_post_only_flag_is_false():
+    pass

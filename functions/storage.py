@@ -1,7 +1,7 @@
 import os
 from typing import List
 from xml.etree import ElementTree
-from xml.etree.ElementTree import Element
+from xml.etree.ElementTree import Element, ParseError
 
 from functions.feed import FeedGeneratorConfig
 
@@ -54,7 +54,10 @@ class LocalStorage(StorageInterface):
         return self.__read_file('./removed_authors.txt')
 
     def read_podcast_feed(self) -> Element:
-        return ElementTree.parse(self.rss_file).getroot()
+        try:
+            return ElementTree.parse(self.rss_file).getroot()
+        except ParseError:
+            return ElementTree.parse('rss_files/empty_feed.xml').getroot()
 
     def write_podcast_feed(self, feed):
         self.__write_file_as_bytes(self.rss_file, feed)
@@ -97,7 +100,10 @@ class GoogleCloudStorage(StorageInterface):
     def read_podcast_feed(self) -> Element:
         # TODO: check if this works on GCP
         rss_feed_str = "".join(self.__read_file(self.rss_file))
-        return ElementTree.fromstring(rss_feed_str)
+        try:
+            return ElementTree.fromstring(rss_feed_str)
+        except ParseError:
+            return ElementTree.parse('rss_files/empty_feed.xml').getroot()
 
     def __read_file(self, path: str):
         from google.cloud import storage

@@ -171,7 +171,7 @@ def episode_is_in_history(episode_title: str, feed_config, running_on_gcp) -> bo
     return False
 
 
-def get_new_episode_from_beyondwords_feed(feed_config, running_on_gcp) -> Element | None:
+def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Element] | None:
     """
     Return an xml element representing an individual episode's feed. The returned episode is selected from the
     BeyondWords feed after filtering by removed author, date and forum using the meta-data in the `feed_config` object.
@@ -232,7 +232,7 @@ def update_podcast_feed(
     Returns: The file name of the produced xml string and the xml string and the title of the new episode
     """
 
-    new_episode = get_new_episode_from_beyondwords_feed(feed_config, running_on_gcp)
+    new_episode = get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp)
 
     if len(new_episode) == 0:
         return None

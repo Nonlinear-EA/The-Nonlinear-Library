@@ -114,10 +114,7 @@ def default_config() -> FeedGeneratorConfig:
         author='The Nonlinear Fund',
         email='podcast@nonlinear.org',
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
-        guid_suffix='',
         title="The Nonlinear Library: Your title goes here!",
-        title_prefix='Generic - ',
-        search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket='rssfile',
         podcast_feed_basename='podcast_feed'
     )

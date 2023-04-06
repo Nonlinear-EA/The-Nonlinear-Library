@@ -20,6 +20,7 @@ class FeedGeneratorConfig:
     search_period: SearchPeriod = SearchPeriod.ONE_WEEK
     title_prefix: str = None
     date_format: str = '%a, %d %b %Y %H:%M:%S %z'
+    top_post_only: bool = False
 
     def get_search_period_timedelta(self) -> timedelta:
         """
