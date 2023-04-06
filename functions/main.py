@@ -1,4 +1,4 @@
-from configs import af_all_config
+from configs import af_all_config, beyondwords_input_config
 from configs import af_daily_config
 from configs import af_weekly_config
 from configs import ea_all_config
@@ -7,7 +7,7 @@ from configs import ea_weekly_config
 from configs import lw_all_config
 from configs import lw_daily_config
 from configs import lw_weekly_config
-from create_beyondwords_inputs import main_create_beyondwords_nonlinear_library_project_inputs
+from create_beyondwords_inputs import generate_beyondwords_input
 from podcast_feed_generator import update_podcast_feed
 
 
@@ -58,4 +58,5 @@ def lw_all(a=None, b=None):
 
 def create_beyondwords_nonlinear_library_project_inputs(a=None, b=None):
     print('running create_beyondwords_nonlinear_library_project_inputs')
-    main_create_beyondwords_nonlinear_library_project_inputs()
+    # main_create_beyondwords_nonlinear_library_project_inputs()
+    generate_beyondwords_input(beyondwords_input_config(), True)

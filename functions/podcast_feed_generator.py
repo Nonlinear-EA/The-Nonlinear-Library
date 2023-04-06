@@ -9,7 +9,7 @@ from xml.etree.ElementTree import Element
 import requests
 from bs4 import BeautifulSoup
 
-from functions.feed import FeedGeneratorConfig
+from functions.feed import FeedGeneratorConfig, BeyondWordsInputConfig
 from functions.storage import StorageInterface, create_storage
 
 
@@ -268,5 +268,11 @@ def update_podcast_feed(
     return storage.rss_file, [episode.find('title').text for episode in new_episodes]
 
 
-def generate_beyondwords_feed():
+def get_empty_beyondwords_feed():
     pass
+
+
+def generate_beyondwords_input(config: BeyondWordsInputConfig, running_on_gcp):
+    feeds = [get_feed_tree_from_source(url) for url in config.sources]
+    beyondwords_feed = get_empty_beyondwords_feed()
+    storage = create_storage(config, False)

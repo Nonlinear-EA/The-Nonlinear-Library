@@ -1,20 +1,25 @@
 from dataclasses import dataclass
 from datetime import timedelta
 from enum import Enum
+from typing import List
 
 
 @dataclass
-class FeedGeneratorConfig:
+class BaseConfig:
+    gcp_bucket: str
+    email: str
+    author: str
+
+
+@dataclass
+class FeedGeneratorConfig(BaseConfig):
     class SearchPeriod(Enum):
         ONE_WEEK = 7
         ONE_DAY = 1
 
     source: str
     image_url: str
-    email: str
-    author: str
     podcast_feed_basename: str
-    gcp_bucket: str
     title: str
     guid_suffix: str = None
     search_period: SearchPeriod | None = None
@@ -35,3 +40,10 @@ class FeedGeneratorConfig:
             return None
         else:
             raise NotImplementedError()
+
+
+@dataclass
+class BeyondWordsInputConfig(BaseConfig):
+    sources: List[str]
+    # namespaces: dict
+    max_entries: int

@@ -1,9 +1,21 @@
-from feed import FeedGeneratorConfig
+from feed import FeedGeneratorConfig, BeyondWordsInputConfig
 
 beyondwords_rss_output = 'https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143'
 nll_author = 'The Nonlinear Fund'
 gcp_bucket_newcode = 'newcode'
 nonlinear_email = 'podcast@nonlinear.org'
+
+beyondwords_feed_input_sources = [
+    'https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
+    'https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
+    'https://www.alignmentforum.org/feed.xml?view=community-rss&karmaThreshold=0'
+]
+
+beyondwords_feed_namespaces = {
+    'dc': 'http://purl.org/dc/elements/1.1/',
+    'content': 'http://purl.org/rss/1.0/modules/content/',
+    'atom': 'http://www.w3.org/2005/Atom'
+}
 
 
 def af_all_config():
@@ -145,4 +157,14 @@ def lw_weekly_config():
         gcp_bucket=gcp_bucket_newcode,
         podcast_feed_basename='lw_weekly',
         top_post_only=True
+    )
+
+
+def beyondwords_input_config():
+    return BeyondWordsInputConfig(
+        author=nll_author,
+        email=nonlinear_email,
+        gcp_bucket=gcp_bucket_newcode,
+        sources=beyondwords_feed_input_sources,
+        max_entries=30
     )
