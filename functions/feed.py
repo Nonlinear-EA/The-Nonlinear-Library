@@ -22,7 +22,7 @@ class FeedGeneratorConfig:
     date_format: str = '%a, %d %b %Y %H:%M:%S %z'
     top_post_only: bool = False
 
-    def get_search_period_timedelta(self) -> timedelta:
+    def get_search_period_timedelta(self) -> timedelta | None:
         """
         Returns a timedelta based on the string provided as search period
         """
@@ -31,5 +31,7 @@ class FeedGeneratorConfig:
             return timedelta(weeks=1)
         elif self.search_period == FeedGeneratorConfig.SearchPeriod.ONE_DAY:
             return timedelta(days=1)
+        elif self.search_period is None:
+            return None
         else:
             raise NotImplementedError()

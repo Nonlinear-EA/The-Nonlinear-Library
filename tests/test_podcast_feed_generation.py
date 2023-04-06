@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import freezegun
+import pytest
 from dateutil.tz import tz
 
 from functions.feed import FeedGeneratorConfig
@@ -14,13 +15,12 @@ search_periods = (FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.
 @freezegun.freeze_time(get_feed_reference_date_str())
 def test_filter_episodes_filters_out_entries_from_removed_authors(
         beyondwords_feed,
-        forum_title_prefix,
-        default_config,
+        feed_config,
         removed_authors,
         mock_get_feed_tree_from_source,
         mock_get_post_karma
 ):
-    new_episodes = filter_episodes(beyondwords_feed, default_config, False)
+    new_episodes = filter_episodes(beyondwords_feed, feed_config, False)
     posts_from_removed_authors = [episode for episode in new_episodes if episode.find('author').text in removed_authors]
 
     assert not posts_from_removed_authors
@@ -29,14 +29,12 @@ def test_filter_episodes_filters_out_entries_from_removed_authors(
 @freezegun.freeze_time(get_feed_reference_date_str())
 def test_filter_episode_filters_out_entries_from_other_forums(
         beyondwords_feed,
-        forum_title_prefix,
-        default_config
+        feed_config
 ):
-    default_config.title_prefix = forum_title_prefix
-    episodes = filter_episodes(beyondwords_feed, default_config, False)
+    episodes = filter_episodes(beyondwords_feed, feed_config, False)
 
     def title_matches_forum_prefix(episode):
-        episode.find('title').text.startswith(forum_title_prefix)
+        episode.find('title').text.startswith(feed_config.title_prefix)
 
     episodes_from_other_forums = [episode for episode in episodes if title_matches_forum_prefix(episode)]
 
@@ -49,8 +47,10 @@ def test_filter_episodes_filters_out_entries_outside_search_period(
         beyondwords_feed,
         default_config
 ):
-    default_config.search_period = search_period
+    if search_period is None:
+        pytest.skip()
 
+    default_config.search_period = search_period
     episodes = filter_episodes(beyondwords_feed, default_config, False)
 
     def episode_pub_date(episode):
@@ -66,7 +66,7 @@ def test_filter_episodes_filters_out_entries_outside_search_period(
 
 @freezegun.freeze_time(get_feed_reference_date_str())
 def test_update_podcast_feed_updates_channel_title(
-        feed_config_top_post,
+        feed_config,
         mock_get_feed_tree_from_source,
         mock_read_podcast_feed,
         mock_write_podcast_feed,
@@ -74,14 +74,14 @@ def test_update_podcast_feed_updates_channel_title(
         storage,
         cleanup_podcast_feed
 ):
-    update_podcast_feed(feed_config_top_post, False)
+    update_podcast_feed(feed_config, False)
     feed = storage.read_podcast_feed()
-    assert feed.find('channel/title').text == feed_config_top_post.title
+    assert feed.find('channel/title').text == feed_config.title
 
 
 @freezegun.freeze_time(get_feed_reference_date_str())
 def test_update_podcast_feed_updates_channel_image_url(
-        feed_config_top_post,
+        feed_config,
         mock_get_feed_tree_from_source,
         mock_read_podcast_feed,
         mock_write_podcast_feed,
@@ -89,9 +89,9 @@ def test_update_podcast_feed_updates_channel_image_url(
         storage,
         cleanup_podcast_feed
 ):
-    update_podcast_feed(feed_config_top_post, False)
+    update_podcast_feed(feed_config, False)
     feed = storage.read_podcast_feed()
-    assert feed.find('channel/image/url').text == feed_config_top_post.image_url
+    assert feed.find('channel/image/url').text == feed_config.image_url
 
 
 @freezegun.freeze_time(get_feed_reference_date_str())
