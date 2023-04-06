@@ -159,16 +159,8 @@ def filter_episodes(feed, feed_config, running_on_gcp) -> List[Element] | None:
     return feed.findall('channel/item')
 
 
-def episode_is_in_history(episode_title: str, feed_config, running_on_gcp) -> bool:
-    storage = create_storage(feed_config, running_on_gcp)
-    # Read history titles from storage
-    history_titles = storage.read_history_titles()
-
-    for history_title in history_titles:
-        # If the title matches the history_title by more than 90%, then we have added the title to the history_titles file in the past.
-        if SequenceMatcher(None, episode_title, history_title).ratio() > 0.9:
-            return True
-    return False
+def episode_is_in_history(episode_title: str, history_titles: list[str]) -> bool:
+    return any(SequenceMatcher(None, episode_title, history_title).ratio() > 0.9 for history_title in history_titles)
 
 
 def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Element] | None:
@@ -204,15 +196,15 @@ def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[
         max_karma_entry_title = max_karma_entry.find('title').text
 
         print(f"Max karma entry found: '{max_karma_entry_title}'")
-
-    all_episodes_are_in_history = all([episode_is_in_history(episode, feed_config, running_on_gcp) for episode in
-                                       new_episodes])
-
-    if all_episodes_are_in_history:
+    storage = create_storage(feed_config, running_on_gcp)
+    history_titles = storage.read_history_titles()
+    new_episodes = [episode for episode in
+                    new_episodes if not episode_is_in_history(episode.find('title').text, history_titles)]
+    if not new_episodes:
         print('All of the episodes are already in history.')
         return None
 
-    print('max_karma_entry not in history, returning max_karma_entry')
+    print(f'Found {len(new_episodes)} new episodes.')
 
     return new_episodes
 
@@ -238,6 +230,8 @@ def update_podcast_feed(
     """
 
     new_episodes = get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp)
+    if not new_episodes:
+        return None
 
     if len(new_episodes) == 0:
         return None

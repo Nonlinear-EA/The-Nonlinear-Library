@@ -17,7 +17,8 @@ def af_all_config():
         guid_suffix='_AF',
         gcp_bucket=gcp_bucket_newcode,
         podcast_feed_basename='af_all',
-        top_post_only=False
+        top_post_only=False,
+        search_period=None
     )
 
 
@@ -59,9 +60,9 @@ def ea_all_config():
         author=nll_author,
         email=nonlinear_email,
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20EA%20Forum.png',
-        guid_suffix='_AF',
+        guid_suffix='_EA',
         title='The Nonlinear Library: EA Forum',
-        title_prefix='AF - ',
+        title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
         podcast_feed_basename='ea_all',
         top_post_only=False

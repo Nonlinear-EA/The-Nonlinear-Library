@@ -17,7 +17,7 @@ class FeedGeneratorConfig:
     gcp_bucket: str
     title: str
     guid_suffix: str = None
-    search_period: SearchPeriod = SearchPeriod.ONE_WEEK
+    search_period: SearchPeriod | None = None
     title_prefix: str = None
     date_format: str = '%a, %d %b %Y %H:%M:%S %z'
     top_post_only: bool = False
