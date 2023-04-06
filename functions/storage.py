@@ -3,7 +3,7 @@ from typing import List
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, ParseError
 
-from functions.feed import FeedGeneratorConfig
+from feed import FeedGeneratorConfig
 
 
 class StorageInterface:

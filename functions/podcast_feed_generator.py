@@ -9,8 +9,8 @@ from xml.etree.ElementTree import Element
 import requests
 from bs4 import BeautifulSoup
 
-from functions.feed import FeedGeneratorConfig
-from functions.storage import StorageInterface, create_storage
+from feed import FeedGeneratorConfig
+from storage import StorageInterface, create_storage
 
 
 def get_post_karma(url) -> int:
