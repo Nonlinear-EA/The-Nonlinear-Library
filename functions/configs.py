@@ -16,7 +16,9 @@ def af_all_config():
         title_prefix='AF -',
         guid_suffix='_AF',
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='af_all'
+        podcast_feed_basename='af_all',
+        top_post_only=False,
+        search_period=None
     )
 
 
@@ -31,7 +33,8 @@ def af_daily_config():
         title_prefix='AF - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='af_daily'
+        podcast_feed_basename='af_daily',
+        top_post_only=True
     )
 
 
@@ -46,7 +49,8 @@ def af_weekly_config():
         title_prefix='AF - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='af_weekly'
+        podcast_feed_basename='af_weekly',
+        top_post_only=True
     )
 
 
@@ -56,11 +60,12 @@ def ea_all_config():
         author=nll_author,
         email=nonlinear_email,
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20EA%20Forum.png',
-        guid_suffix='_AF',
+        guid_suffix='_EA',
         title='The Nonlinear Library: EA Forum',
-        title_prefix='AF - ',
+        title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='ea_all'
+        podcast_feed_basename='ea_all',
+        top_post_only=False
     )
 
 
@@ -75,7 +80,8 @@ def ea_daily_config():
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='ea_daily'
+        podcast_feed_basename='ea_daily',
+        top_post_only=True
     )
 
 
@@ -90,7 +96,8 @@ def ea_weekly_config():
         title_prefix='EA - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='ea_weekly'
+        podcast_feed_basename='ea_weekly',
+        top_post_only=True
     )
 
 
@@ -104,7 +111,8 @@ def lw_all_config():
         title='The Nonlinear Library: LessWrong',
         title_prefix='LW - ',
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='lw_all'
+        podcast_feed_basename='lw_all',
+        top_post_only=False
     )
 
 
@@ -119,7 +127,8 @@ def lw_daily_config():
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         title_prefix='LW - ',
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='lw_daily'
+        podcast_feed_basename='lw_daily',
+        top_post_only=True
     )
 
 
@@ -134,5 +143,6 @@ def lw_weekly_config():
         title_prefix='LW - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
-        output_basename='lw_weekly',
+        podcast_feed_basename='lw_weekly',
+        top_post_only=True
     )

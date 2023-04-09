@@ -1,5 +1,7 @@
 import os
 from typing import List
+from xml.etree import ElementTree
+from xml.etree.ElementTree import Element, ParseError
 
 from feed import FeedGeneratorConfig
 
@@ -23,6 +25,9 @@ class StorageInterface:
     def write_podcast_feed(self, feed: str):
         raise NotImplementedError()
 
+    def read_podcast_feed(self) -> Element:
+        raise NotImplementedError()
+
     def read_removed_authors(self) -> List[str]:
         raise NotImplementedError()
 
@@ -31,6 +36,7 @@ class LocalStorage(StorageInterface):
     """
     StorageInterface implementation to work with local files.
     """
+
     def __init__(
             self, output_basename: str
     ):
@@ -46,6 +52,12 @@ class LocalStorage(StorageInterface):
 
     def read_removed_authors(self):
         return self.__read_file('./removed_authors.txt')
+
+    def read_podcast_feed(self) -> Element:
+        try:
+            return ElementTree.parse(self.rss_file).getroot()
+        except ParseError:
+            return ElementTree.parse('rss_files/empty_feed.xml').getroot()
 
     def write_podcast_feed(self, feed):
         self.__write_file_as_bytes(self.rss_file, feed)
@@ -85,6 +97,14 @@ class GoogleCloudStorage(StorageInterface):
     def write_podcast_feed(self, feed: str):
         self.__write_file(self.rss_file, feed)
 
+    def read_podcast_feed(self) -> Element:
+        # TODO: check if this works on GCP
+        rss_feed_str = "".join(self.__read_file(self.rss_file))
+        try:
+            return ElementTree.fromstring(rss_feed_str)
+        except ParseError:
+            return ElementTree.parse('rss_files/empty_feed.xml').getroot()
+
     def __read_file(self, path: str):
         from google.cloud import storage
         client = storage.Client()
@@ -115,7 +135,7 @@ def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
     """
 
     if running_on_gcp:
-        return GoogleCloudStorage(output_basename=feed_config.output_basename,
+        return GoogleCloudStorage(output_basename=feed_config.podcast_feed_basename,
                                   gcp_bucket=feed_config.gcp_bucket)
     else:
-        return LocalStorage(output_basename=feed_config.output_basename)
+        return LocalStorage(output_basename=feed_config.podcast_feed_basename)

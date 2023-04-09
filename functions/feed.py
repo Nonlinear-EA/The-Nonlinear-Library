@@ -13,15 +13,16 @@ class FeedGeneratorConfig:
     image_url: str
     email: str
     author: str
-    output_basename: str
+    podcast_feed_basename: str
     gcp_bucket: str
     title: str
     guid_suffix: str = None
-    search_period: SearchPeriod = SearchPeriod.ONE_WEEK
+    search_period: SearchPeriod | None = None
     title_prefix: str = None
     date_format: str = '%a, %d %b %Y %H:%M:%S %z'
+    top_post_only: bool = False
 
-    def get_search_period_timedelta(self) -> timedelta:
+    def get_search_period_timedelta(self) -> timedelta | None:
         """
         Returns a timedelta based on the string provided as search period
         """
@@ -30,5 +31,7 @@ class FeedGeneratorConfig:
             return timedelta(weeks=1)
         elif self.search_period == FeedGeneratorConfig.SearchPeriod.ONE_DAY:
             return timedelta(days=1)
+        elif self.search_period is None:
+            return None
         else:
             raise NotImplementedError()

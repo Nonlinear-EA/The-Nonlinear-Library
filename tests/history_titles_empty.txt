@@ -1,1 +1,0 @@
-This is a sample entry that won't match anything from the feed!
