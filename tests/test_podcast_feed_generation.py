@@ -145,4 +145,4 @@ def test_get_new_episodes_from_beyond_words_adds_multiple_episodes_if_top_post_o
 ):
     episodes = get_new_episodes_from_beyondwords_feed(feed_config_all, False)
 
-    assert isinstance(episodes, list) and len(episodes) > 1
+    assert len(episodes) > 1

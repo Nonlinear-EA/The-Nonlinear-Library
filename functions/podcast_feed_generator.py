@@ -102,7 +102,7 @@ def get_feed_tree_from_source(url) -> Element:
     return ElementTree.fromstring(xml_data)
 
 
-def filter_episodes(feed, feed_config, running_on_gcp) -> List[Element] | None:
+def filter_episodes(feed, feed_config, running_on_gcp) -> List[Element]:
     """
     Return a list of xml elements representing episodes which have been filtered by author, forum and date.
 
@@ -163,7 +163,7 @@ def episode_is_in_history(episode_title: str, history_titles: list[str]) -> bool
     return any(SequenceMatcher(None, episode_title, history_title).ratio() > 0.9 for history_title in history_titles)
 
 
-def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Element] | None:
+def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Element]:
     """
     Return an xml element representing an individual episode's feed. The returned episode is selected from the
     BeyondWords feed after filtering by removed author, date and forum using the meta-data in the `feed_config` object.
@@ -190,7 +190,7 @@ def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[
 
         if no_max_karma_entry:
             print('no max karma entry found. exiting.')
-            return None
+            return []
         new_episodes = [max_karma_entry]
 
         max_karma_entry_title = max_karma_entry.find('title').text
@@ -202,7 +202,7 @@ def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[
                     new_episodes if not episode_is_in_history(episode.find('title').text, history_titles)]
     if not new_episodes:
         print('All of the episodes are already in history.')
-        return None
+        return []
 
     print(f'Found {len(new_episodes)} new episodes.')
 
