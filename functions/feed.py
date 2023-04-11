@@ -13,7 +13,6 @@ class FeedGeneratorConfig:
     image_url: str
     email: str
     author: str
-    history_titles_filename: str
     rss_filename: str
     gcp_bucket: str
     title: str

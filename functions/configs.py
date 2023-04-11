@@ -16,7 +16,6 @@ def af_all_config():
         title_prefix='AF -',
         guid_suffix='_AF',
         gcp_bucket=gcp_bucket_newcode,
-        history_titles_filename='af_all',
         rss_filename='nonlinear-library-aggregated-AF.xml',
         top_post_only=False,
         search_period=None
@@ -34,7 +33,6 @@ def af_daily_config():
         title_prefix='AF - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         gcp_bucket=gcp_bucket_newcode,
-        history_titles_filename='af_daily',
         rss_filename='nonlinear-library-aggregated-AF-daily.xml',
         top_post_only=True
     )
@@ -51,7 +49,6 @@ def af_weekly_config():
         title_prefix='AF - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
-        history_titles_filename='af_weekly',
         rss_filename='nonlinear-library-aggregated-AF-weekly.xml',
         top_post_only=True
     )
@@ -67,7 +64,6 @@ def ea_all_config():
         title='The Nonlinear Library: EA Forum',
         title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
-        history_titles_filename='ea_all',
         rss_filename='nonlinear-library-aggregated-EA.xml',
         top_post_only=False
     )
@@ -84,7 +80,6 @@ def ea_daily_config():
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
-        history_titles_filename='ea_daily',
         rss_filename='nonlinear-library-aggregated-EA-daily.xml',
         top_post_only=True
     )
@@ -101,7 +96,6 @@ def ea_weekly_config():
         title_prefix='EA - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
-        history_titles_filename='ea_weekly',
         rss_filename='nonlinear-library-aggregated-EA-weekly.xml',
         top_post_only=True
     )
@@ -117,7 +111,6 @@ def lw_all_config():
         title='The Nonlinear Library: LessWrong',
         title_prefix='LW - ',
         gcp_bucket=gcp_bucket_newcode,
-        history_titles_filename='lw_all',
         rss_filename='nonlinear-library-aggregated-LW.xml',
         top_post_only=False
     )
@@ -134,7 +127,6 @@ def lw_daily_config():
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         title_prefix='LW - ',
         gcp_bucket=gcp_bucket_newcode,
-        history_titles_filename='lw_daily',
         rss_filename='nonlinear-library-aggregated-LW-daily.xml',
         top_post_only=True
     )
@@ -151,7 +143,6 @@ def lw_weekly_config():
         title_prefix='LW - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
-        history_titles_filename='lw_weekly',
         rss_filename='nonlinear-library-aggregated-LW-weekly.xml',
         top_post_only=True
     )
