@@ -70,7 +70,7 @@ class LocalStorage(StorageInterface):
             return ElementTree.parse('rss_files/empty_feed.xml').getroot()
 
     def read_beyondwords_history_titles(self) -> List[str]:
-        self.__read_file(self.beyondwords_feed_history_titles)
+        return self.__read_file(self.beyondwords_feed_history_titles)
 
     def write_beyondwords_history_titles(self, titles):
         self.__write_file(self.beyondwords_feed_history_titles, '\n'.join(titles))
@@ -126,9 +126,6 @@ class GoogleCloudStorage(StorageInterface):
             return ElementTree.fromstring(rss_feed_str)
         except ParseError:
             return ElementTree.parse('rss_files/empty_feed.xml').getroot()
-
-    def read_past_post_titles(self) -> List[str]:
-        return self.__read_file(self.past_forum_post_titles)
 
     def __read_file(self, path: str):
         from google.cloud import storage

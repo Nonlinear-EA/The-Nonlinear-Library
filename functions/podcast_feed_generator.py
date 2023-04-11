@@ -290,7 +290,7 @@ def replace_cdata_strings(feed, paths_to_replace, namespaces):
     return feed
 
 
-def remove_cross_posts(feed, config, running_on_gcp):
+def remove_posts_in_history(feed, config, running_on_gcp):
     storage = create_storage(config, running_on_gcp)
 
     posts = storage.read_beyondwords_history_titles()
@@ -301,7 +301,7 @@ def remove_cross_posts(feed, config, running_on_gcp):
             feed.find('channel').remove(item)
         else:
             posts += [item.find('title').text]
-    print(f'Removed {n_entries - len(feed.findall("channel/item"))} cross posts.')
+    print(f'Removed {n_entries - len(feed.findall("channel/item"))} existing posts.')
     return feed
 
 
@@ -320,7 +320,7 @@ def find_website_short(url):
 def prepend_website_abbreviation_to_feed_item_titles(feed):
     prefix = find_website_short(feed.find('channel/link'))
     for item_title in feed.findall('channel/item/title'):
-        item_title.text = cdatastr(f'{prefix} - {item_title.text}')
+        item_title.text = f'{prefix} - {item_title.text}'
     return feed
 
 
@@ -347,6 +347,12 @@ def add_author_tag_to_feed_items(feed):
     return feed
 
 
+def append_author_to_item_titles(feed):
+    for item in feed.findall('channel/item'):
+        item.find('title').text = f'{item.find("title").text} by {item.find("author").text}'
+    return feed
+
+
 def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
     """
     Download posts from source and save an XML file to storage with those posts.
@@ -357,26 +363,26 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
 
     feed = get_feed_tree_from_source(config.source)
     # Remove posts that have already been added to a feed
-    feed = remove_cross_posts(feed, config, running_on_gcp)
+    feed = remove_posts_in_history(feed, config, running_on_gcp)
     # The author tag is used to remove posts from removed authors, append it to each item
     feed = add_author_tag_to_feed_items(feed)
     # Save the new titles by appending them to the beyondwords titles file
     save_post_titles(feed, config, running_on_gcp)
     # Remove entries from removed authors
     remove_items_from_removed_authors(feed, config, running_on_gcp)
-
+    # Modify item titles by prepending the forum abbreviation
+    feed = prepend_website_abbreviation_to_feed_item_titles(feed)
+    # Modify item titles by appending 'by <author>'
+    feed = append_author_to_item_titles(feed)
     # The list below contains the xpaths of the items that contain XML CDATA strings
     cdata_xpaths = [
         'channel/title',
         'channel/description',
         'channel/item/description',
         'channel/item/dc:creator'
+        'channel/item/title'
     ]
     # Replace text of elements with CDATA strings with CDATA strings
     feed = replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
-
-    feed = prepend_website_abbreviation_to_feed_item_titles(feed)
-
     save_beyondwords_feed(feed, config, running_on_gcp)
-
     return feed
