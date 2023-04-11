@@ -369,7 +369,13 @@ def get_intro_str(item):
 def modify_item_content(feed):
     for item in feed.findall('channel/item'):
         intro_str = get_intro_str(item)
-        pass
+        description_html = BeautifulSoup(item.find('description').text, 'html.parser')
+        content = "<br/>".join([str(paragraph) for paragraph in description_html.find_all('p')[1:]])
+        if content:
+            content_element = Element('content')
+            content_element.text = cdatastr('<br/>'.join((intro_str, content)))
+            item.append(content_element)
+        item.find('description').text = cdatastr(intro_str)
     return feed
 
 
