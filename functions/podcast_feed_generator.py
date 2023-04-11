@@ -6,9 +6,10 @@ from urllib.parse import urlparse
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
-import feedparser
+import lxml
 import requests
 from bs4 import BeautifulSoup
+from lxml.etree import XMLParser
 
 from feed import FeedGeneratorConfig, BeyondWordsInputConfig, BaseFeedConfig
 from functions.configs import beyondwords_feed_namespaces
@@ -100,9 +101,10 @@ def get_feed_tree_from_source(url) -> Element:
     """
 
     parsed_uri = urlparse(url)
+    parser = XMLParser(strip_cdata=False, encoding='utf-8')
     if not parsed_uri.scheme:
         # If url has no scheme, treat it as a local path.
-        tree = ElementTree.parse(url)
+        tree = lxml.etree.parse(url, parser)
         return tree.getroot()
 
     if parsed_uri.scheme not in ['http', 'https']:
@@ -112,10 +114,10 @@ def get_feed_tree_from_source(url) -> Element:
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/83.0.4103.97 Safari/537.36'}
     response = requests.get(url, headers=headers)
-    xml_data = response.text
+    xml_data = bytes(response.text, encoding='utf-8')
 
     # Parse to a XML tree
-    return ElementTree.fromstring(xml_data)
+    return lxml.etree.fromstring(xml_data, parser)
 
 
 def filter_items(feed, feed_config, running_on_gcp) -> List[Element]:
@@ -279,15 +281,17 @@ def get_beyondwords_feed_template():
     return root
 
 
-def cdatastr(text):
-    return f"<![CDATA[{text}]]>"
+def cdata_element(tag, text):
+    element = lxml.etree.Element(tag)
+    element.text = lxml.etree.CDATA(text)
+    return element
 
 
 def replace_cdata_strings(feed, paths_to_replace, namespaces):
     for path in paths_to_replace:
         if feed.findall(path, namespaces) is not None:
             for item in feed.findall(path, namespaces):
-                item.text = cdatastr(item.text)
+                item.text = lxml.etree.CDATA(item.text)
     return feed
 
 
@@ -329,7 +333,7 @@ def save_beyondwords_feed(feed, config, running_on_gcp):
     # Register namespaces
     register_namespaces_on_elementtree()
     storage = create_storage(config, running_on_gcp)
-    feed_str = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
+    feed_str = lxml.etree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
     storage.write_podcast_feed(feed_str)
     return feed_str
 
@@ -342,7 +346,7 @@ def save_post_titles(feed, config, running_on_gcp):
 
 def add_author_tag_to_feed_items(feed):
     for item in feed.findall('channel/item'):
-        author = Element('author')
+        author = lxml.etree.Element('author')
         author.text = item.find('dc:creator', namespaces=beyondwords_feed_namespaces).text.replace('_', ' ')
         item.append(author)
     return feed
@@ -372,10 +376,10 @@ def modify_item_content(feed):
         description_html = BeautifulSoup(item.find('description').text, 'html.parser')
         content = "<br/>".join([str(paragraph) for paragraph in description_html.find_all('p')[1:]])
         if content:
-            content_element = Element('content')
-            content_element.text = cdatastr('<br/>'.join((intro_str, content)))
+            content_element = cdata_element('content', content)
             item.append(content_element)
-        item.find('description').text = cdatastr(intro_str)
+        item.remove(item.find('description'))
+        item.append(cdata_element('description', intro_str))
     return feed
 
 
@@ -388,8 +392,6 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
     """
 
     feed = get_feed_tree_from_source(config.source)
-
-    configparser_feed = feedparser.parse(ElementTree.tostring(feed))
 
     # Remove posts that have already been added to a feed
     feed = remove_posts_in_history(feed, config, running_on_gcp)
