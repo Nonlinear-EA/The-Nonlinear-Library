@@ -15,11 +15,15 @@ class StorageInterface:
         self.removed_authors_filename = 'removed_authors.txt'
         self.history_titles_path = os.path.join('history_titles', output_basename + '.txt')
         self.rss_file = os.path.join('rss_files', output_basename + '.xml')
+        self.beyondwords_feed = os.path.join('rss_files', f'beyondwords_{output_basename}.xml')
 
     def read_history_titles(self) -> List[str]:
         raise NotImplementedError()
 
     def write_history_titles(self, history_titles: List[str]) -> int:
+        raise NotImplementedError()
+
+    def write_beyondwords_feed(self, feed: str):
         raise NotImplementedError()
 
     def write_podcast_feed(self, feed: str):
@@ -61,6 +65,9 @@ class LocalStorage(StorageInterface):
 
     def write_podcast_feed(self, feed):
         self.__write_file_as_bytes(self.rss_file, feed)
+
+    def write_beyondwords_feed(self, feed: str):
+        pass
 
     def __read_file(self, filename: str):
         with open(filename, 'r') as f:

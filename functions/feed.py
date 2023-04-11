@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import timedelta
 from enum import Enum
 from typing import List
@@ -19,8 +19,6 @@ class FeedGeneratorConfig(BaseConfig):
 
     source: str
     image_url: str
-    email: str
-    author: str
     output_basename: str
     gcp_bucket: str
     title: str
@@ -48,5 +46,8 @@ class FeedGeneratorConfig(BaseConfig):
 @dataclass
 class BeyondWordsInputConfig(BaseConfig):
     sources: List[str]
-    # namespaces: dict
     max_entries: int
+    namespaces: dict = field(default_factory=lambda: {
+        'dc': 'http://purl.org/dc/elements/1.1/',
+        'atom': 'http://www.w3.org/2005/Atom'
+    })

@@ -9,7 +9,7 @@ from xml.etree.ElementTree import Element
 import requests
 from bs4 import BeautifulSoup
 
-from feed import FeedGeneratorConfig
+from feed import FeedGeneratorConfig, BeyondWordsInputConfig
 from storage import StorageInterface, create_storage
 
 
@@ -258,5 +258,85 @@ def update_podcast_feed(
     return storage.rss_file, [episode.find('title').text for episode in new_items]
 
 
-def generate_beyondwords_feed():
-    pass
+def get_beyondwords_feed_template():
+    root = Element('rss')
+    root.append(Element('channel'))
+    channel = root.find('channel')
+    channel.append(Element('title'))
+    channel.append(Element('description'))
+    channel.append(Element('link'))
+    channel.append(Element('image'))
+    image = channel.find('image')
+    image.append(Element('url'))
+    channel.append(Element('generator'))
+    channel.append(Element('lastBuildDate'))
+    channel.append(Element('atom:link'))
+    return root
+
+
+def cdatastr(text):
+    return f"<![CDATA[{text}]]>"
+
+
+def replace_cdata_strings(feed, paths_to_replace, namespaces):
+    for path in paths_to_replace:
+        if feed.findall(path, namespaces) is not None:
+            for item in feed.findall(path, namespaces):
+                item.text = cdatastr(item.text)
+    return feed
+
+
+def remove_cross_posts(feeds):
+    posts = []
+    for feed in feeds:
+        n_entries = len(feed.findall('channel/item'))
+        for item in feed.findall('channel/item'):
+            if item.find('title').text in posts:
+                feed.find('channel').remove(item)
+            else:
+                posts += [item.find('title').text]
+        print(f'Removed {n_entries - len(feed.findall("channel/item"))} cross posts.')
+    return feeds
+
+
+def find_website_short(url):
+    website = 'Unknown'
+    if 'forum.effectivealtruism.org' in url:
+        website = 'EA'
+    elif 'lesswrong.com' in url:
+        website = 'LW'
+    elif 'alignmentforum.org' in url:
+        website = 'AF'
+
+    return website
+
+
+def prepend_website_abbreviation_to_feed_entries_titles(feed):
+    prefix = find_website_short(feed.find('channel/link'))
+    for item_title in feed.findall('channel/item/title'):
+        item_title.text = cdatastr(f'{prefix} - {item_title.text}')
+
+
+def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
+    """
+    Download posts from sources and save an XML file to storage with those posts.
+
+    Returns:
+
+    """
+
+    feeds = [get_feed_tree_from_source(url) for url in config.sources]
+
+    feeds = remove_cross_posts(feeds)
+
+    cdata_paths = [
+        'channel/title',
+        'channel/description',
+        'channel/item/description',
+        'channel/item/dc:creator'
+    ]
+    feeds = [replace_cdata_strings(feed, cdata_paths, config.namespaces) for feed in feeds]
+
+    feeds = [prepend_website_abbreviation_to_feed_entries_titles(feed) for feed in feeds]
+
+    # storage = create_storage()
