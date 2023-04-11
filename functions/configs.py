@@ -28,7 +28,7 @@ def af_all_config():
         title_prefix='AF -',
         guid_suffix='_AF',
         gcp_bucket=gcp_bucket_newcode,
-        podcast_feed_basename='af_all',
+        output_basename='af_all',
         top_post_only=False,
         search_period=None
     )
@@ -45,7 +45,7 @@ def af_daily_config():
         title_prefix='AF - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         gcp_bucket=gcp_bucket_newcode,
-        podcast_feed_basename='af_daily',
+        output_basename='af_daily',
         top_post_only=True
     )
 
@@ -61,7 +61,7 @@ def af_weekly_config():
         title_prefix='AF - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
-        podcast_feed_basename='af_weekly',
+        output_basename='af_weekly',
         top_post_only=True
     )
 
@@ -76,7 +76,7 @@ def ea_all_config():
         title='The Nonlinear Library: EA Forum',
         title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
-        podcast_feed_basename='ea_all',
+        output_basename='ea_all',
         top_post_only=False
     )
 
@@ -92,7 +92,7 @@ def ea_daily_config():
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
-        podcast_feed_basename='ea_daily',
+        output_basename='ea_daily',
         top_post_only=True
     )
 
@@ -108,7 +108,7 @@ def ea_weekly_config():
         title_prefix='EA - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
-        podcast_feed_basename='ea_weekly',
+        output_basename='ea_weekly',
         top_post_only=True
     )
 
@@ -123,7 +123,7 @@ def lw_all_config():
         title='The Nonlinear Library: LessWrong',
         title_prefix='LW - ',
         gcp_bucket=gcp_bucket_newcode,
-        podcast_feed_basename='lw_all',
+        output_basename='lw_all',
         top_post_only=False
     )
 
@@ -139,7 +139,7 @@ def lw_daily_config():
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_DAY,
         title_prefix='LW - ',
         gcp_bucket=gcp_bucket_newcode,
-        podcast_feed_basename='lw_daily',
+        output_basename='lw_daily',
         top_post_only=True
     )
 
@@ -155,7 +155,7 @@ def lw_weekly_config():
         title_prefix='LW - ',
         search_period=FeedGeneratorConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
-        podcast_feed_basename='lw_weekly',
+        output_basename='lw_weekly',
         top_post_only=True
     )
 

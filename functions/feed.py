@@ -19,7 +19,10 @@ class FeedGeneratorConfig(BaseConfig):
 
     source: str
     image_url: str
-    podcast_feed_basename: str
+    email: str
+    author: str
+    output_basename: str
+    gcp_bucket: str
     title: str
     guid_suffix: str = None
     search_period: SearchPeriod | None = None

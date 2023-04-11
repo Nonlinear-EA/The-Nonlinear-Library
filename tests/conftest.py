@@ -121,7 +121,7 @@ def default_config() -> FeedGeneratorConfig:
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
         title="The Nonlinear Library: Your title goes here!",
         gcp_bucket='rssfile',
-        podcast_feed_basename='podcast_feed'
+        output_basename='podcast_feed'
     )
 
 
@@ -149,18 +149,6 @@ def search_period(request):
 @pytest.fixture()
 def search_period_time_delta(search_period: FeedGeneratorConfig.SearchPeriod):
     return timedelta(days=search_period.value)
-
-
-@pytest.fixture()
-def feed_config_top_post(
-        default_config,
-        search_period,
-        forum_title_prefix
-):
-    default_config.search_period = search_period
-    default_config.title_prefix = forum_title_prefix
-    default_config.top_post_only = True
-    return default_config
 
 
 @pytest.fixture(params=(True, False))
