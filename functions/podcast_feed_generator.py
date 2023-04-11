@@ -39,7 +39,7 @@ def remove_entries_from_removed_authors(feed: Element, storage: StorageInterface
     Take an element tree and remove the entries whose author is in the list of removed authors.
 
     Args:
-        feed: An xml element tree
+        feed: An XML element tree
         storage: Storage handler
 
     """
@@ -56,7 +56,7 @@ def filter_entries_by_search_period(feed: Element, feed_config: FeedGeneratorCon
     Return entries that were published within a period defined in the FeedGeneratorConfig object.
     
     Args:
-        feed: An xml element tree
+        feed: An XML element tree
         feed_config: Parameters for podcast feed generation
 
     """
@@ -78,9 +78,9 @@ def get_feed_tree_from_source(url) -> Element:
     Return an element tree from the provided url (or path to local file).
 
     Args:
-        url: Url to a xml document
+        url: Url to a XML document
 
-    Returns: A xml element tree
+    Returns: A XML element tree
     """
 
     parsed_uri = urlparse(url)
@@ -98,13 +98,13 @@ def get_feed_tree_from_source(url) -> Element:
     response = requests.get(url, headers=headers)
     xml_data = response.text
 
-    # Parse to a xml tree
+    # Parse to a XML tree
     return ElementTree.fromstring(xml_data)
 
 
-def filter_episodes(feed, feed_config, running_on_gcp) -> List[Element]:
+def filter_items(feed, feed_config, running_on_gcp) -> List[Element]:
     """
-    Return a list of xml elements representing episodes which have been filtered by author, forum and date.
+    Return a list of XML elements representing episodes which have been filtered by author, forum and date.
 
     Episodes
     - written by an author present in the list of removed authors,
@@ -114,7 +114,7 @@ def filter_episodes(feed, feed_config, running_on_gcp) -> List[Element]:
 
 
     Args:
-        feed: xml Element representing the feed
+        feed: XML Element representing the feed
         feed_config: Configuration object with meta-data to filter episodes
 
     Returns: List of episodes from the feed
@@ -159,60 +159,56 @@ def filter_episodes(feed, feed_config, running_on_gcp) -> List[Element]:
     return feed.findall('channel/item')
 
 
-def episode_is_in_history(episode_title: str, history_titles: list[str]) -> bool:
-    return any(SequenceMatcher(None, episode_title, history_title).ratio() > 0.9 for history_title in history_titles)
+def item_is_in_history(item_title: str, history_titles: list[str]) -> bool:
+    return any(SequenceMatcher(None, item_title, history_title).ratio() > 0.9 for history_title in history_titles)
 
 
-def get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Element]:
+def get_new_items_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Element]:
     """
-    Return an xml element representing an individual episode's feed. The returned episode is selected from the
+    Return a XML element representing the <item></item> stanza in a RSS feed. The <item></item> stanza represents one forum post. The returned item is selected from the
     BeyondWords feed after filtering by removed author, date and forum using the meta-data in the `feed_config` object.
 
     Args:
         feed_config: Object with meta-data and filtering criteria
 
-    Returns: The xml element that fulfilled the filtering criteria and has the most karma amongst the posts that made
+    Returns: The XML item that fulfilled the filtering criteria and has the most karma amongst the posts that made
     it through the filter
 
     """
     # Get feed from source
     feed = get_feed_tree_from_source(feed_config.source)
 
-    # Filter episodes from feed
-    new_episodes = filter_episodes(feed, feed_config, running_on_gcp)
+    # Filter items from feed
+    new_items = filter_items(feed, feed_config, running_on_gcp)
 
     if feed_config.top_post_only:
-        # Get entry with the most karma
-        max_karma_entry = max(new_episodes, key=lambda post: get_post_karma(post.find('link').text),
-                              default=None)
+        # Get item with the most karma
+        max_karma_item = max(new_items, key=lambda post: get_post_karma(post.find('link').text),
+                             default=None)
 
-        no_max_karma_entry = max_karma_entry is None
-
-        if no_max_karma_entry:
+        if max_karma_item is None:
             print('no max karma entry found. exiting.')
             return []
-        new_episodes = [max_karma_entry]
+        else:
+            print(f"Max karma entry found: '{max_karma_item.find('title').text}'")
+            new_items = [max_karma_item]
 
-        max_karma_entry_title = max_karma_entry.find('title').text
+    print(f'{len(new_items)} items matched the filters')
 
-        print(f"Max karma entry found: '{max_karma_entry_title}'")
     storage = create_storage(feed_config, running_on_gcp)
     history_titles = storage.read_history_titles()
-    new_episodes = [episode for episode in
-                    new_episodes if not episode_is_in_history(episode.find('title').text, history_titles)]
-    if not new_episodes:
-        print('All of the episodes are already in history.')
-        return []
+    new_items_not_in_history = [item for item in
+                                new_items if not item_is_in_history(item.find('title').text, history_titles)]
 
-    print(f'Found {len(new_episodes)} new episodes.')
+    print(f'{len(new_items_not_in_history)} of the new items were not in the history.')
 
-    return new_episodes
+    return new_items_not_in_history
 
 
-def add_episodes_to_history(feed_config, episodes: List[Element], running_on_gcp):
+def add_items_to_history(feed_config, items: List[Element], running_on_gcp):
     storage = create_storage(feed_config, running_on_gcp)
     history_titles = storage.read_history_titles()
-    history_titles += [episode.find('title').text for episode in episodes]
+    history_titles += [item.find('title').text for item in items]
     storage.write_history_titles(history_titles)
 
 
@@ -226,14 +222,11 @@ def update_podcast_feed(
 
     Args: feed_config: Object with meta-data and filtering criteria to produce an RSS feed file.
 
-    Returns: The file name of the produced xml string and the xml string and the title of the new episode
+    Returns: The file name of the produced XML string and the xml string and the title of the new episode
     """
 
-    new_episodes = get_new_episodes_from_beyondwords_feed(feed_config, running_on_gcp)
-    if not new_episodes:
-        return None
-
-    if len(new_episodes) == 0:
+    new_items = get_new_items_from_beyondwords_feed(feed_config, running_on_gcp)
+    if len(new_items) == 0:
         return None
 
     storage = create_storage(feed_config, running_on_gcp)
@@ -245,7 +238,7 @@ def update_podcast_feed(
 
     # Register namespaces before parsing to string.
     namespaces = {
-        # The atom namespace is not used in the resulting feeds and is not added to the xml files.
+        # The atom namespace is not used in the resulting feeds and is not added to the XML files.
         "atom": "http://www.w3.org/2005/Atom",
         "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
         "content": "http://purl.org/rss/1.0/modules/content/"
@@ -253,19 +246,16 @@ def update_podcast_feed(
     for prefix, uri in namespaces.items():
         ElementTree.register_namespace(prefix, uri)
 
-    for episode in new_episodes:
-        podcast_feed.find('channel').append(episode)
-
-    add_episodes_to_history(feed_config, new_episodes, running_on_gcp)
+    add_items_to_history(feed_config, new_items, running_on_gcp)
 
     xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
 
-    print(f"Writing to RSS feed with {len(new_episodes)} new entries")
+    print(f"Writing to RSS feed with {len(new_items)} new entries")
 
     storage = create_storage(feed_config, running_on_gcp)
     storage.write_podcast_feed(xml_feed)
 
-    return storage.rss_file, [episode.find('title').text for episode in new_episodes]
+    return storage.rss_file, [episode.find('title').text for episode in new_items]
 
 
 def generate_beyondwords_feed():

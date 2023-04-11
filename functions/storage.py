@@ -133,9 +133,8 @@ def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
     Returns: StorageInterface implementation.
 
     """
-
     if running_on_gcp:
-        return GoogleCloudStorage(output_basename=feed_config.podcast_feed_basename,
+        return GoogleCloudStorage(output_basename=feed_config.output_basename,
                                   gcp_bucket=feed_config.gcp_bucket)
     else:
-        return LocalStorage(output_basename=feed_config.podcast_feed_basename)
+        return LocalStorage(output_basename=feed_config.output_basename)

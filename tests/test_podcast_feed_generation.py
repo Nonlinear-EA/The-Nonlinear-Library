@@ -5,8 +5,8 @@ import pytest
 from dateutil.tz import tz
 
 from functions.feed import FeedGeneratorConfig
-from functions.podcast_feed_generator import filter_episodes, update_podcast_feed, \
-    get_new_episodes_from_beyondwords_feed
+from functions.podcast_feed_generator import filter_items, update_podcast_feed, \
+    get_new_items_from_beyondwords_feed
 from tests.conftest import get_feed_reference_date_str
 
 search_periods = (FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_WEEK)
@@ -20,7 +20,7 @@ def test_filter_episodes_filters_out_entries_from_removed_authors(
         mock_get_feed_tree_from_source,
         mock_get_post_karma
 ):
-    new_episodes = filter_episodes(beyondwords_feed, feed_config, False)
+    new_episodes = filter_items(beyondwords_feed, feed_config, False)
     posts_from_removed_authors = [episode for episode in new_episodes if episode.find('author').text in removed_authors]
 
     assert not posts_from_removed_authors
@@ -31,7 +31,7 @@ def test_filter_episode_filters_out_entries_from_other_forums(
         beyondwords_feed,
         feed_config
 ):
-    episodes = filter_episodes(beyondwords_feed, feed_config, False)
+    episodes = filter_items(beyondwords_feed, feed_config, False)
 
     def title_matches_forum_prefix(episode):
         episode.find('title').text.startswith(feed_config.title_prefix)
@@ -51,7 +51,7 @@ def test_filter_episodes_filters_out_entries_outside_search_period(
         pytest.skip()
 
     default_config.search_period = search_period
-    episodes = filter_episodes(beyondwords_feed, default_config, False)
+    episodes = filter_items(beyondwords_feed, default_config, False)
 
     def episode_pub_date(episode):
         return datetime.strptime(episode.find('pubDate').text, default_config.date_format)
@@ -131,7 +131,7 @@ def test_filter_episodes_returns_multiple_posts_if_top_post_only_flag_is_false(
         mock_get_feed_tree_from_source,
         mock_get_post_karma
 ):
-    episodes = filter_episodes(beyondwords_feed, feed_config_all, False)
+    episodes = filter_items(beyondwords_feed, feed_config_all, False)
 
     assert len(episodes) > 1
 
@@ -143,6 +143,5 @@ def test_get_new_episodes_from_beyond_words_adds_multiple_episodes_if_top_post_o
         mock_get_post_karma,
         cleanup_podcast_feed
 ):
-    episodes = get_new_episodes_from_beyondwords_feed(feed_config_all, False)
-
+    episodes = get_new_items_from_beyondwords_feed(feed_config_all, False)
     assert len(episodes) > 1
