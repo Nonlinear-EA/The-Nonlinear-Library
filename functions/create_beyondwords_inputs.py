@@ -47,9 +47,20 @@ def main_create_beyondwords_nonlinear_library_project_inputs(local: False):
         href="{_feed_titledetail_base}" \
         rel="self" type="application/rss+xml"/>"""
 
-    item_str = """<item><title><![CDATA[{item_web_short} - {item_title} by {item_author}]]></title><description>\
-        <![CDATA[{item_summary}]]></description>
-        <link>{item_link}</link><guid isPermaLink="{item_guidislink}">{item_id}</guid><dc:creator><![CDATA[{item_author}]]></dc:creator><pubDate>{item_published}</pubDate></item>"""
+    item_str = """
+    <item>
+        <title>
+            <![CDATA[{item_web_short} - {item_title} by {item_author}]]>
+        </title>
+        <description>
+            <![CDATA[{item_summary}]]>
+        </description>
+        <link>{item_link}</link>
+        <guid isPermaLink="{item_guidislink}">{item_id}</guid>
+        <dc:creator><![CDATA[{item_author}]]></dc:creator>
+        <pubDate>{item_published}</pubDate>
+    </item>
+    """
 
     feed_final_str = '</channel></rss>'
 

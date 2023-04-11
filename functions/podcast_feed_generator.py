@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
+import feedparser
 import requests
 from bs4 import BeautifulSoup
 
@@ -305,20 +306,20 @@ def remove_posts_in_history(feed, config, running_on_gcp):
     return feed
 
 
-def find_website_short(url):
+def find_website(url, short=True):
     website = 'Unknown'
     if 'forum.effectivealtruism.org' in url:
-        website = 'EA'
+        website = 'EA' if short else 'The Effective Altruism Forum'
     elif 'lesswrong.com' in url:
-        website = 'LW'
+        website = 'LW' if short else "LessWrong"
     elif 'alignmentforum.org' in url:
-        website = 'AF'
+        website = 'AF' if short else "The AI Alignment Forum"
 
     return website
 
 
 def prepend_website_abbreviation_to_feed_item_titles(feed):
-    prefix = find_website_short(feed.find('channel/link'))
+    prefix = find_website(feed.find('channel/link').text)
     for item_title in feed.findall('channel/item/title'):
         item_title.text = f'{prefix} - {item_title.text}'
     return feed
@@ -353,6 +354,25 @@ def append_author_to_item_titles(feed):
     return feed
 
 
+def get_intro_str(item):
+    title = item.find('title').text
+    published_date_str = item.find('pubDate').text
+    published_datetime = datetime.strptime(published_date_str, '%a, %d %b %Y %H:%M:%S %Z')
+    summary_date_str = published_datetime.strftime('%B %-d, %Y')
+    website = find_website(item.find('link').text, short=False)
+    authors = item.find('author').text
+    return f"Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from " \
+           f"the Rationalist and EA communities into audio. This is: {title.rstrip()}, published by " \
+           f"{authors} on {summary_date_str} on {website}. "
+
+
+def modify_item_content(feed):
+    for item in feed.findall('channel/item'):
+        intro_str = get_intro_str(item)
+        pass
+    return feed
+
+
 def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
     """
     Download posts from source and save an XML file to storage with those posts.
@@ -362,18 +382,29 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
     """
 
     feed = get_feed_tree_from_source(config.source)
+
+    configparser_feed = feedparser.parse(ElementTree.tostring(feed))
+
     # Remove posts that have already been added to a feed
     feed = remove_posts_in_history(feed, config, running_on_gcp)
+
     # The author tag is used to remove posts from removed authors, append it to each item
     feed = add_author_tag_to_feed_items(feed)
+
+    feed = modify_item_content(feed)
+
     # Save the new titles by appending them to the beyondwords titles file
     save_post_titles(feed, config, running_on_gcp)
+
     # Remove entries from removed authors
     remove_items_from_removed_authors(feed, config, running_on_gcp)
+
     # Modify item titles by prepending the forum abbreviation
     feed = prepend_website_abbreviation_to_feed_item_titles(feed)
+
     # Modify item titles by appending 'by <author>'
     feed = append_author_to_item_titles(feed)
+
     # The list below contains the xpaths of the items that contain XML CDATA strings
     cdata_xpaths = [
         'channel/title',
@@ -382,7 +413,10 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
         'channel/item/dc:creator'
         'channel/item/title'
     ]
+
     # Replace text of elements with CDATA strings with CDATA strings
     feed = replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
+
     save_beyondwords_feed(feed, config, running_on_gcp)
+
     return feed
