@@ -246,16 +246,20 @@ def update_podcast_feed(
     for prefix, uri in namespaces.items():
         ElementTree.register_namespace(prefix, uri)
 
-    add_items_to_history(feed_config, new_items, running_on_gcp)
+    for item in new_items:
+        podcast_feed.find('./channel').append(item)
+
+    new_items_titles = [item.find('title').text for item in new_items]
+    print(f"Writing to RSS feed {len(new_items)} new entries: {', '.join(new_items_titles)}")
 
     xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
 
-    print(f"Writing to RSS feed with {len(new_items)} new entries")
+    add_items_to_history(feed_config, new_items, running_on_gcp)
 
     storage = create_storage(feed_config, running_on_gcp)
     storage.write_podcast_feed(xml_feed)
 
-    return storage.rss_filename, [episode.find('title').text for episode in new_items]
+    return storage.rss_filename, new_items_titles
 
 
 def generate_beyondwords_feed():

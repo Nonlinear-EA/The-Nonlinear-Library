@@ -44,31 +44,44 @@ class LocalStorage(StorageInterface):
 
     def read_history_titles(self):
         if not os.path.isfile(self.history_titles_path):
+            print('No file found at ', self.history_titles_path, ' so returning an empty List of item titles.')
             return []
-        return self.__read_file(self.history_titles_path)
+        history_titles = self.__read_file(self.history_titles_path)
+        print('Found item titles in history of ', ', '.join(history_titles))
+        return history_titles
 
     def write_history_titles(self, history_titles: List[str]) -> int:
+        print('Writing ', ', '.join(history_titles), ' to ', self.history_titles_path)
         return self.__write_file(self.history_titles_path, '\n'.join(history_titles))
 
     def read_removed_authors(self):
-        return self.__read_file('./removed_authors.txt')
+        removed_authors = self.__read_file('./removed_authors.txt')
+        print('Returning removed authors of ', ', '.join(removed_authors))
+        return removed_authors
 
     def read_podcast_feed(self) -> Element:
         try:
             return ElementTree.parse(self.rss_filename).getroot()
         except ParseError:
-            return ElementTree.parse('rss_files/empty_feed.xml').getroot()
+            empty_xml_feed = 'rss_files/empty_feed.xml'
+            print('ParseError when trying to parse XML from file at ', self.rss_filename, ' so returning XML from ',
+                  empty_xml_feed, ' instead.')
+            return ElementTree.parse(empty_xml_feed).getroot()
 
     def write_podcast_feed(self, feed):
-        self.__write_file(self.rss_filename, feed)
+        print('writing RSS content to ', self.rss_filename)
+        self.__write_file_as_bytes(self.rss_filename, feed)
 
     def __read_file(self, filename: str):
         print('reading from file with name ', filename)
         with open(filename, 'r') as f:
             return [line.rstrip() for line in f.readlines()]
 
+    def __write_file_as_bytes(self, filename: str, content: bytes):
+        with open(filename, 'wb') as f:
+            return f.write(content)
+
     def __write_file(self, filename: str, content: str):
-        print('writing to file with name ', filename)
         with open(filename, 'w') as f:
             return f.write(content)
 
@@ -87,12 +100,16 @@ class GoogleCloudStorage(StorageInterface):
         return self.__read_file(self.history_titles_path)
 
     def read_removed_authors(self):
-        return self.__read_file('./removed_authors.txt')
+        removed_authors = self.__read_file('./removed_authors.txt')
+        print('Returning removed authors of ', ', '.join(removed_authors))
+        return removed_authors
 
     def write_history_titles(self, history_titles: List[str]):
+        print('Writing history titles ', ', '.join(history_titles), ' to ', self.history_titles_path)
         return self.__write_file(self.history_titles_path, "\n".join(history_titles))
 
     def write_podcast_feed(self, feed: str):
+        print('Writing podcast feed ', feed, ' to file ', self.rss_filename)
         self.__write_file(self.rss_filename, feed)
 
     def read_podcast_feed(self) -> Element:
@@ -104,18 +121,19 @@ class GoogleCloudStorage(StorageInterface):
             return ElementTree.parse('rss_files/empty_feed.xml').getroot()
 
     def __read_file(self, path: str):
-        print('reading from bucket ', self.gcp_bucket, ' and path ', path)
+        print('Reading from bucket ', self.gcp_bucket, ' and path ', path)
         from google.cloud import storage
         client = storage.Client()
         bucket = client.get_bucket(self.gcp_bucket)
         blob = bucket.get_blob(path)
         if blob is None:
+            print('blob ', blob, ' not found, so returning an empty List.')
             return []
         downloaded_blob = blob.download_as_string()
         return [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
     def __write_file(self, path: str, content: str):
-        print('writing ', content, ' to bucket ', self.gcp_bucket, ' and path ', path)
+        print('Writing to bucket ', self.gcp_bucket, ' and path ', path)
         from google.cloud import storage
         client = storage.Client()
         bucket = client.get_bucket(self.gcp_bucket)
