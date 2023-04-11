@@ -255,7 +255,7 @@ def update_podcast_feed(
     storage = create_storage(feed_config, running_on_gcp)
     storage.write_podcast_feed(xml_feed)
 
-    return storage.rss_file, [episode.find('title').text for episode in new_items]
+    return storage.rss_filename, [episode.find('title').text for episode in new_items]
 
 
 def generate_beyondwords_feed():
