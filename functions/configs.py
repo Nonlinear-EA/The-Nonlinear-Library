@@ -160,11 +160,34 @@ def lw_weekly_config():
     )
 
 
-def beyondwords_input_config():
+def beyondwords_ea_config():
     return BeyondWordsInputConfig(
         author=nll_author,
         email=nonlinear_email,
         gcp_bucket=gcp_bucket_newcode,
-        sources=beyondwords_feed_input_sources,
-        max_entries=30
+        source='https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
+        max_entries=30,
+        output_basename='beyondwords_ea_feed'
+    )
+
+
+def beyondwords_af_config():
+    return BeyondWordsInputConfig(
+        author=nll_author,
+        email=nonlinear_email,
+        gcp_bucket=gcp_bucket_newcode,
+        source='https://www.alignmentforum.org/feed.xml?view=community-rss&karmaThreshold=0',
+        max_entries=30,
+        output_basename='beyondwords_af_feed'
+    )
+
+
+def beyondwords_lw_config():
+    return BeyondWordsInputConfig(
+        author=nll_author,
+        email=nonlinear_email,
+        gcp_bucket=gcp_bucket_newcode,
+        source='https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
+        max_entries=30,
+        output_basename='beyondwords_lw_feed',
     )

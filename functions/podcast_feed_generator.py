@@ -34,6 +34,18 @@ def get_post_karma(url) -> int:
     return int(soup.find('h1', {'class': 'PostsVote-voteScore'}).text)
 
 
+def register_namespaces_on_elementtree():
+    # Register namespaces before parsing to string.
+    namespaces = {
+        'atom': 'http://www.w3.org/2005/Atom',
+        'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+        'content': 'http://purl.org/rss/1.0/modules/content/',
+        'dc': 'http://purl.org/dc/elements/1.1/'
+    }
+    for prefix, uri in namespaces.items():
+        ElementTree.register_namespace(prefix, uri)
+
+
 def remove_entries_from_removed_authors(feed: Element, storage: StorageInterface):
     """
     Take an element tree and remove the entries whose author is in the list of removed authors.
@@ -236,17 +248,9 @@ def update_podcast_feed(
     podcast_feed.find('./channel/title').text = feed_config.title
     podcast_feed.find('./channel/image/url').text = feed_config.image_url
 
-    # Register namespaces before parsing to string.
-    namespaces = {
-        # The atom namespace is not used in the resulting feeds and is not added to the XML files.
-        "atom": "http://www.w3.org/2005/Atom",
-        "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
-        "content": "http://purl.org/rss/1.0/modules/content/"
-    }
-    for prefix, uri in namespaces.items():
-        ElementTree.register_namespace(prefix, uri)
-
     add_items_to_history(feed_config, new_items, running_on_gcp)
+
+    register_namespaces_on_elementtree()
 
     xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
 
@@ -286,17 +290,19 @@ def replace_cdata_strings(feed, paths_to_replace, namespaces):
     return feed
 
 
-def remove_cross_posts(feeds):
-    posts = []
-    for feed in feeds:
-        n_entries = len(feed.findall('channel/item'))
-        for item in feed.findall('channel/item'):
-            if item.find('title').text in posts:
-                feed.find('channel').remove(item)
-            else:
-                posts += [item.find('title').text]
-        print(f'Removed {n_entries - len(feed.findall("channel/item"))} cross posts.')
-    return feeds
+def remove_cross_posts(feed, config, running_on_gcp):
+    storage = create_storage(config, running_on_gcp)
+
+    posts = storage.read_history_titles()
+
+    n_entries = len(feed.findall('channel/item'))
+    for item in feed.findall('channel/item'):
+        if item.find('title').text in posts:
+            feed.find('channel').remove(item)
+        else:
+            posts += [item.find('title').text]
+    print(f'Removed {n_entries - len(feed.findall("channel/item"))} cross posts.')
+    return feed
 
 
 def find_website_short(url):
@@ -315,28 +321,49 @@ def prepend_website_abbreviation_to_feed_entries_titles(feed):
     prefix = find_website_short(feed.find('channel/link'))
     for item_title in feed.findall('channel/item/title'):
         item_title.text = cdatastr(f'{prefix} - {item_title.text}')
+    return feed
+
+
+def save_beyondwords_feed(feed, config, running_on_gcp):
+    # Register namespaces
+    register_namespaces_on_elementtree()
+    storage = create_storage(config, running_on_gcp)
+    feed_str = ElementTree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
+    storage.write_podcast_feed(feed_str)
+    return feed_str
+
+
+def save_post_titles(feed, config, running_on_gcp):
+    post_titles = [title.text for title in feed.findall('channel/item/title')]
+    storage = create_storage(config, running_on_gcp)
+    storage.write_history_titles(post_titles)
 
 
 def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
     """
-    Download posts from sources and save an XML file to storage with those posts.
+    Download posts from source and save an XML file to storage with those posts.
 
     Returns:
 
     """
 
-    feeds = [get_feed_tree_from_source(url) for url in config.sources]
+    feed = get_feed_tree_from_source(config.source)
 
-    feeds = remove_cross_posts(feeds)
+    feed = remove_cross_posts(feed, config, running_on_gcp)
 
-    cdata_paths = [
+    save_post_titles(feed, config, running_on_gcp)
+
+    cdata_xpaths = [
         'channel/title',
         'channel/description',
         'channel/item/description',
         'channel/item/dc:creator'
     ]
-    feeds = [replace_cdata_strings(feed, cdata_paths, config.namespaces) for feed in feeds]
 
-    feeds = [prepend_website_abbreviation_to_feed_entries_titles(feed) for feed in feeds]
+    feed = replace_cdata_strings(feed, cdata_xpaths, {'dc': 'http://purl.org/dc/elements/1.1/'})
 
-    # storage = create_storage()
+    feed = prepend_website_abbreviation_to_feed_entries_titles(feed)
+
+    save_beyondwords_feed(feed, config, running_on_gcp)
+
+    return feed

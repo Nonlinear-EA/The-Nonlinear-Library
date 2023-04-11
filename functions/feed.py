@@ -1,25 +1,24 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import timedelta
 from enum import Enum
-from typing import List
 
 
 @dataclass
-class BaseConfig:
+class BaseFeedConfig:
     gcp_bucket: str
     email: str
     author: str
+    output_basename: str
 
 
 @dataclass
-class FeedGeneratorConfig(BaseConfig):
+class FeedGeneratorConfig(BaseFeedConfig):
     class SearchPeriod(Enum):
         ONE_WEEK = 7
         ONE_DAY = 1
 
     source: str
     image_url: str
-    output_basename: str
     gcp_bucket: str
     title: str
     guid_suffix: str = None
@@ -44,10 +43,6 @@ class FeedGeneratorConfig(BaseConfig):
 
 
 @dataclass
-class BeyondWordsInputConfig(BaseConfig):
-    sources: List[str]
+class BeyondWordsInputConfig(BaseFeedConfig):
+    source: str
     max_entries: int
-    namespaces: dict = field(default_factory=lambda: {
-        'dc': 'http://purl.org/dc/elements/1.1/',
-        'atom': 'http://www.w3.org/2005/Atom'
-    })

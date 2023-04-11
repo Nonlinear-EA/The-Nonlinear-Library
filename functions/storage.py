@@ -3,7 +3,7 @@ from typing import List
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, ParseError
 
-from feed import FeedGeneratorConfig
+from feed import BaseFeedConfig
 
 
 class StorageInterface:
@@ -15,15 +15,14 @@ class StorageInterface:
         self.removed_authors_filename = 'removed_authors.txt'
         self.history_titles_path = os.path.join('history_titles', output_basename + '.txt')
         self.rss_file = os.path.join('rss_files', output_basename + '.xml')
-        self.beyondwords_feed = os.path.join('rss_files', f'beyondwords_{output_basename}.xml')
 
     def read_history_titles(self) -> List[str]:
         raise NotImplementedError()
 
-    def write_history_titles(self, history_titles: List[str]) -> int:
+    def read_past_post_titles(self) -> List[str]:
         raise NotImplementedError()
 
-    def write_beyondwords_feed(self, feed: str):
+    def write_history_titles(self, history_titles: List[str]) -> int:
         raise NotImplementedError()
 
     def write_podcast_feed(self, feed: str):
@@ -65,9 +64,6 @@ class LocalStorage(StorageInterface):
 
     def write_podcast_feed(self, feed):
         self.__write_file_as_bytes(self.rss_file, feed)
-
-    def write_beyondwords_feed(self, feed: str):
-        pass
 
     def __read_file(self, filename: str):
         with open(filename, 'r') as f:
@@ -112,6 +108,9 @@ class GoogleCloudStorage(StorageInterface):
         except ParseError:
             return ElementTree.parse('rss_files/empty_feed.xml').getroot()
 
+    def read_past_post_titles(self) -> List[str]:
+        return self.__read_file(self.past_forum_post_titles)
+
     def __read_file(self, path: str):
         from google.cloud import storage
         client = storage.Client()
@@ -130,7 +129,7 @@ class GoogleCloudStorage(StorageInterface):
         blob.upload_from_string(content)
 
 
-def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
+def create_storage(feed_config: BaseFeedConfig, running_on_gcp: bool):
     """
     Factory to retrieve a storage interface implementation for local or cloud environments.
     Args:
