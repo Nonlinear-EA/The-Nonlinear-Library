@@ -14,12 +14,19 @@ class StorageInterface:
     def __init__(self, output_basename):
         self.removed_authors_filename = 'removed_authors.txt'
         self.history_titles_path = os.path.join('history_titles', output_basename + '.txt')
+        self.beyondwords_feed_history_titles = os.path.join('history_titles', 'beyondwords_titles.txt')
         self.rss_file = os.path.join('rss_files', output_basename + '.xml')
 
     def read_history_titles(self) -> List[str]:
         raise NotImplementedError()
 
     def read_past_post_titles(self) -> List[str]:
+        raise NotImplementedError()
+
+    def read_beyondwords_history_titles(self) -> List[str]:
+        raise NotImplementedError()
+
+    def write_beyondwords_history_titles(self, titles):
         raise NotImplementedError()
 
     def write_history_titles(self, history_titles: List[str]) -> int:
@@ -62,6 +69,12 @@ class LocalStorage(StorageInterface):
         except ParseError:
             return ElementTree.parse('rss_files/empty_feed.xml').getroot()
 
+    def read_beyondwords_history_titles(self) -> List[str]:
+        self.__read_file(self.beyondwords_feed_history_titles)
+
+    def write_beyondwords_history_titles(self, titles):
+        self.__write_file(self.beyondwords_feed_history_titles, '\n'.join(titles))
+
     def write_podcast_feed(self, feed):
         self.__write_file_as_bytes(self.rss_file, feed)
 
@@ -93,6 +106,12 @@ class GoogleCloudStorage(StorageInterface):
 
     def read_removed_authors(self):
         return self.__read_file('./removed_authors.txt')
+
+    def read_beyondwords_history_titles(self) -> List[str]:
+        return self.__read_file(self.beyondwords_feed_history_titles)
+
+    def write_beyondwords_history_titles(self, titles):
+        return self.__write_file(self.beyondwords_feed_history_titles, "\n".join(titles))
 
     def write_history_titles(self, history_titles: List[str]) -> int:
         return self.__write_file(self.history_titles_path, "\n".join(history_titles))

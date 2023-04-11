@@ -9,8 +9,9 @@ from xml.etree.ElementTree import Element
 import requests
 from bs4 import BeautifulSoup
 
-from feed import FeedGeneratorConfig, BeyondWordsInputConfig
-from storage import StorageInterface, create_storage
+from feed import FeedGeneratorConfig, BeyondWordsInputConfig, BaseFeedConfig
+from functions.configs import beyondwords_feed_namespaces
+from storage import create_storage
 
 
 def get_post_karma(url) -> int:
@@ -46,16 +47,18 @@ def register_namespaces_on_elementtree():
         ElementTree.register_namespace(prefix, uri)
 
 
-def remove_entries_from_removed_authors(feed: Element, storage: StorageInterface):
+def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, running_on_gcp):
     """
     Take an element tree and remove the entries whose author is in the list of removed authors.
 
     Args:
+        running_on_gcp: Whether the function is currently running on Google Cloud Platform or locally.
+        config: Configuration parameters to retrieve storage interface
         feed: An XML element tree
-        storage: Storage handler
 
     """
     # Retrieve removed authors
+    storage = create_storage(config, running_on_gcp)
     removed_authors = storage.read_removed_authors()
     for item in feed.findall('channel/item'):
         author = item.find('author').text
@@ -133,16 +136,13 @@ def filter_items(feed, feed_config, running_on_gcp) -> List[Element]:
 
     """
 
-    # Get storage handler
-    storage = create_storage(feed_config, running_on_gcp)
-
     def get_number_of_entries():
         return len(feed.findall('channel/item'))
 
     n_entries = get_number_of_entries()
 
     # Remove entries from removed authors
-    remove_entries_from_removed_authors(feed, storage)
+    remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
     print(f'Removed {n_entries - get_number_of_entries()} entries due to removed author.')
 
     n_entries = get_number_of_entries()
@@ -293,7 +293,7 @@ def replace_cdata_strings(feed, paths_to_replace, namespaces):
 def remove_cross_posts(feed, config, running_on_gcp):
     storage = create_storage(config, running_on_gcp)
 
-    posts = storage.read_history_titles()
+    posts = storage.read_beyondwords_history_titles()
 
     n_entries = len(feed.findall('channel/item'))
     for item in feed.findall('channel/item'):
@@ -317,7 +317,7 @@ def find_website_short(url):
     return website
 
 
-def prepend_website_abbreviation_to_feed_entries_titles(feed):
+def prepend_website_abbreviation_to_feed_item_titles(feed):
     prefix = find_website_short(feed.find('channel/link'))
     for item_title in feed.findall('channel/item/title'):
         item_title.text = cdatastr(f'{prefix} - {item_title.text}')
@@ -336,7 +336,15 @@ def save_beyondwords_feed(feed, config, running_on_gcp):
 def save_post_titles(feed, config, running_on_gcp):
     post_titles = [title.text for title in feed.findall('channel/item/title')]
     storage = create_storage(config, running_on_gcp)
-    storage.write_history_titles(post_titles)
+    storage.write_beyondwords_history_titles(post_titles)
+
+
+def add_author_tag_to_feed_items(feed):
+    for item in feed.findall('channel/item'):
+        author = Element('author')
+        author.text = item.find('dc:creator', namespaces=beyondwords_feed_namespaces).text.replace('_', ' ')
+        item.append(author)
+    return feed
 
 
 def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
@@ -348,21 +356,26 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
     """
 
     feed = get_feed_tree_from_source(config.source)
-
+    # Remove posts that have already been added to a feed
     feed = remove_cross_posts(feed, config, running_on_gcp)
-
+    # The author tag is used to remove posts from removed authors, append it to each item
+    feed = add_author_tag_to_feed_items(feed)
+    # Save the new titles by appending them to the beyondwords titles file
     save_post_titles(feed, config, running_on_gcp)
+    # Remove entries from removed authors
+    remove_items_from_removed_authors(feed, config, running_on_gcp)
 
+    # The list below contains the xpaths of the items that contain XML CDATA strings
     cdata_xpaths = [
         'channel/title',
         'channel/description',
         'channel/item/description',
         'channel/item/dc:creator'
     ]
+    # Replace text of elements with CDATA strings with CDATA strings
+    feed = replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
 
-    feed = replace_cdata_strings(feed, cdata_xpaths, {'dc': 'http://purl.org/dc/elements/1.1/'})
-
-    feed = prepend_website_abbreviation_to_feed_entries_titles(feed)
+    feed = prepend_website_abbreviation_to_feed_item_titles(feed)
 
     save_beyondwords_feed(feed, config, running_on_gcp)
 
