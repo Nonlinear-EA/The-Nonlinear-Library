@@ -60,17 +60,15 @@ class LocalStorage(StorageInterface):
             return ElementTree.parse('rss_files/empty_feed.xml').getroot()
 
     def write_podcast_feed(self, feed):
-        self.__write_file_as_bytes(self.rss_file, feed)
+        self.__write_file(self.rss_file, feed)
 
     def __read_file(self, filename: str):
+        print('reading from file with name ', filename)
         with open(filename, 'r') as f:
             return [line.rstrip() for line in f.readlines()]
 
-    def __write_file_as_bytes(self, filename: str, content: bytes):
-        with open(filename, 'wb') as f:
-            return f.write(content)
-
     def __write_file(self, filename: str, content: str):
+        print('writing to file with name ', filename)
         with open(filename, 'w') as f:
             return f.write(content)
 
@@ -91,7 +89,7 @@ class GoogleCloudStorage(StorageInterface):
     def read_removed_authors(self):
         return self.__read_file('./removed_authors.txt')
 
-    def write_history_titles(self, history_titles: List[str]) -> int:
+    def write_history_titles(self, history_titles: List[str]):
         return self.__write_file(self.history_titles_path, "\n".join(history_titles))
 
     def write_podcast_feed(self, feed: str):
@@ -106,6 +104,7 @@ class GoogleCloudStorage(StorageInterface):
             return ElementTree.parse('rss_files/empty_feed.xml').getroot()
 
     def __read_file(self, path: str):
+        print('reading from bucket ', self.gcp_bucket, ' and path ', path)
         from google.cloud import storage
         client = storage.Client()
         bucket = client.get_bucket(self.gcp_bucket)
@@ -115,7 +114,8 @@ class GoogleCloudStorage(StorageInterface):
         downloaded_blob = blob.download_as_string()
         return [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
-    def __write_file(self, path: str, content: str) -> int:
+    def __write_file(self, path: str, content: str):
+        print('writing ', content, ' to bucket ', self.gcp_bucket, ' and path ', path)
         from google.cloud import storage
         client = storage.Client()
         bucket = client.get_bucket(self.gcp_bucket)
