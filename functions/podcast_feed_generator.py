@@ -399,7 +399,7 @@ def remove_posts_with_empty_content(feed):
     return feed
 
 
-def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
+def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
     """
     Download posts from source and save an XML file to storage with those posts.
 
@@ -439,6 +439,11 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
     # Replace text of elements with CDATA strings with CDATA strings
     feed = replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
 
-    save_new_items(feed.findall('channel/item'), config, running_on_gcp)
+    new_items = feed.findall('channel/item')
+    if new_items:
+        print(f'Saving {len(new_items)} new items to BeyondWords feed.')
+        save_new_items(new_items, config, running_on_gcp)
+    else:
+        print(f'No new items to add to the BeyondWords feed.')
 
     return feed
