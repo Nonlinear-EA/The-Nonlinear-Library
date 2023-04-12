@@ -16,6 +16,9 @@ from feed import FeedGeneratorConfig, BeyondWordsInputConfig, BaseFeedConfig
 from functions.configs import beyondwords_feed_namespaces
 from storage import create_storage
 
+outro_str = '<p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit ' \
+            'nonlinear.org</p>'
+
 
 def get_post_karma(url) -> int:
     """
@@ -376,20 +379,17 @@ def get_intro_str(item):
 def edit_item_description(feed):
     for item in feed.findall('channel/item'):
         intro_str = get_intro_str(item)
-        # TODO: Add outro
-        description_html = BeautifulSoup(item.find('description').text, 'html.parser')
+        description_text = item.find('description').text
+        description_html = BeautifulSoup(description_text, 'html.parser')
         content = "<br/>".join([str(paragraph) for paragraph in description_html.find_all('p')[1:]])
-        if not content:
-            feed.find('channel').remove(item)
-            continue
-
-        item.remove(item.find('description'))
-        item.append(cdata_element('description', intro_str))
+        content_text = intro_str + content + outro_str
+        item.find('description').text = etree.CDATA(intro_str)
 
         if item.find('content'):
-            item.remove(item.find('content'))
-        content_element = cdata_element('content', intro_str + content)
-        item.append(content_element)
+            item.find('content').text = etree.CDATA(content_text)
+        else:
+            item.append(cdata_element('content', content_text))
+
     return feed
 
 
