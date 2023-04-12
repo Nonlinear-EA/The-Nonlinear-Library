@@ -121,7 +121,7 @@ def default_config() -> FeedGeneratorConfig:
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
         title="The Nonlinear Library: Your title goes here!",
         gcp_bucket='rssfile',
-        output_basename='podcast_feed'
+        history_titles_filename='podcast_feed'
     )
 
 

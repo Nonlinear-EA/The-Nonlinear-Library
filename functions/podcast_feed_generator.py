@@ -251,18 +251,32 @@ def update_podcast_feed(
     podcast_feed.find('./channel/title').text = feed_config.title
     podcast_feed.find('./channel/image/url').text = feed_config.image_url
 
-    add_items_to_history(feed_config, new_items, running_on_gcp)
+    # Register namespaces before parsing to string.
+    namespaces = {
+        # The atom namespace is not used in the resulting feeds and is not added to the XML files.
+        "atom": "http://www.w3.org/2005/Atom",
+        "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
+        "content": "http://purl.org/rss/1.0/modules/content/"
+    }
+    for prefix, uri in namespaces.items():
+        ElementTree.register_namespace(prefix, uri)
+
+    for item in new_items:
+        podcast_feed.find('./channel').append(item)
+
+    new_items_titles = [item.find('title').text for item in new_items]
+    print(f"Writing to RSS feed {len(new_items)} new entries: {', '.join(new_items_titles)}")
 
     register_namespaces_on_elementtree()
 
     xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
 
-    print(f"Writing to RSS feed with {len(new_items)} new entries")
+    add_items_to_history(feed_config, new_items, running_on_gcp)
 
     storage = create_storage(feed_config, running_on_gcp)
     storage.write_podcast_feed(xml_feed)
 
-    return storage.rss_file, [episode.find('title').text for episode in new_items]
+    return storage.rss_filename, new_items_titles
 
 
 def get_beyondwords_feed_template():
