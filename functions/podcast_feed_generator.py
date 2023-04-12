@@ -401,9 +401,7 @@ def remove_posts_with_empty_content(feed):
 
 def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
     """
-    Download posts from source and save an XML file to storage with those posts.
-
-    Returns:
+    Update the BeyondWords input feed with posts from a forum.
 
     """
 
@@ -445,5 +443,3 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
         save_new_items(new_items, config, running_on_gcp)
     else:
         print(f'No new items to add to the BeyondWords feed.')
-
-    return feed
