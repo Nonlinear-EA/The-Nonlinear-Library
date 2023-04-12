@@ -2,6 +2,7 @@ from typing import List
 from xml.etree.ElementTree import Element, ParseError
 
 from lxml import etree
+from lxml.etree import XMLParser
 
 from feed import BaseFeedConfig
 
@@ -56,14 +57,15 @@ class LocalStorage(StorageInterface):
         return removed_authors
 
     def read_podcast_feed(self) -> Element:
+        parser = XMLParser(encoding='utf-8', strip_cdata=False)
         try:
-            return etree.parse(self.rss_filename)
+            return etree.parse(self.rss_filename, parser)
         except (FileNotFoundError, OSError) as e:
             empty_xml_feed = 'rss_files/empty_feed.xml'
             print(type(e).__name__, 'when trying to parse XML from file at ', self.rss_filename,
                   ' so returning XML from ',
                   empty_xml_feed, ' instead.')
-            return etree.parse(empty_xml_feed)
+            return etree.parse(empty_xml_feed, parser)
 
     def read_beyondwords_history_titles(self) -> List[str]:
         return self.__read_file(self.beyondwords_feed_history_titles)
@@ -121,10 +123,11 @@ class GoogleCloudStorage(StorageInterface):
     def read_podcast_feed(self) -> Element:
         # TODO: check if this works on GCP
         rss_feed_str = "".join(self.__read_file(self.rss_filename))
+        parser = XMLParser(encoding='utf-8', strip_cdata=False)
         try:
-            return etree.fromstring(rss_feed_str)
+            return etree.fromstring(rss_feed_str, parser)
         except ParseError:
-            return etree.parse('rss_files/empty_feed.xml')
+            return etree.parse('rss_files/empty_feed.xml', parser)
 
     def __read_file(self, path: str):
         print('Reading from bucket ', self.gcp_bucket, ' and path ', path)

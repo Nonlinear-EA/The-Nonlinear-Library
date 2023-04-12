@@ -67,6 +67,7 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
         author = item.find('author').text
         if author in removed_authors:
             feed.find('channel').remove(item)
+    return feed
 
 
 def filter_entries_by_search_period(feed: Element, feed_config: FeedGeneratorConfig):
@@ -103,6 +104,7 @@ def get_feed_tree_from_source(url) -> Element:
 
     parsed_uri = urlparse(url)
     parser = XMLParser(strip_cdata=False, encoding='utf-8')
+
     if not parsed_uri.scheme:
         # If url has no scheme, treat it as a local path.
         tree = lxml.etree.parse(url, parser)
@@ -291,9 +293,8 @@ def cdata_element(tag, text):
 
 def replace_cdata_strings(feed, paths_to_replace, namespaces):
     for path in paths_to_replace:
-        if feed.findall(path, namespaces) is not None:
-            for item in feed.findall(path, namespaces):
-                item.text = lxml.etree.CDATA(item.text)
+        for item in feed.findall(path, namespaces):
+            item.text = lxml.etree.CDATA(item.text)
     return feed
 
 
@@ -341,7 +342,7 @@ def save_new_items(new_items, config, running_on_gcp):
     feed = storage.read_podcast_feed()
     for item in new_items:
         feed.find('channel').append(item)
-    feed_str = lxml.etree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
+    feed_str = etree.tostring(feed, xml_declaration=True)
     storage.write_podcast_feed(feed_str)
     return feed_str
 
@@ -375,18 +376,20 @@ def get_intro_str(item):
 def edit_item_description(feed):
     for item in feed.findall('channel/item'):
         intro_str = get_intro_str(item)
+        # TODO: Add outro
         description_html = BeautifulSoup(item.find('description').text, 'html.parser')
         content = "<br/>".join([str(paragraph) for paragraph in description_html.find_all('p')[1:]])
         if not content:
             feed.find('channel').remove(item)
+            continue
 
         item.remove(item.find('description'))
         item.append(cdata_element('description', intro_str))
-        if content:
-            if item.find('content'):
-                item.remove(item.find('content'))
-            content_element = cdata_element('content', intro_str + content)
-            item.append(content_element)
+
+        if item.find('content'):
+            item.remove(item.find('content'))
+        content_element = cdata_element('content', intro_str + content)
+        item.append(content_element)
     return feed
 
 
@@ -417,6 +420,7 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
 
     feed = remove_posts_with_empty_content(feed)
 
+    # Append intro and outro to description
     feed = edit_item_description(feed)
 
     # Remove entries from removed authors
@@ -431,8 +435,6 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
     # The list below contains the xpaths of the items that contain XML CDATA strings
     cdata_xpaths = [
         'channel/title',
-        'channel/description',
-        'channel/item/description',
         'channel/item/dc:creator'
         'channel/item/title'
     ]
