@@ -3,14 +3,11 @@ from difflib import SequenceMatcher
 from time import strptime, mktime
 from typing import List, Tuple
 from urllib.parse import urlparse
-from xml.etree import ElementTree
-from xml.etree.ElementTree import Element
 
-import lxml
 import requests
 from bs4 import BeautifulSoup
 from lxml import etree
-from lxml.etree import XMLParser
+from lxml.etree import XMLParser, Element
 
 from feed import FeedGeneratorConfig, BeyondWordsInputConfig, BaseFeedConfig
 from functions.configs import beyondwords_feed_namespaces
@@ -41,16 +38,16 @@ def get_post_karma(url) -> int:
     return int(soup.find('h1', {'class': 'PostsVote-voteScore'}).text)
 
 
-def register_namespaces_on_elementtree():
-    # Register namespaces before parsing to string.
-    namespaces = {
-        'atom': 'http://www.w3.org/2005/Atom',
-        'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',
-        'content': 'http://purl.org/rss/1.0/modules/content/',
-        'dc': 'http://purl.org/dc/elements/1.1/'
-    }
-    for prefix, uri in namespaces.items():
-        ElementTree.register_namespace(prefix, uri)
+# def register_namespaces_on_elementtree():
+#     # Register namespaces before parsing to string.
+#     namespaces = {
+#         'atom': 'http://www.w3.org/2005/Atom',
+#         'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+#         'content': 'http://purl.org/rss/1.0/modules/content/',
+#         'dc': 'http://purl.org/dc/elements/1.1/'
+#     }
+#     for prefix, uri in namespaces.items():
+#         ElementTree.register_namespace(prefix, uri)
 
 
 def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, running_on_gcp):
@@ -110,7 +107,7 @@ def get_feed_tree_from_source(url) -> Element:
 
     if not parsed_uri.scheme:
         # If url has no scheme, treat it as a local path.
-        tree = lxml.etree.parse(url, parser)
+        tree = etree.parse(url, parser)
         return tree.getroot()
 
     if parsed_uri.scheme not in ['http', 'https']:
@@ -123,7 +120,7 @@ def get_feed_tree_from_source(url) -> Element:
     xml_data = bytes(response.text, encoding='utf-8')
 
     # Parse to a XML tree
-    return lxml.etree.fromstring(xml_data, parser)
+    return etree.fromstring(xml_data, parser)
 
 
 def filter_items(feed, feed_config, running_on_gcp) -> List[Element]:
@@ -261,15 +258,15 @@ def update_podcast_feed(
     podcast_feed.find('./channel/title').text = feed_config.title
     podcast_feed.find('./channel/image/url').text = feed_config.image_url
 
-    # Register namespaces before parsing to string.
-    namespaces = {
-        # The atom namespace is not used in the resulting feeds and is not added to the XML files.
-        "atom": "http://www.w3.org/2005/Atom",
-        "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
-        "content": "http://purl.org/rss/1.0/modules/content/"
-    }
-    for prefix, uri in namespaces.items():
-        ElementTree.register_namespace(prefix, uri)
+    # # Register namespaces before parsing to string.
+    # namespaces = {
+    #     # The atom namespace is not used in the resulting feeds and is not added to the XML files.
+    #     "atom": "http://www.w3.org/2005/Atom",
+    #     "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
+    #     "content": "http://purl.org/rss/1.0/modules/content/"
+    # }
+    # for prefix, uri in namespaces.items():
+    #     ElementTree.register_namespace(prefix, uri)
 
     for item in new_items:
         print('Adding item with title ', item.find('title').text, ' to the RSS feed.')
@@ -278,9 +275,9 @@ def update_podcast_feed(
     new_items_titles = [item.find('title').text for item in new_items]
     print(f"Writing to RSS feed {len(new_items)} new entries: {', '.join(new_items_titles)}")
 
-    register_namespaces_on_elementtree()
+    # register_namespaces_on_elementtree()
 
-    xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
+    xml_feed = etree.tostring(podcast_feed, encoding='UTF-8', xml_declaration=True)
 
     storage = create_storage(feed_config, running_on_gcp)
     storage.write_podcast_feed(xml_feed)
@@ -289,15 +286,15 @@ def update_podcast_feed(
 
 
 def cdata_element(tag, text):
-    element = lxml.etree.Element(tag)
-    element.text = lxml.etree.CDATA(text)
+    element = etree.Element(tag)
+    element.text = etree.CDATA(text)
     return element
 
 
 def replace_cdata_strings(feed, paths_to_replace, namespaces):
     for path in paths_to_replace:
         for item in feed.findall(path, namespaces):
-            item.text = lxml.etree.CDATA(item.text)
+            item.text = etree.CDATA(item.text)
     return feed
 
 
@@ -352,7 +349,7 @@ def save_new_items(new_items, config, running_on_gcp):
 
 def add_author_tag_to_feed_items(feed):
     for item in feed.findall('channel/item'):
-        author = lxml.etree.Element('author')
+        author = etree.Element('author')
         author.text = item.find('dc:creator', namespaces=beyondwords_feed_namespaces).text.replace('_', ' ')
         item.append(author)
     return feed
