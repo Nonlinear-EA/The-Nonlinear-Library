@@ -1,8 +1,7 @@
 from typing import List
-from xml.etree.ElementTree import Element, ParseError
 
 from lxml import etree
-from lxml.etree import XMLParser
+from lxml.etree import XMLParser, Element
 
 from feed import BaseFeedConfig
 
@@ -20,12 +19,6 @@ class StorageInterface:
         raise NotImplementedError()
 
     def read_past_post_titles(self) -> List[str]:
-        raise NotImplementedError()
-
-    def read_beyondwords_history_titles(self) -> List[str]:
-        raise NotImplementedError()
-
-    def write_beyondwords_history_titles(self, titles):
         raise NotImplementedError()
 
     def write_history_titles(self, history_titles: List[str]) -> int:
@@ -67,12 +60,6 @@ class LocalStorage(StorageInterface):
                   empty_xml_feed, ' instead.')
             return etree.parse(empty_xml_feed, parser)
 
-    def read_beyondwords_history_titles(self) -> List[str]:
-        return self.__read_file(self.beyondwords_feed_history_titles)
-
-    def write_beyondwords_history_titles(self, titles):
-        self.__write_file(self.beyondwords_feed_history_titles, '\n'.join(titles))
-
     def write_podcast_feed(self, feed):
         print('writing RSS content to ', self.rss_filename)
         self.__write_file_as_bytes(self.rss_filename, feed)
@@ -106,15 +93,9 @@ class GoogleCloudStorage(StorageInterface):
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 
-    def read_beyondwords_history_titles(self) -> List[str]:
-        return self.__read_file(self.beyondwords_feed_history_titles)
-
-    def write_beyondwords_history_titles(self, titles):
-        return self.__write_file(self.beyondwords_feed_history_titles, "\n".join(titles))
-
-    def write_history_titles(self, history_titles: List[str]):
-        print('Writing history titles ', ', '.join(history_titles), ' to ', self.history_titles_path)
-        return self.__write_file(self.history_titles_path, "\n".join(history_titles))
+    # def write_history_titles(self, history_titles: List[str]):
+    #     print('Writing history titles ', ', '.join(history_titles), ' to ', self.history_titles_path)
+    #     return self.__write_file(self.history_titles_path, "\n".join(history_titles))
 
     def write_podcast_feed(self, feed: str):
         print('Writing podcast feed ', feed, ' to file ', self.rss_filename)
@@ -126,7 +107,7 @@ class GoogleCloudStorage(StorageInterface):
         parser = XMLParser(encoding='utf-8', strip_cdata=False)
         try:
             return etree.fromstring(rss_feed_str, parser)
-        except ParseError:
+        except OSError:
             return etree.parse('rss_files/empty_feed.xml', parser)
 
     def __read_file(self, path: str):
