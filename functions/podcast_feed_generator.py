@@ -408,24 +408,24 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     feed = get_feed_tree_from_source(config.source)
 
     # Remove posts that have already been added to a feed
-    feed = remove_posts_in_history(feed, config, running_on_gcp)
+    remove_posts_in_history(feed, config, running_on_gcp)
 
     # The author tag is used to remove posts from removed authors, append it to each item
-    feed = add_author_tag_to_feed_items(feed)
+    add_author_tag_to_feed_items(feed)
 
-    feed = remove_posts_with_empty_content(feed)
+    remove_posts_with_empty_content(feed)
 
     # Append intro and outro to description
-    feed = edit_item_description(feed)
+    edit_item_description(feed)
 
     # Remove entries from removed authors
     remove_items_from_removed_authors(feed, config, running_on_gcp)
 
     # Modify item titles by prepending the forum abbreviation
-    feed = prepend_website_abbreviation_to_feed_item_titles(feed)
+    prepend_website_abbreviation_to_feed_item_titles(feed)
 
     # Modify item titles by appending 'by <author>'
-    feed = append_author_to_item_titles(feed)
+    append_author_to_item_titles(feed)
 
     # The list below contains the xpaths of the items that contain XML CDATA strings
     cdata_xpaths = [
@@ -435,7 +435,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     ]
 
     # Replace text of elements with CDATA strings with CDATA strings
-    feed = replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
+    replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
 
     new_items = feed.findall('channel/item')
     if new_items:
