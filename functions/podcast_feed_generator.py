@@ -173,9 +173,8 @@ def filter_items(feed, feed_config, running_on_gcp) -> List[Element]:
 
     return feed.findall('channel/item')
 
-
-def item_is_in_history(item_title: str, history_titles: list[str]) -> bool:
-    return any(SequenceMatcher(None, item_title, history_title).ratio() > 0.9 for history_title in history_titles)
+def titles_match(title_a: str, title_b: str) -> bool:
+    return SequenceMatcher(None, title_a, title_b).ratio() > 0.9
 
 
 def get_new_items_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Element]:
@@ -210,22 +209,19 @@ def get_new_items_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Ele
 
     print(f'{len(new_items)} items matched the filters')
 
-    storage = create_storage(feed_config, running_on_gcp)
-    history_titles = storage.read_history_titles()
-    new_items_not_in_history = [item for item in
-                                new_items if not item_is_in_history(item.find('title').text, history_titles)]
-
-    print(f'{len(new_items_not_in_history)} of the new items were not in the history.')
-
-    return new_items_not_in_history
+    return new_items
 
 
-def add_items_to_history(feed_config, items: List[Element], running_on_gcp):
-    storage = create_storage(feed_config, running_on_gcp)
-    history_titles = storage.read_history_titles()
-    history_titles += [item.find('title').text for item in items]
-    storage.write_history_titles(history_titles)
-
+def create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file(podcast_feed, new_items):
+    items_which_have_not_been_added = []
+    for new_item in new_items:
+        already_added_to_rss_file = False
+        for item in podcast_feed.findall('./channel/item'):
+            if titles_match(item.find('title').text, new_item.find('title').text):
+                already_added_to_rss_file = True
+        if not already_added_to_rss_file:
+            items_which_have_not_been_added.append(new_item)
+    return items_which_have_not_been_added
 
 def update_podcast_feed(
         feed_config: FeedGeneratorConfig,
@@ -242,10 +238,16 @@ def update_podcast_feed(
 
     new_items = get_new_items_from_beyondwords_feed(feed_config, running_on_gcp)
     if len(new_items) == 0:
+        print('No items match the filter. Returning.')
         return None
 
     storage = create_storage(feed_config, running_on_gcp)
     podcast_feed = storage.read_podcast_feed()
+
+    new_items = create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file(podcast_feed, new_items)
+    if len(new_items) == 0:
+        print('No items were found which are not already contained within the RSS feed. Returning.')
+        return None
 
     # Update values from the provided configuration
     podcast_feed.find('./channel/title').text = feed_config.title
@@ -262,6 +264,7 @@ def update_podcast_feed(
         ElementTree.register_namespace(prefix, uri)
 
     for item in new_items:
+        print('Adding item with title ', item.find('title').text, ' to the RSS feed.')
         podcast_feed.find('./channel').append(item)
 
     new_items_titles = [item.find('title').text for item in new_items]
@@ -270,8 +273,6 @@ def update_podcast_feed(
     register_namespaces_on_elementtree()
 
     xml_feed = ElementTree.tostring(podcast_feed, encoding='UTF-8', method='xml', xml_declaration=True)
-
-    add_items_to_history(feed_config, new_items, running_on_gcp)
 
     storage = create_storage(feed_config, running_on_gcp)
     storage.write_podcast_feed(xml_feed)

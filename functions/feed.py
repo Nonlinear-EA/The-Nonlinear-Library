@@ -21,7 +21,6 @@ class FeedGeneratorConfig(BaseFeedConfig):
 
     source: str
     image_url: str
-    history_titles_filename: str
     rss_filename: str
     gcp_bucket: str
     title: str
