@@ -393,7 +393,7 @@ def edit_item_description(feed):
 def remove_posts_with_empty_content(feed):
     for item in feed.findall('channel/item'):
         description_html = BeautifulSoup(item.find('description').text, 'html.parser')
-        if len(description_html.find_all('p')) < 2:
+        if len(description_html.find_all('p')) < 1:
             feed.find('channel').remove(item)
             print(f"Removed item '{item.find('title').text}' due to empty content, possibly a cross post.")
     return feed
