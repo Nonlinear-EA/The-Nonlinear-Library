@@ -1,7 +1,7 @@
-import os
 from typing import List
-from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, ParseError
+
+from lxml import etree
 
 from feed import BaseFeedConfig
 
@@ -13,7 +13,6 @@ class StorageInterface:
 
     def __init__(self, rss_filename: str):
         self.removed_authors_filename = 'removed_authors.txt'
-        self.beyondwords_feed_history_titles = os.path.join('history_titles', 'beyondwords_titles.txt')
         self.rss_filename = rss_filename
 
     def read_history_titles(self) -> List[str]:
@@ -58,13 +57,13 @@ class LocalStorage(StorageInterface):
 
     def read_podcast_feed(self) -> Element:
         try:
-            return ElementTree.parse(self.rss_filename).getroot()
-        except FileNotFoundError:
+            return etree.parse(self.rss_filename)
+        except (FileNotFoundError, OSError) as e:
             empty_xml_feed = 'rss_files/empty_feed.xml'
-            print('FileNotFoundError when trying to parse XML from file at ', self.rss_filename,
+            print(type(e).__name__, 'when trying to parse XML from file at ', self.rss_filename,
                   ' so returning XML from ',
                   empty_xml_feed, ' instead.')
-            return ElementTree.parse(empty_xml_feed).getroot()
+            return etree.parse(empty_xml_feed)
 
     def read_beyondwords_history_titles(self) -> List[str]:
         return self.__read_file(self.beyondwords_feed_history_titles)
@@ -123,9 +122,9 @@ class GoogleCloudStorage(StorageInterface):
         # TODO: check if this works on GCP
         rss_feed_str = "".join(self.__read_file(self.rss_filename))
         try:
-            return ElementTree.fromstring(rss_feed_str)
+            return etree.fromstring(rss_feed_str)
         except ParseError:
-            return ElementTree.parse('rss_files/empty_feed.xml').getroot()
+            return etree.parse('rss_files/empty_feed.xml')
 
     def __read_file(self, path: str):
         print('Reading from bucket ', self.gcp_bucket, ' and path ', path)

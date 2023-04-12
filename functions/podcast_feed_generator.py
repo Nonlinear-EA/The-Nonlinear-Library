@@ -9,6 +9,7 @@ from xml.etree.ElementTree import Element
 import lxml
 import requests
 from bs4 import BeautifulSoup
+from lxml import etree
 from lxml.etree import XMLParser
 
 from feed import FeedGeneratorConfig, BeyondWordsInputConfig, BaseFeedConfig
@@ -173,6 +174,7 @@ def filter_items(feed, feed_config, running_on_gcp) -> List[Element]:
 
     return feed.findall('channel/item')
 
+
 def titles_match(title_a: str, title_b: str) -> bool:
     return SequenceMatcher(None, title_a, title_b).ratio() > 0.9
 
@@ -222,6 +224,7 @@ def create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file
         if not already_added_to_rss_file:
             items_which_have_not_been_added.append(new_item)
     return items_which_have_not_been_added
+
 
 def update_podcast_feed(
         feed_config: FeedGeneratorConfig,
@@ -280,22 +283,6 @@ def update_podcast_feed(
     return storage.rss_filename, new_items_titles
 
 
-def get_beyondwords_feed_template():
-    root = Element('rss')
-    root.append(Element('channel'))
-    channel = root.find('channel')
-    channel.append(Element('title'))
-    channel.append(Element('description'))
-    channel.append(Element('link'))
-    channel.append(Element('image'))
-    image = channel.find('image')
-    image.append(Element('url'))
-    channel.append(Element('generator'))
-    channel.append(Element('lastBuildDate'))
-    channel.append(Element('atom:link'))
-    return root
-
-
 def cdata_element(tag, text):
     element = lxml.etree.Element(tag)
     element.text = lxml.etree.CDATA(text)
@@ -313,14 +300,18 @@ def replace_cdata_strings(feed, paths_to_replace, namespaces):
 def remove_posts_in_history(feed, config, running_on_gcp):
     storage = create_storage(config, running_on_gcp)
 
-    posts = storage.read_beyondwords_history_titles()
+    posts = storage.read_podcast_feed()
+    history_titles = [title.text for title in posts.findall('channel/item/title')]
+
+    def title_is_in_titles(title):
+        return any([title in history_title for history_title in history_titles])
 
     n_entries = len(feed.findall('channel/item'))
     for item in feed.findall('channel/item'):
-        if item.find('title').text in posts:
+        if title_is_in_titles(item.find('title').text):
             feed.find('channel').remove(item)
         else:
-            posts += [item.find('title').text]
+            history_titles += [item.find('title').text]
     print(f'Removed {n_entries - len(feed.findall("channel/item"))} existing posts.')
     return feed
 
@@ -344,19 +335,15 @@ def prepend_website_abbreviation_to_feed_item_titles(feed):
     return feed
 
 
-def save_beyondwords_feed(feed, config, running_on_gcp):
+def save_new_items(new_items, config, running_on_gcp):
     # Register namespaces
-    register_namespaces_on_elementtree()
     storage = create_storage(config, running_on_gcp)
+    feed = storage.read_podcast_feed()
+    for item in new_items:
+        feed.find('channel').append(item)
     feed_str = lxml.etree.tostring(feed, encoding='UTF-8', method='xml', xml_declaration=True)
     storage.write_podcast_feed(feed_str)
     return feed_str
-
-
-def save_post_titles(feed, config, running_on_gcp):
-    post_titles = [title.text for title in feed.findall('channel/item/title')]
-    storage = create_storage(config, running_on_gcp)
-    storage.write_beyondwords_history_titles(post_titles)
 
 
 def add_author_tag_to_feed_items(feed):
@@ -385,16 +372,30 @@ def get_intro_str(item):
            f"{authors} on {summary_date_str} on {website}. "
 
 
-def modify_item_content(feed):
+def edit_item_description(feed):
     for item in feed.findall('channel/item'):
         intro_str = get_intro_str(item)
         description_html = BeautifulSoup(item.find('description').text, 'html.parser')
         content = "<br/>".join([str(paragraph) for paragraph in description_html.find_all('p')[1:]])
-        if content:
-            content_element = cdata_element('content', content)
-            item.append(content_element)
+        if not content:
+            feed.find('channel').remove(item)
+
         item.remove(item.find('description'))
         item.append(cdata_element('description', intro_str))
+        if content:
+            if item.find('content'):
+                item.remove(item.find('content'))
+            content_element = cdata_element('content', intro_str + content)
+            item.append(content_element)
+    return feed
+
+
+def remove_posts_with_empty_content(feed):
+    for item in feed.findall('channel/item'):
+        description_html = BeautifulSoup(item.find('description').text, 'html.parser')
+        if len(description_html.find_all('p')) < 2:
+            feed.find('channel').remove(item)
+            print(f"Removed item '{item.find('title').text}' due to empty content, possibly a cross post.")
     return feed
 
 
@@ -414,10 +415,9 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
     # The author tag is used to remove posts from removed authors, append it to each item
     feed = add_author_tag_to_feed_items(feed)
 
-    feed = modify_item_content(feed)
+    feed = remove_posts_with_empty_content(feed)
 
-    # Save the new titles by appending them to the beyondwords titles file
-    save_post_titles(feed, config, running_on_gcp)
+    feed = edit_item_description(feed)
 
     # Remove entries from removed authors
     remove_items_from_removed_authors(feed, config, running_on_gcp)
@@ -440,6 +440,6 @@ def generate_beyondwords_feed(config: BeyondWordsInputConfig, running_on_gcp=Tru
     # Replace text of elements with CDATA strings with CDATA strings
     feed = replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
 
-    save_beyondwords_feed(feed, config, running_on_gcp)
+    save_new_items(feed.findall('channel/item'), config, running_on_gcp)
 
     return feed

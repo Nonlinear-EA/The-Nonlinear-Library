@@ -10,7 +10,7 @@ class BaseFeedConfig:
     gcp_bucket: str
     email: str
     author: str
-    output_basename: str
+    rss_filename: str
 
 
 @dataclass
@@ -21,7 +21,6 @@ class FeedGeneratorConfig(BaseFeedConfig):
 
     source: str
     image_url: str
-    rss_filename: str
     gcp_bucket: str
     title: str
     guid_suffix: str = None

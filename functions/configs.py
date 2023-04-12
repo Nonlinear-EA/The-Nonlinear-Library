@@ -167,7 +167,7 @@ def beyondwords_ea_config():
         gcp_bucket=gcp_bucket_newcode,
         source='https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
         max_entries=30,
-        output_basename='beyondwords_ea_feed'
+        rss_filename='rss_files/beyondwords_feed.xml'
     )
 
 
@@ -178,7 +178,7 @@ def beyondwords_af_config():
         gcp_bucket=gcp_bucket_newcode,
         source='https://www.alignmentforum.org/feed.xml?view=community-rss&karmaThreshold=0',
         max_entries=30,
-        output_basename='beyondwords_af_feed'
+        rss_filename='rss_files/beyondwords_feed.xml'
     )
 
 
@@ -189,5 +189,5 @@ def beyondwords_lw_config():
         gcp_bucket=gcp_bucket_newcode,
         source='https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
         max_entries=30,
-        output_basename='beyondwords_lw_feed',
+        rss_filename='rss_files/beyondwords_feed.xml'
     )
