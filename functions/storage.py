@@ -15,15 +15,6 @@ class StorageInterface:
         self.removed_authors_filename = 'removed_authors.txt'
         self.rss_filename = rss_filename
 
-    def read_history_titles(self) -> List[str]:
-        raise NotImplementedError()
-
-    def read_past_post_titles(self) -> List[str]:
-        raise NotImplementedError()
-
-    def write_history_titles(self, history_titles: List[str]) -> int:
-        raise NotImplementedError()
-
     def write_podcast_feed(self, feed: str):
         raise NotImplementedError()
 
@@ -92,10 +83,6 @@ class GoogleCloudStorage(StorageInterface):
         removed_authors = self.__read_file('./removed_authors.txt')
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
-
-    # def write_history_titles(self, history_titles: List[str]):
-    #     print('Writing history titles ', ', '.join(history_titles), ' to ', self.history_titles_path)
-    #     return self.__write_file(self.history_titles_path, "\n".join(history_titles))
 
     def write_podcast_feed(self, feed: str):
         print('Writing podcast feed ', feed, ' to file ', self.rss_filename)

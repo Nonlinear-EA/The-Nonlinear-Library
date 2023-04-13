@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from datetime import timedelta
 from enum import Enum
 
-item_default_date_format = '%a, %d %b %Y %H:%M:%S %z'
-
 
 @dataclass
 class BaseFeedConfig:
@@ -26,7 +24,7 @@ class FeedGeneratorConfig(BaseFeedConfig):
     guid_suffix: str = None
     search_period: SearchPeriod | None = None
     title_prefix: str = None
-    date_format: str = item_default_date_format
+    date_format: str = '%a, %d %b %Y %H:%M:%S %z'
     top_post_only: bool = False
 
     def get_search_period_timedelta(self) -> timedelta | None:

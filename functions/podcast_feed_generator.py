@@ -38,24 +38,12 @@ def get_post_karma(url) -> int:
     return int(soup.find('h1', {'class': 'PostsVote-voteScore'}).text)
 
 
-# def register_namespaces_on_elementtree():
-#     # Register namespaces before parsing to string.
-#     namespaces = {
-#         'atom': 'http://www.w3.org/2005/Atom',
-#         'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',
-#         'content': 'http://purl.org/rss/1.0/modules/content/',
-#         'dc': 'http://purl.org/dc/elements/1.1/'
-#     }
-#     for prefix, uri in namespaces.items():
-#         ElementTree.register_namespace(prefix, uri)
-
-
 def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, running_on_gcp):
     """
     Take an element tree and remove the entries whose author is in the list of removed authors.
 
     Args:
-        running_on_gcp: Whether the function is currently running on Google Cloud Platform or locally.
+        running_on_gcp: True if running in Google Cloud Platform, False if running locally.
         config: Configuration parameters to retrieve storage interface
         feed: An XML element tree
 
@@ -258,24 +246,12 @@ def update_podcast_feed(
     podcast_feed.find('./channel/title').text = feed_config.title
     podcast_feed.find('./channel/image/url').text = feed_config.image_url
 
-    # # Register namespaces before parsing to string.
-    # namespaces = {
-    #     # The atom namespace is not used in the resulting feeds and is not added to the XML files.
-    #     "atom": "http://www.w3.org/2005/Atom",
-    #     "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
-    #     "content": "http://purl.org/rss/1.0/modules/content/"
-    # }
-    # for prefix, uri in namespaces.items():
-    #     ElementTree.register_namespace(prefix, uri)
-
     for item in new_items:
         print('Adding item with title ', item.find('title').text, ' to the RSS feed.')
         podcast_feed.find('./channel').append(item)
 
     new_items_titles = [item.find('title').text for item in new_items]
     print(f"Writing to RSS feed {len(new_items)} new entries: {', '.join(new_items_titles)}")
-
-    # register_namespaces_on_elementtree()
 
     xml_feed = etree.tostring(podcast_feed, encoding='UTF-8', xml_declaration=True)
 
@@ -337,7 +313,6 @@ def prepend_website_abbreviation_to_feed_item_titles(feed):
 
 
 def save_new_items(new_items, config, running_on_gcp):
-    # Register namespaces
     storage = create_storage(config, running_on_gcp)
     feed = storage.read_podcast_feed()
     for item in new_items:
@@ -415,10 +390,9 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
 
     remove_posts_with_empty_content(feed)
 
-    # Append intro and outro to description
+    # Appends intro and outro to description and creates content tag if not present.
     edit_item_description(feed)
 
-    # Remove entries from removed authors
     remove_items_from_removed_authors(feed, config, running_on_gcp)
 
     # Modify item titles by prepending the forum abbreviation
