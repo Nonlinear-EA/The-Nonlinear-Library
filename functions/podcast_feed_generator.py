@@ -375,11 +375,19 @@ def remove_posts_with_empty_content(feed):
     return feed
 
 
-def get_titles_from_feed(feed_filename):
-    pass
+def get_titles_from_feed(feed_filename: str, config: BaseFeedConfig, running_on_gcp: bool = True):
+    feed = get_feed(feed_filename, config, running_on_gcp)
+    # prefixes = ('AF - ', 'EA - ', 'LW - ')
+
+    # def strip_title(title: str):
+    #     title = reduce(lambda _title, next_prefix:
+    #                    _title.replace(next_prefix, ''), prefixes, title)
+    #     return title
+
+    return [title.text for title in feed.findall('channel/item/title')]
 
 
-def get_feed(filename, config, running_on_gcp):
+def get_feed(filename: str, config: BaseFeedConfig, running_on_gcp: bool = True):
     storage = create_storage(config, running_on_gcp)
     return storage.read_podcast_feed(filename)
 
@@ -392,7 +400,11 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
 
     feed = get_feed_tree_from_source(config.source)
 
-    titles_from_other_forums = reduce(lambda prev, next: prev + get_titles_from_feed(next), config.other_relevant_feeds)
+    def concatenate_item_titles(previous_titles, next_feed_filename):
+        return previous_titles + get_titles_from_feed(next_feed_filename, config, running_on_gcp)
+
+    titles_from_other_forums = reduce(concatenate_item_titles, config.other_relevant_feeds, [])
+
     # Remove posts that have already been added to a feed
     remove_posts_in_history(feed, config, running_on_gcp)
 
