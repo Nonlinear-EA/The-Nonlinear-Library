@@ -1,5 +1,7 @@
-<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
-     version="2.0">
+<rss
+        xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        version="2.0">
     <channel>
         <title>The Nonlinear Library</title>
         <description>The Nonlinear Library allows you to easily listen to top EA and rationalist content on your podcast

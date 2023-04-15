@@ -8,7 +8,7 @@ from configs import lw_all_config
 from configs import lw_daily_config
 from configs import lw_weekly_config
 from create_beyondwords_inputs import generate_beyondwords_input
-from podcast_feed_generator import update_podcast_feed
+from feed_updaters import update_podcast_feed
 
 
 def af_daily(a=None, b=None):

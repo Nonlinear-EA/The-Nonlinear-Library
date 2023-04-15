@@ -24,6 +24,9 @@ class StorageInterface:
     def read_removed_authors(self) -> List[str]:
         raise NotImplementedError()
 
+    def get_xml_parser(self):
+        return XMLParser(encoding='utf-8', strip_cdata=False)
+
 
 class LocalStorage(StorageInterface):
     """

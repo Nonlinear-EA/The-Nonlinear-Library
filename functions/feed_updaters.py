@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from feed import FeedGeneratorConfig, BeyondWordsInputConfig, BaseFeedConfig
+from feed import FeedGeneratorConfig, BaseFeedConfig, BeyondWordsInputConfig
 from functions.configs import beyondwords_feed_namespaces
 from storage import create_storage
 
@@ -217,51 +217,6 @@ def create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file
     return items_which_have_not_been_added
 
 
-def update_podcast_feed(
-        feed_config: FeedGeneratorConfig,
-        running_on_gcp
-) -> Tuple[str, list] | None:
-    """
-    Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
-    provided feed_config object.
-
-    Args: feed_config: Object with meta-data and filtering criteria to produce an RSS feed file.
-
-    Returns: The file name of the produced XML string and the xml string and the title of the new episode
-    """
-
-    new_items = get_new_items_from_beyondwords_feed(feed_config, running_on_gcp)
-    if len(new_items) == 0:
-        print('No items match the filter. Returning.')
-        return None
-
-    storage = create_storage(feed_config, running_on_gcp)
-    podcast_feed = storage.read_podcast_feed()
-
-    new_items = create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file(podcast_feed, new_items)
-    if len(new_items) == 0:
-        print('No items were found which are not already contained within the RSS feed. Returning.')
-        return None
-
-    # Update values from the provided configuration
-    podcast_feed.find('./channel/title').text = feed_config.title
-    podcast_feed.find('./channel/image/url').text = feed_config.image_url
-
-    for item in new_items:
-        print('Adding item with title ', item.find('title').text, ' to the RSS feed.')
-        podcast_feed.find('./channel').append(item)
-
-    new_items_titles = [item.find('title').text for item in new_items]
-    print(f"Writing to RSS feed {len(new_items)} new entries: {', '.join(new_items_titles)}")
-
-    xml_feed = etree.tostring(podcast_feed, encoding='UTF-8', xml_declaration=True)
-
-    storage = create_storage(feed_config, running_on_gcp)
-    storage.write_podcast_feed(xml_feed)
-
-    return storage.rss_filename, new_items_titles
-
-
 def cdata_element(tag, text):
     element = etree.Element(tag)
     element.text = etree.CDATA(text)
@@ -399,9 +354,59 @@ def remove_duplicate_items(feed: Element, existing_titles: List[str]) -> Element
     return feed
 
 
+def update_podcast_feed(
+        feed_config: FeedGeneratorConfig,
+        running_on_gcp
+) -> Tuple[str, list] | None:
+    """
+    Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
+    provided feed_config object.
+
+    Args:
+        feed_config: Object with meta-data and filtering criteria to produce an RSS feed file.
+
+    Returns: The file name of the produced XML string and the xml string and the title of the new episode
+    """
+
+    new_items = get_new_items_from_beyondwords_feed(feed_config, running_on_gcp)
+    if len(new_items) == 0:
+        print('No items match the filter. Returning.')
+        return None
+
+    storage = create_storage(feed_config, running_on_gcp)
+    podcast_feed = storage.read_podcast_feed()
+
+    new_items = create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file(podcast_feed, new_items)
+    if len(new_items) == 0:
+        print('No items were found which are not already contained within the RSS feed. Returning.')
+        return None
+
+    # Update values from the provided configuration
+    podcast_feed.find('./channel/title').text = feed_config.title
+    podcast_feed.find('./channel/image/url').text = feed_config.image_url
+
+    for item in new_items:
+        print('Adding item with title ', item.find('title').text, ' to the RSS feed.')
+        podcast_feed.find('./channel').append(item)
+
+    new_items_titles = [item.find('title').text for item in new_items]
+    print(f"Writing to RSS feed {len(new_items)} new entries: {', '.join(new_items_titles)}")
+
+    xml_feed = etree.tostring(podcast_feed, encoding='UTF-8', xml_declaration=True)
+
+    storage = create_storage(feed_config, running_on_gcp)
+    storage.write_podcast_feed(xml_feed)
+
+    return storage.rss_filename, new_items_titles
+
+
 def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
     """
-    Update the BeyondWords input feed with posts from a forum.
+    Update the BeyondWords input feed with the new posts from a forum.
+
+    Args:
+        config: Object with meta-data and to update the BeyondWords RSS feed file.
+        running_on_gcp: True if function is running on GCP otherwise False
 
     """
 
