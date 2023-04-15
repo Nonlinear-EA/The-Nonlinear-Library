@@ -168,7 +168,9 @@ def beyondwords_ea_config():
         source='https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
         max_entries=30,
         rss_filename='rss_files/nonlinear-library-EA.xml',
-        other_relevant_feeds=['rss_files/nonlinear-library-AF.xml', 'rss_files/nonlinear-library-LW.xml']
+        relevant_feeds=['rss_files/nonlinear-library-EA.xml',
+                        'rss_files/nonlinear-library-AF.xml',
+                        'rss_files/nonlinear-library-LW.xml']
     )
 
 
@@ -180,7 +182,9 @@ def beyondwords_af_config():
         source='https://www.alignmentforum.org/feed.xml?view=community-rss&karmaThreshold=0',
         max_entries=30,
         rss_filename='rss_files/nonlinear-library-AF.xml',
-        other_relevant_feeds=['rss_files/nonlinear-library-EA.xml', 'rss_files/nonlinear-library-LW.xml']
+        relevant_feeds=['rss_files/nonlinear-library-AF.xml',
+                        'rss_files/nonlinear-library-EA.xml',
+                        'rss_files/nonlinear-library-LW.xml']
     )
 
 
@@ -192,5 +196,7 @@ def beyondwords_lw_config():
         source='https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
         max_entries=30,
         rss_filename='rss_files/nonlinear-library-LW.xml',
-        other_relevant_feeds=['rss_files/nonlinear-library-AF.xml', 'rss_files/nonlinear-library-EA.xml']
+        relevant_feeds=['rss_files/nonlinear-library-LW.xml',
+                        'rss_files/nonlinear-library-AF.xml',
+                        'rss_files/nonlinear-library-EA.xml']
     )

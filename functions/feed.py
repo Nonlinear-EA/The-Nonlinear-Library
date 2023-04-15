@@ -46,4 +46,4 @@ class FeedGeneratorConfig(BaseFeedConfig):
 class BeyondWordsInputConfig(BaseFeedConfig):
     source: str
     max_entries: int
-    other_relevant_feeds: list = None
+    relevant_feeds: list = None

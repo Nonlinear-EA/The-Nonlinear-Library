@@ -81,7 +81,7 @@ def filter_entries_by_search_period(feed: Element, feed_config: FeedGeneratorCon
             feed.find('channel').remove(entry)
 
 
-def get_feed_tree_from_source(url) -> Element:
+def get_feed_tree_from_url(url) -> Element:
     """
     Return an element tree from the provided url (or path to local file).
 
@@ -183,7 +183,7 @@ def get_new_items_from_beyondwords_feed(feed_config, running_on_gcp) -> List[Ele
 
     """
     # Get feed from source
-    feed = get_feed_tree_from_source(feed_config.source)
+    feed = get_feed_tree_from_url(feed_config.source)
 
     # Filter items from feed
     new_items = filter_items(feed, feed_config, running_on_gcp)
@@ -377,12 +377,6 @@ def remove_posts_with_empty_content(feed):
 
 def get_titles_from_feed(feed_filename: str, config: BaseFeedConfig, running_on_gcp: bool = True):
     feed = get_feed(feed_filename, config, running_on_gcp)
-    # prefixes = ('AF - ', 'EA - ', 'LW - ')
-
-    # def strip_title(title: str):
-    #     title = reduce(lambda _title, next_prefix:
-    #                    _title.replace(next_prefix, ''), prefixes, title)
-    #     return title
 
     return [title.text for title in feed.findall('channel/item/title')]
 
@@ -392,21 +386,34 @@ def get_feed(filename: str, config: BaseFeedConfig, running_on_gcp: bool = True)
     return storage.read_podcast_feed(filename)
 
 
+def remove_duplicate_items(feed: Element, existing_titles: List[str]) -> Element:
+    def item_title_is_duplicate(title):
+        title_exists = (title in existing_title for existing_title in existing_titles)
+        return any(title_exists)
+
+    n_entries = len(feed.findall('channel/item'))
+    for item in feed.findall('channel/item'):
+        if item_title_is_duplicate(item.find('title').text):
+            feed.find('channel').remove(item)
+    print(f'Removed {n_entries - len(feed.findall("channel/item"))} duplicate entries.')
+    return feed
+
+
 def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
     """
     Update the BeyondWords input feed with posts from a forum.
 
     """
 
-    feed = get_feed_tree_from_source(config.source)
+    feed = get_feed_tree_from_url(config.source)
 
+    # Peek into other relevant feeds and retrieve the titles.
     def concatenate_item_titles(previous_titles, next_feed_filename):
         return previous_titles + get_titles_from_feed(next_feed_filename, config, running_on_gcp)
 
-    titles_from_other_forums = reduce(concatenate_item_titles, config.other_relevant_feeds, [])
+    titles_from_other_feeds = reduce(concatenate_item_titles, config.relevant_feeds, [])
 
-    # Remove posts that have already been added to a feed
-    remove_posts_in_history(feed, config, running_on_gcp)
+    remove_duplicate_items(feed, titles_from_other_feeds)
 
     # The author tag is used to remove posts from removed authors, append it to each item
     add_author_tag_to_feed_items(feed)
@@ -436,7 +443,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
 
     new_items = feed.findall('channel/item')
     if new_items:
-        print(f'Saving {len(new_items)} new items to BeyondWords feed.')
+        print(f'Saving {len(new_items)} new items to {config.rss_filename} feed.')
         save_new_items(new_items, config, running_on_gcp)
     else:
-        print(f'No new items to add to the BeyondWords feed.')
+        print(f'No new items to add to the {config.rss_filename} feed.')
