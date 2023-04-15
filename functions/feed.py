@@ -4,16 +4,21 @@ from enum import Enum
 
 
 @dataclass
-class FeedGeneratorConfig:
+class BaseFeedConfig:
+    gcp_bucket: str
+    email: str
+    author: str
+    rss_filename: str
+
+
+@dataclass
+class FeedGeneratorConfig(BaseFeedConfig):
     class SearchPeriod(Enum):
         ONE_WEEK = 7
         ONE_DAY = 1
 
     source: str
     image_url: str
-    email: str
-    author: str
-    rss_filename: str
     gcp_bucket: str
     title: str
     guid_suffix: str = None
@@ -35,3 +40,10 @@ class FeedGeneratorConfig:
             return None
         else:
             raise NotImplementedError()
+
+
+@dataclass
+class BeyondWordsInputConfig(BaseFeedConfig):
+    source: str
+    max_entries: int
+    relevant_feeds: list = None

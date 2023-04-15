@@ -1,8 +1,9 @@
 from typing import List
-from xml.etree import ElementTree
-from xml.etree.ElementTree import Element, ParseError
 
-from feed import FeedGeneratorConfig
+from lxml import etree
+from lxml.etree import XMLParser, Element
+
+from feed import BaseFeedConfig
 
 
 class StorageInterface:
@@ -17,7 +18,7 @@ class StorageInterface:
     def write_podcast_feed(self, feed: str):
         raise NotImplementedError()
 
-    def read_podcast_feed(self) -> Element:
+    def read_podcast_feed(self, filename: str = None) -> Element:
         raise NotImplementedError()
 
     def read_removed_authors(self) -> List[str]:
@@ -39,15 +40,18 @@ class LocalStorage(StorageInterface):
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 
-    def read_podcast_feed(self) -> Element:
+    def read_podcast_feed(self, filename: str = None) -> Element:
+        parser = XMLParser(encoding='utf-8', strip_cdata=False)
+        if not filename:
+            filename = self.rss_filename
         try:
-            return ElementTree.parse(self.rss_filename).getroot()
-        except FileNotFoundError:
+            return etree.parse(filename, parser)
+        except (FileNotFoundError, OSError) as e:
             empty_xml_feed = 'rss_files/empty_feed.xml'
-            print('FileNotFoundError when trying to parse XML from file at ', self.rss_filename,
+            print(type(e).__name__, 'when trying to parse XML from file at ', filename,
                   ' so returning XML from ',
                   empty_xml_feed, ' instead.')
-            return ElementTree.parse(empty_xml_feed).getroot()
+            return etree.parse(empty_xml_feed, parser)
 
     def write_podcast_feed(self, feed):
         print('writing RSS content to ', self.rss_filename)
@@ -86,13 +90,16 @@ class GoogleCloudStorage(StorageInterface):
         print('Writing podcast feed ', feed, ' to file ', self.rss_filename)
         self.__write_file(self.rss_filename, feed)
 
-    def read_podcast_feed(self) -> Element:
+    def read_podcast_feed(self, filename: str = None) -> Element:
         # TODO: check if this works on GCP
-        rss_feed_str = "".join(self.__read_file(self.rss_filename))
+        if not filename:
+            filename = self.rss_filename
+        rss_feed_str = "".join(self.__read_file(filename))
+        parser = XMLParser(encoding='utf-8', strip_cdata=False)
         try:
-            return ElementTree.fromstring(rss_feed_str)
-        except ParseError:
-            return ElementTree.parse('rss_files/empty_feed.xml').getroot()
+            return etree.fromstring(rss_feed_str, parser)
+        except OSError:
+            return etree.parse('rss_files/empty_feed.xml', parser)
 
     def __read_file(self, path: str):
         print('Reading from bucket ', self.gcp_bucket, ' and path ', path)
@@ -115,7 +122,7 @@ class GoogleCloudStorage(StorageInterface):
         blob.upload_from_string(content)
 
 
-def create_storage(feed_config: FeedGeneratorConfig, running_on_gcp: bool):
+def create_storage(feed_config: BaseFeedConfig, running_on_gcp: bool):
     """
     Factory to retrieve a storage interface implementation for local or cloud environments.
     Args:

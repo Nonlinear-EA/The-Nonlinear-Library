@@ -1,9 +1,21 @@
-from feed import FeedGeneratorConfig
+from feed import FeedGeneratorConfig, BeyondWordsInputConfig
 
 beyondwords_rss_output = 'https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143'
 nll_author = 'The Nonlinear Fund'
 gcp_bucket_newcode = 'newcode'
 nonlinear_email = 'podcast@nonlinear.org'
+
+beyondwords_feed_input_sources = [
+    'https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
+    'https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
+    'https://www.alignmentforum.org/feed.xml?view=community-rss&karmaThreshold=0'
+]
+
+beyondwords_feed_namespaces = {
+    'dc': 'http://purl.org/dc/elements/1.1/',
+    'content': 'http://purl.org/rss/1.0/modules/content/',
+    'atom': 'http://www.w3.org/2005/Atom'
+}
 
 
 def af_all_config():
@@ -145,4 +157,46 @@ def lw_weekly_config():
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-LW-weekly.xml',
         top_post_only=True
+    )
+
+
+def beyondwords_ea_config():
+    return BeyondWordsInputConfig(
+        author=nll_author,
+        email=nonlinear_email,
+        gcp_bucket=gcp_bucket_newcode,
+        source='https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
+        max_entries=30,
+        rss_filename='rss_files/nonlinear-library-EA.xml',
+        relevant_feeds=['rss_files/nonlinear-library-EA.xml',
+                        'rss_files/nonlinear-library-AF.xml',
+                        'rss_files/nonlinear-library-LW.xml']
+    )
+
+
+def beyondwords_af_config():
+    return BeyondWordsInputConfig(
+        author=nll_author,
+        email=nonlinear_email,
+        gcp_bucket=gcp_bucket_newcode,
+        source='https://www.alignmentforum.org/feed.xml?view=community-rss&karmaThreshold=0',
+        max_entries=30,
+        rss_filename='rss_files/nonlinear-library-AF.xml',
+        relevant_feeds=['rss_files/nonlinear-library-AF.xml',
+                        'rss_files/nonlinear-library-EA.xml',
+                        'rss_files/nonlinear-library-LW.xml']
+    )
+
+
+def beyondwords_lw_config():
+    return BeyondWordsInputConfig(
+        author=nll_author,
+        email=nonlinear_email,
+        gcp_bucket=gcp_bucket_newcode,
+        source='https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
+        max_entries=30,
+        rss_filename='rss_files/nonlinear-library-LW.xml',
+        relevant_feeds=['rss_files/nonlinear-library-LW.xml',
+                        'rss_files/nonlinear-library-AF.xml',
+                        'rss_files/nonlinear-library-EA.xml']
     )

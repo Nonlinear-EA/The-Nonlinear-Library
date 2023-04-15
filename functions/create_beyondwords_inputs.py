@@ -5,7 +5,7 @@ import ssl
 import feedparser
 
 
-def main_create_beyondwords_nonlinear_library_project_inputs():
+def main_create_beyondwords_nonlinear_library_project_inputs(local: False):
     """Create an RSS file containing input from all three of the forums.
 
     The RSS file that is output is read by BeyondWords to create a new RSS file that has XML elements containing the MP3
@@ -47,9 +47,20 @@ def main_create_beyondwords_nonlinear_library_project_inputs():
         href="{_feed_titledetail_base}" \
         rel="self" type="application/rss+xml"/>"""
 
-    item_str = """<item><title><![CDATA[{item_web_short} - {item_title} by {item_author}]]></title><description>\
-        <![CDATA[{item_summary}]]></description>
-        <link>{item_link}</link><guid isPermaLink="{item_guidislink}">{item_id}</guid><dc:creator><![CDATA[{item_author}]]></dc:creator><pubDate>{item_published}</pubDate></item>"""
+    item_str = """
+    <item>
+        <title>
+            <![CDATA[{item_web_short} - {item_title} by {item_author}]]>
+        </title>
+        <description>
+            <![CDATA[{item_summary}]]>
+        </description>
+        <link>{item_link}</link>
+        <guid isPermaLink="{item_guidislink}">{item_id}</guid>
+        <dc:creator><![CDATA[{item_author}]]></dc:creator>
+        <pubDate>{item_published}</pubDate>
+    </item>
+    """
 
     feed_final_str = '</channel></rss>'
 
@@ -80,7 +91,7 @@ def main_create_beyondwords_nonlinear_library_project_inputs():
         return website
 
     class Feed(object):
-        def __init__(self, config, local=False):
+        def __init__(self, config, local=local):
             # Obtain SSL certificate
             logging.info('INITIALIZING A Feed OBJECT')
             if hasattr(ssl, '_create_unverified_context'):
@@ -198,3 +209,7 @@ def main_create_beyondwords_nonlinear_library_project_inputs():
             return news_feed
 
     Feed(config).modify_feed()
+
+
+if __name__ == '__main__':
+    main_create_beyondwords_nonlinear_library_project_inputs(True)
