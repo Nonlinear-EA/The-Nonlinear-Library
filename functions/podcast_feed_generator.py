@@ -1,5 +1,6 @@
 from datetime import datetime
 from difflib import SequenceMatcher
+from functools import reduce
 from time import strptime, mktime
 from typing import List, Tuple
 from urllib.parse import urlparse
@@ -374,6 +375,15 @@ def remove_posts_with_empty_content(feed):
     return feed
 
 
+def get_titles_from_feed(feed_filename):
+    pass
+
+
+def get_feed(filename, config, running_on_gcp):
+    storage = create_storage(config, running_on_gcp)
+    return storage.read_podcast_feed(filename)
+
+
 def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
     """
     Update the BeyondWords input feed with posts from a forum.
@@ -382,6 +392,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
 
     feed = get_feed_tree_from_source(config.source)
 
+    titles_from_other_forums = reduce(lambda prev, next: prev + get_titles_from_feed(next), config.other_relevant_feeds)
     # Remove posts that have already been added to a feed
     remove_posts_in_history(feed, config, running_on_gcp)
 

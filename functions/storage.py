@@ -18,7 +18,7 @@ class StorageInterface:
     def write_podcast_feed(self, feed: str):
         raise NotImplementedError()
 
-    def read_podcast_feed(self) -> Element:
+    def read_podcast_feed(self, filename: str = None) -> Element:
         raise NotImplementedError()
 
     def read_removed_authors(self) -> List[str]:
@@ -40,13 +40,15 @@ class LocalStorage(StorageInterface):
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 
-    def read_podcast_feed(self) -> Element:
+    def read_podcast_feed(self, filename: str = None) -> Element:
         parser = XMLParser(encoding='utf-8', strip_cdata=False)
+        if not filename:
+            filename = self.rss_filename
         try:
-            return etree.parse(self.rss_filename, parser)
+            return etree.parse(filename, parser)
         except (FileNotFoundError, OSError) as e:
             empty_xml_feed = 'rss_files/empty_feed.xml'
-            print(type(e).__name__, 'when trying to parse XML from file at ', self.rss_filename,
+            print(type(e).__name__, 'when trying to parse XML from file at ', filename,
                   ' so returning XML from ',
                   empty_xml_feed, ' instead.')
             return etree.parse(empty_xml_feed, parser)
@@ -88,9 +90,11 @@ class GoogleCloudStorage(StorageInterface):
         print('Writing podcast feed ', feed, ' to file ', self.rss_filename)
         self.__write_file(self.rss_filename, feed)
 
-    def read_podcast_feed(self) -> Element:
+    def read_podcast_feed(self, filename: str = None) -> Element:
         # TODO: check if this works on GCP
-        rss_feed_str = "".join(self.__read_file(self.rss_filename))
+        if not filename:
+            filename = self.rss_filename
+        rss_feed_str = "".join(self.__read_file(filename))
         parser = XMLParser(encoding='utf-8', strip_cdata=False)
         try:
             return etree.fromstring(rss_feed_str, parser)
