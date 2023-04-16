@@ -3,6 +3,10 @@
 This project takes in RSS feeds from three different EA-related forums and outputs a modified RSS feed which Nonlinear
 uses to create The Nonlinear Library podcast and its variations.
 
+## New contributors
+
+We're not currently accepting new contributors because there's not enough work to split parts of it into smaller pieces. If you're interested in contributing in the future, you can email maxwell.pietsch@gmail.com and he'll send you an email when or if help is needed.
+
 ## Overview
 
 This project cleans up and organizes several RSS files which are read by podcast services such as Spotify, Apple
