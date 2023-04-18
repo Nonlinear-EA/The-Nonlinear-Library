@@ -55,16 +55,16 @@ def lw_all(a=None, b=None):
     update_podcast_feed(lw_all_config(), True)
 
 
-def beyondwords_af():
+def beyondwords_af(a=None, b=None):
     print('running beyondwords_af')
     update_beyondwords_input_feed(beyondwords_af_config(), True)
 
 
-def beyondwords_ea():
+def beyondwords_ea(a=None, b=None):
     print('running beyondwords_ea')
     update_beyondwords_input_feed(beyondwords_ea_config(), True)
 
 
-def beyondwords_lw():
+def beyondwords_lw(a=None, b=None):
     print('running beyondwords_lw')
     update_beyondwords_input_feed(beyondwords_lw_config(), True)
