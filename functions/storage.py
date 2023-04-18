@@ -91,14 +91,15 @@ class GoogleCloudStorage(StorageInterface):
         self.__write_file(self.rss_filename, feed)
 
     def read_podcast_feed(self, filename: str = None) -> Element:
-        # TODO: check if this works on GCP
         if not filename:
             filename = self.rss_filename
+        print(f'Reading podcast feed from file {filename}')
         rss_feed_str = "".join(self.__read_file(filename))
         parser = XMLParser(encoding='utf-8', strip_cdata=False)
         try:
             return etree.fromstring(rss_feed_str, parser)
         except OSError:
+            print(f'File {filename} not found, trying to return an empty feed file.')
             return etree.parse('rss_files/empty_feed.xml', parser)
 
     def __read_file(self, path: str):
