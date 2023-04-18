@@ -97,7 +97,7 @@ class GoogleCloudStorage(StorageInterface):
         rss_feed_str = "".join(self.__read_file(filename))
         parser = XMLParser(encoding='utf-8', strip_cdata=False)
         if rss_feed_str:
-            return etree.fromstring(rss_feed_str, parser)
+            return etree.fromstring(bytes(rss_feed_str, "utf-8"), parser)
         else:
             print(f'File {filename} not found, trying to return an empty feed file.')
             return etree.parse('rss_files/empty_feed.xml', parser)
