@@ -439,7 +439,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     # The list below contains the xpaths of the items that contain XML CDATA strings
     cdata_xpaths = [
         'channel/title',
-        'channel/item/dc:creator'
+        'channel/item/dc:creator',
         'channel/item/title'
     ]
 

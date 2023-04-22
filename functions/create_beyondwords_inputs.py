@@ -3,6 +3,7 @@ import re
 import ssl
 
 import feedparser
+from bs4 import BeautifulSoup
 
 
 def main_create_beyondwords_nonlinear_library_project_inputs(local: False):
@@ -158,6 +159,7 @@ def main_create_beyondwords_nonlinear_library_project_inputs(local: False):
                 if item['title'] in self.list_titles:
                     continue
                 self.list_titles.append(item['title'])
+
                 # check for removed authors
                 if item['author'] in self.list_removed_authors:
                     continue
@@ -171,6 +173,13 @@ def main_create_beyondwords_nonlinear_library_project_inputs(local: False):
                         pass
                     else:
                         authors_str += ', '
+
+                item_content = item['summary']
+                item_content_html = BeautifulSoup(item_content, 'html.parser')
+                item_number_of_p_tags = len(item_content_html.find_all('p'))
+
+                if item_number_of_p_tags < 1 or len(item['summary']) <= 220:
+                    continue
 
                 # get date
                 item_date = item['summary'].split('<br /><br />')[0].split(':')[0][13:-2]  # TODO: make more robust
