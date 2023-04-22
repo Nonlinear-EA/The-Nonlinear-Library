@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 import ssl
 
@@ -101,6 +102,11 @@ def main_create_beyondwords_nonlinear_library_project_inputs(local: False):
             self.sources_list = config['sources']['list']
             self.output_file_basename = config['system']['output_file_basename']
             self.gcp_bucket_name = config['system']['gcp_bucket_name']
+
+            if 'GCP_BUCKET_NAME' in os.environ:
+                self.gcp_bucket_name = os.environ['GCP_BUCKET_NAME']
+            print(f"Using bucket name: {self.gcp_bucket_name}")
+
             self.removed_authors_filename = config['system']['removed_authors_filename']
             self.local = local
             self.list_modified_sources = []

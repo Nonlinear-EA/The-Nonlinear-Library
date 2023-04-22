@@ -8,6 +8,7 @@ from configs import lw_all_config
 from configs import lw_daily_config
 from configs import lw_weekly_config
 from feed_updaters import update_podcast_feed, update_beyondwords_input_feed
+from functions.create_beyondwords_inputs import main_create_beyondwords_nonlinear_library_project_inputs
 
 
 def af_daily(a=None, b=None):
@@ -68,3 +69,8 @@ def beyondwords_ea(a=None, b=None):
 def beyondwords_lw(a=None, b=None):
     print('running beyondwords_lw')
     update_beyondwords_input_feed(beyondwords_lw_config(), True)
+
+
+def create_beyondwords_nonlinear_library_project_inputs(a=None, b=None):
+    print("running create_beyondwords_nonlinear_library_project_inputs")
+    main_create_beyondwords_nonlinear_library_project_inputs(True)
