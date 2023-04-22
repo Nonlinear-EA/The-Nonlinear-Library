@@ -8,7 +8,7 @@ import pytest
 from functions.feed import FeedGeneratorConfig
 from functions.storage import LocalStorage, create_storage
 
-forum_prefixes = ('AF - ', 'EA - ', 'LW - ')
+forum_prefixes = ('AF - ', 'EA - ', 'LW - ')  # TODO: Not necessary to test different prefixes
 history_titles = [
     'AF - This is a history AF episode',
     'EA - This is a history EA episode',
