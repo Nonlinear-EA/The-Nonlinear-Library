@@ -185,6 +185,7 @@ def main_create_beyondwords_nonlinear_library_project_inputs(local: False):
                 item_number_of_p_tags = len(item_content_html.find_all('p'))
 
                 if item_number_of_p_tags < 1 or len(item['summary']) <= 220:
+                    print(f'Skipping {item["title"]}, due to very short content, likely a cross-post.')
                     continue
 
                 # get date
