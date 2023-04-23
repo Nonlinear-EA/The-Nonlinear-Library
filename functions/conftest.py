@@ -61,7 +61,7 @@ def mock_get_feed_tree_from_source():
 @pytest.fixture
 def mock_read_podcast_feed():
     with patch.object(LocalStorage, 'read_podcast_feed') as mock:
-        mock.return_value = ElementTree.parse('podcast_feed.xml').getroot()
+        mock.return_value = ElementTree.parse('rss_files/podcast_feed.xml').getroot()
         yield
 
 
@@ -69,7 +69,7 @@ def mock_read_podcast_feed():
 def mock_write_podcast_feed():
     with patch.object(LocalStorage, 'write_podcast_feed') as mock:
         def save_podcast_feed(*args):
-            with open('podcast_feed.xml', 'wb') as f:
+            with open('rss_files/podcast_feed.xml', 'wb') as f:
                 f.write(args[0])
 
         mock.side_effect = save_podcast_feed
@@ -79,7 +79,7 @@ def mock_write_podcast_feed():
 @pytest.fixture
 def cleanup_podcast_feed():
     yield
-    podcast_feed = ElementTree.parse('podcast_feed.xml').getroot()
+    podcast_feed = ElementTree.parse('rss_files/podcast_feed.xml').getroot()
     i = 0
     for item in podcast_feed.findall('channel/item'):
         i += 1
@@ -127,7 +127,7 @@ def default_config() -> FeedGeneratorConfig:
 
 @pytest.fixture()
 def removed_authors():
-    with open('removed_authors.txt', 'r') as f:
+    with open('rss_files/removed_authors.txt', 'r') as f:
         return [author for author in f.readlines()]
 
 
