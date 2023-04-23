@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss
+        xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[AI Alignment Forum]]></title>
+        <description><![CDATA[A community blog devoted to technical AI alignment research]]></description>
+        <link>https://www.alignmentforum.org</link>
+        <image>
+            <url>https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico</url>
+            <title>AI Alignment Forum</title>
+            <link>https://www.alignmentforum.org</link>
+        </image>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Sat, 22 Apr 2023 22:00:07 GMT</lastBuildDate>
+        <atom:link href="https://www.alignmentforum.org/feed.xml?view=community-rss&amp;karmaThreshold=0" rel="self"
+                   type="application/rss+xml"/>
+
+    </channel>
+</rss>

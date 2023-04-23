@@ -221,6 +221,7 @@ def main_create_beyondwords_nonlinear_library_project_inputs(local: False):
                 client = storage.Client()
                 bucket = client.get_bucket(self.gcp_bucket_name)
                 blob = bucket.blob(filename)
+                print(f'Writing {filename} to {self.gcp_bucket_name}')
                 blob.upload_from_string(rss_feed + feed_final_str)
 
             return news_feed
