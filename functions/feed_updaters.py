@@ -81,11 +81,12 @@ def filter_entries_by_search_period(feed: Element, feed_config: FeedGeneratorCon
             feed.find('channel').remove(entry)
 
 
-def get_feed_tree_from_url(url) -> Element:
+def get_feed_tree_from_url(url, cache: bool = True) -> Element:
     """
     Return an element tree from the provided url (or path to local file).
 
     Args:
+        cache: Cache requests data
         url: Url to a XML document
 
     Returns: A XML element tree
@@ -105,6 +106,13 @@ def get_feed_tree_from_url(url) -> Element:
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/83.0.4103.97 Safari/537.36'}
+    if not cache:
+        headers = {
+            **headers,
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache"
+        }
+
     response = requests.get(url, headers=headers)
     xml_data = bytes(response.text, encoding='utf-8')
 
