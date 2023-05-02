@@ -33,5 +33,16 @@ def test_posts_with_no_paragraph_elements_in_content_are_discarded(
     assert all(len(html_code.find_all("p")) > 0 for html_code in content_html)
 
 
-def test_posts_from_other_relevant_files_are_discarded():
-    pass
+def test_posts_from_other_relevant_files_are_discarded(
+        default_beyondwords_input_config,
+        mock_get_forum_feed_from_source,
+        storage
+):
+    relevant_feed_entry_title = "This entry is in relevant_feed_1.xml"
+
+    update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
+
+    beyondwords_feed = storage.read_podcast_feed("./files/test_beyondwords_feed.xml")
+    item_titles = [title.text for title in beyondwords_feed.findall("channel/item/title")]
+
+    assert not any(relevant_feed_entry_title == title for title in item_titles)
