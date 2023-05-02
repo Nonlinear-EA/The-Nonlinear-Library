@@ -1,14 +1,14 @@
-from functions.configs import af_all_config, beyondwords_ea_config, beyondwords_af_config, beyondwords_lw_config
-from functions.configs import af_daily_config
-from functions.configs import af_weekly_config
-from functions.configs import ea_all_config
-from functions.configs import ea_daily_config
-from functions.configs import ea_weekly_config
-from functions.configs import lw_all_config
-from functions.configs import lw_daily_config
-from functions.configs import lw_weekly_config
-from functions.create_beyondwords_inputs import main_create_beyondwords_nonlinear_library_project_inputs
-from functions.feed_updaters import update_podcast_feed, update_beyondwords_input_feed
+from feed_processing.configs import af_all_config, beyondwords_ea_config, beyondwords_af_config, beyondwords_lw_config
+from feed_processing.configs import af_daily_config
+from feed_processing.configs import af_weekly_config
+from feed_processing.configs import ea_all_config
+from feed_processing.configs import ea_daily_config
+from feed_processing.configs import ea_weekly_config
+from feed_processing.configs import lw_all_config
+from feed_processing.configs import lw_daily_config
+from feed_processing.configs import lw_weekly_config
+from feed_processing.create_beyondwords_inputs import main_create_beyondwords_nonlinear_library_project_inputs
+from feed_processing.feed_updaters import update_podcast_feed, update_beyondwords_input_feed
 
 
 def af_daily(a=None, b=None):

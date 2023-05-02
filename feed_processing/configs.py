@@ -1,4 +1,4 @@
-from functions.feed import FeedGeneratorConfig, BeyondWordsInputConfig
+from feed_processing.feed import FeedGeneratorConfig, BeyondWordsInputConfig
 
 beyondwords_rss_output = 'https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143'
 nll_author = 'The Nonlinear Fund'

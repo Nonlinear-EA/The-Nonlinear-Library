@@ -1,7 +1,7 @@
 import freezegun
 
-from functions.feed import FeedGeneratorConfig
-from functions.feed_updaters import update_podcast_feed
+from feed_processing.feed import FeedGeneratorConfig
+from feed_processing.feed_updaters import update_podcast_feed
 from test.conftest import get_feed_reference_date_str
 
 search_periods = (FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_WEEK)

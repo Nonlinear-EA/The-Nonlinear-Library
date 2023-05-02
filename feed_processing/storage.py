@@ -3,7 +3,7 @@ from typing import List
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from functions.feed import BaseFeedConfig
+from feed_processing.feed import BaseFeedConfig
 
 
 class StorageInterface:

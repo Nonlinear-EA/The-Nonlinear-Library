@@ -5,8 +5,8 @@ from xml.etree import ElementTree
 
 import pytest
 
-from functions.feed import FeedGeneratorConfig
-from functions.storage import LocalStorage, create_storage
+from feed_processing.feed import FeedGeneratorConfig
+from feed_processing.storage import LocalStorage, create_storage
 
 forum_prefixes = ('AF - ', 'EA - ', 'LW - ')  # TODO: Not necessary to test different prefixes
 history_titles = [
@@ -53,7 +53,7 @@ def mock_get_feed_tree_from_source():
     Returns:
 
     """
-    with patch('functions.podcast_feed_generator.get_feed_tree_from_source') as mock:
+    with patch('feed_processing.podcast_feed_generator.get_feed_tree_from_source') as mock:
         mock.return_value = ElementTree.parse('test_beyondwords_feed.xml').getroot()
         yield
 
@@ -61,7 +61,7 @@ def mock_get_feed_tree_from_source():
 @pytest.fixture
 def mock_read_podcast_feed():
     with patch.object(LocalStorage, 'read_podcast_feed') as mock:
-        mock.return_value = ElementTree.parse('../functions/rss_files/podcast_feed.xml').getroot()
+        mock.return_value = ElementTree.parse('../feed_processing/rss_files/podcast_feed.xml').getroot()
         yield
 
 
@@ -69,7 +69,7 @@ def mock_read_podcast_feed():
 def mock_write_podcast_feed():
     with patch.object(LocalStorage, 'write_podcast_feed') as mock:
         def save_podcast_feed(*args):
-            with open('../functions/rss_files/podcast_feed.xml', 'wb') as f:
+            with open('../feed_processing/rss_files/podcast_feed.xml', 'wb') as f:
                 f.write(args[0])
 
         mock.side_effect = save_podcast_feed
@@ -79,7 +79,7 @@ def mock_write_podcast_feed():
 @pytest.fixture
 def cleanup_podcast_feed():
     yield
-    podcast_feed = ElementTree.parse('../functions/rss_files/podcast_feed.xml').getroot()
+    podcast_feed = ElementTree.parse('../feed_processing/rss_files/podcast_feed.xml').getroot()
     i = 0
     for item in podcast_feed.findall('channel/item'):
         i += 1
@@ -107,7 +107,7 @@ def mock_get_post_karma():
     Mocking this function allows speeding up the tests. The mocked function returns a random number.
 
     """
-    with patch('functions.podcast_feed_generator.get_post_karma') as mock:
+    with patch('feed_processing.podcast_feed_generator.get_post_karma') as mock:
         mock.return_value = str(int(random.random() * 100))
         yield
 
