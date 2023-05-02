@@ -10,9 +10,9 @@ from bs4 import BeautifulSoup
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from configs import beyondwords_feed_namespaces
-from feed import FeedGeneratorConfig, BaseFeedConfig, BeyondWordsInputConfig
-from storage import create_storage
+from functions.configs import beyondwords_feed_namespaces
+from functions.feed import FeedGeneratorConfig, BaseFeedConfig, BeyondWordsInputConfig
+from functions.storage import create_storage
 
 outro_str = '<p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit ' \
             'nonlinear.org</p>'
