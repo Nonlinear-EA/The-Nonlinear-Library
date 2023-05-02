@@ -4,3 +4,4 @@ venv
 /functions/rss_files/*
 /functions/history_titles/*
 /functions/test_files/
+nonlinear-library-*.xml
