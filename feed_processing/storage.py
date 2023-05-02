@@ -11,8 +11,8 @@ class StorageInterface:
     Interface to read and write text files.
     """
 
-    def __init__(self, rss_filename: str, removed_authors_file: str = "./removed_authors"):
-        self.removed_authors_filename = removed_authors_file
+    def __init__(self, rss_filename: str, removed_authors_filename: str = "./removed_authors"):
+        self.removed_authors_filename = removed_authors_filename
         self.rss_filename = rss_filename
 
     def write_podcast_feed(self, feed: str):
@@ -31,9 +31,9 @@ class LocalStorage(StorageInterface):
     """
 
     def __init__(
-            self, rss_filename: str, removed_authors_file: str = "./removed_authors.txt"
+            self, rss_filename: str, removed_authors_filename: str = "./removed_authors.txt"
     ):
-        super().__init__(rss_filename, removed_authors_file)
+        super().__init__(rss_filename, removed_authors_filename)
 
     def read_removed_authors(self):
         removed_authors = self.__read_file(self.removed_authors_filename)
@@ -77,12 +77,12 @@ class GoogleCloudStorage(StorageInterface):
     """
     gcp_bucket: str
 
-    def __init__(self, gcp_bucket, rss_filename: str):
-        super().__init__(rss_filename)
+    def __init__(self, gcp_bucket, rss_filename: str, removed_authors_filename: str = "./removed_authors.txt"):
+        super().__init__(rss_filename, removed_authors_filename)
         self.gcp_bucket = gcp_bucket
 
     def read_removed_authors(self):
-        removed_authors = self.__read_file('../manual_tests/removed_authors.txt')
+        removed_authors = self.__read_file(self.removed_authors_filename)
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 
