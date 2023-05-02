@@ -11,8 +11,8 @@ class StorageInterface:
     Interface to read and write text files.
     """
 
-    def __init__(self, rss_filename: str):
-        self.removed_authors_filename = '../manual_tests/removed_authors.txt'
+    def __init__(self, rss_filename: str, removed_authors_file: str = "./removed_authors"):
+        self.removed_authors_filename = removed_authors_file
         self.rss_filename = rss_filename
 
     def write_podcast_feed(self, feed: str):
@@ -31,12 +31,12 @@ class LocalStorage(StorageInterface):
     """
 
     def __init__(
-            self, rss_filename: str
+            self, rss_filename: str, removed_authors_file: str = "./removed_authors.txt"
     ):
-        super().__init__(rss_filename)
+        super().__init__(rss_filename, removed_authors_file)
 
     def read_removed_authors(self):
-        removed_authors = self.__read_file('../manual_tests/removed_authors.txt')
+        removed_authors = self.__read_file(self.removed_authors_filename)
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 

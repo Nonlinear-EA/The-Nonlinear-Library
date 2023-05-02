@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/"
+     version="2.0">
     <channel>
         <title>
             <![CDATA[Some Internet Forum's Feed]]>
@@ -27,6 +28,27 @@
             <guid isPermaLink="false">ZKYpu4WAiwTXDSrX8</guid>
             <dc:creator>
                 <![CDATA[The Author]]>
+            </dc:creator>
+            <pubDate>Tue, 02 May 2023 16:21:20 GMT</pubDate>
+        </item>
+        <item>
+            <title>
+                <![CDATA[Entry from a removed author]]>
+            </title>
+            <description>
+                <![CDATA[Published on May 2, 2023 3:45 PM GMT by The Author
+                <p>
+                This is an entry that says something about x and y that has paragraphs.
+
+                <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus urna enim, ut interdum justo varius placerat. Integer rhoncus maximus arcu. Curabitur non scelerisque lorem.
+                </p>
+                ]]>
+            </description>
+            <link>https://aforumontheinternet.com/first_entry</link>
+            <guid isPermaLink="false">ZKYpu4WAiwTXDSrX8</guid>
+            <dc:creator>
+                <![CDATA[RemovedAuthor]]>
             </dc:creator>
             <pubDate>Tue, 02 May 2023 16:21:20 GMT</pubDate>
         </item>

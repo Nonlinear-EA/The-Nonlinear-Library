@@ -179,6 +179,7 @@ def default_beyondwords_input_config():
         source="https://someurl.com/forum-feed.xml",
         max_entries=30,
         rss_filename=beyondwords_input_feed,
+        removed_authors_file="./files/removed_authors.txt",
         relevant_feeds=[
             "./files/relevant_feed_1.xml"
         ]
