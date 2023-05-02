@@ -1,6 +1,6 @@
 .idea/
 *venv
-/feed_processing/rss_files/*
-/feed_processing/history_titles/*
-/feed_processing/test_files/
+/manual_tests/rss_files/*
+/manual_tests/history_titles/*
+/manual_tests/test_files/
 nonlinear-library-*.xml

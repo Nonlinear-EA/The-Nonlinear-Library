@@ -1,6 +1,6 @@
 import freezegun
 
-from feed_processing.feed import FeedGeneratorConfig
+from feed_processing.feed_config import FeedGeneratorConfig
 from feed_processing.feed_updaters import update_podcast_feed
 from test.conftest import get_feed_reference_date_str
 

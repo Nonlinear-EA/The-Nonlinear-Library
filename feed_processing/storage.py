@@ -3,7 +3,7 @@ from typing import List
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from feed_processing.feed import BaseFeedConfig
+from feed_processing.feed_config import BaseFeedConfig
 
 
 class StorageInterface:
@@ -12,7 +12,7 @@ class StorageInterface:
     """
 
     def __init__(self, rss_filename: str):
-        self.removed_authors_filename = 'removed_authors.txt'
+        self.removed_authors_filename = '../manual_tests/removed_authors.txt'
         self.rss_filename = rss_filename
 
     def write_podcast_feed(self, feed: str):
@@ -36,7 +36,7 @@ class LocalStorage(StorageInterface):
         super().__init__(rss_filename)
 
     def read_removed_authors(self):
-        removed_authors = self.__read_file('./removed_authors.txt')
+        removed_authors = self.__read_file('../manual_tests/removed_authors.txt')
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 
@@ -82,7 +82,7 @@ class GoogleCloudStorage(StorageInterface):
         self.gcp_bucket = gcp_bucket
 
     def read_removed_authors(self):
-        removed_authors = self.__read_file('./removed_authors.txt')
+        removed_authors = self.__read_file('../manual_tests/removed_authors.txt')
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 

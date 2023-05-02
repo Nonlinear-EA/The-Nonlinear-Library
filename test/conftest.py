@@ -4,8 +4,9 @@ from unittest.mock import patch
 from xml.etree import ElementTree
 
 import pytest
+from lxml import etree
 
-from feed_processing.feed import FeedGeneratorConfig
+from feed_processing.feed_config import FeedGeneratorConfig, BeyondWordsInputConfig
 from feed_processing.storage import LocalStorage, create_storage
 
 forum_prefixes = ('AF - ', 'EA - ', 'LW - ')  # TODO: Not necessary to test different prefixes
@@ -14,6 +15,14 @@ history_titles = [
     'EA - This is a history EA episode',
     'LW - This is a history LW episode'
 ]
+
+beyondwords_input_feed = "./files/test_beyondwords_feed.xml"
+
+feed_namespace_map = {
+    "dc": "http://purl.org/dc/elements/1.1/",
+    "content": "http://purl.org/rss/1.0/modules/content/",
+    "atom": "http://www.w3.org/2005/Atom"
+}
 
 
 def get_feed_reference_date_str(date_format='%Y-%m-%d %H:%M:%S'):
@@ -35,16 +44,6 @@ def set_random_seed_to_reference_time():
     random.seed(reference_date().timestamp())
 
 
-@pytest.fixture(autouse=True)
-def empty_history(storage):
-    """
-    Empties the history_titles_file file and adds a mock entry
-
-    """
-    yield
-    storage.write_history_titles(history_titles)
-
-
 @pytest.fixture
 def mock_get_feed_tree_from_source():
     """
@@ -54,14 +53,21 @@ def mock_get_feed_tree_from_source():
 
     """
     with patch('feed_processing.podcast_feed_generator.get_feed_tree_from_source') as mock:
-        mock.return_value = ElementTree.parse('test_beyondwords_feed.xml').getroot()
+        mock.return_value = ElementTree.parse('files/test_beyondwords_feed.xml').getroot()
+        yield
+
+
+@pytest.fixture
+def mock_get_forum_feed_from_source():
+    with patch('feed_processing.feed_updaters.get_feed_tree_from_url') as mock:
+        mock.return_value = etree.parse("files/test_forum_feed.xml")
         yield
 
 
 @pytest.fixture
 def mock_read_podcast_feed():
     with patch.object(LocalStorage, 'read_podcast_feed') as mock:
-        mock.return_value = ElementTree.parse('../feed_processing/rss_files/podcast_feed.xml').getroot()
+        mock.return_value = ElementTree.parse('../manual_tests/rss_files/podcast_feed.xml').getroot()
         yield
 
 
@@ -69,7 +75,7 @@ def mock_read_podcast_feed():
 def mock_write_podcast_feed():
     with patch.object(LocalStorage, 'write_podcast_feed') as mock:
         def save_podcast_feed(*args):
-            with open('../feed_processing/rss_files/podcast_feed.xml', 'wb') as f:
+            with open('../manual_tests/rss_files/podcast_feed.xml', 'wb') as f:
                 f.write(args[0])
 
         mock.side_effect = save_podcast_feed
@@ -79,7 +85,7 @@ def mock_write_podcast_feed():
 @pytest.fixture
 def cleanup_podcast_feed():
     yield
-    podcast_feed = ElementTree.parse('../feed_processing/rss_files/podcast_feed.xml').getroot()
+    podcast_feed = ElementTree.parse('../manual_tests/rss_files/podcast_feed.xml').getroot()
     i = 0
     for item in podcast_feed.findall('channel/item'):
         i += 1
@@ -121,7 +127,7 @@ def default_config() -> FeedGeneratorConfig:
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
         title="The Nonlinear Library: Your title goes here!",
         gcp_bucket='rssfile',
-        history_titles_filename='podcast_feed'
+        rss_filename='nonlinear-library-podcast-feed.xml'
     )
 
 
@@ -138,7 +144,7 @@ def forum_title_prefix(request):
 
 @pytest.fixture
 def beyondwords_feed():
-    return ElementTree.parse('test_beyondwords_feed.xml').getroot()
+    return ElementTree.parse('files/test_beyondwords_feed.xml').getroot()
 
 
 @pytest.fixture(params=(FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_DAY, None))
@@ -164,6 +170,21 @@ def feed_config(
     return default_config
 
 
+@pytest.fixture
+def default_beyondwords_input_config():
+    return BeyondWordsInputConfig(
+        author="The Nonlinear Fund",
+        email="main@nonlinear.com",
+        gcp_bucket="newcode",
+        source="https://someurl.com/forum-feed.xml",
+        max_entries=30,
+        rss_filename=beyondwords_input_feed,
+        relevant_feeds=[
+            "./files/relevant_feed_1.xml"
+        ]
+    )
+
+
 @pytest.fixture()
 def feed_config_all(default_config, forum_title_prefix):
     default_config.title_prefix = forum_title_prefix
@@ -174,3 +195,13 @@ def feed_config_all(default_config, forum_title_prefix):
 @pytest.fixture()
 def storage(default_config):
     return create_storage(default_config, False)
+
+
+@pytest.fixture(autouse=True)
+def restore_beyondwords_feed(storage):
+    yield
+    print("Restoring BeyondWords feed.")
+    feed_root = etree.Element("rss", nsmap=feed_namespace_map)
+    etree.SubElement(feed_root, "channel")
+    tree = etree.ElementTree(feed_root)
+    tree.write(beyondwords_input_feed, pretty_print=True, xml_declaration=True)
