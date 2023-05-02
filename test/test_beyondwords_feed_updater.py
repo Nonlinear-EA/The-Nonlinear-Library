@@ -48,29 +48,16 @@ def test_posts_from_other_relevant_files_are_discarded(
     assert not any(relevant_feed_entry_title == title for title in item_titles)
 
 
-# def test_beyondwords_input_feed_items_have_a_creator_tag(
-#         default_beyondwords_input_config,
-#         mock_get_forum_feed_from_source,
-#         storage
-# ):
-#     update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
-#
-#     beyondwords_feed = storage.read_podcast_feed("./files/test_beyondwords_feed.xml")
-#
-#     creator_tags = beyondwords_feed.findall("channel/item/{dc}creator")
-#
-#     assert len(creator_tags) == 2
-
-
 def test_posts_from_removed_authors_are_discarded(
         default_beyondwords_input_config,
         mock_get_forum_feed_from_source,
         storage
 ):
-    removed_author = "RemovedAuthor"
-
     update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
 
+    # Retrieve the newly updated feed.
     beyondwords_feed = storage.read_podcast_feed("./files/test_beyondwords_feed.xml")
+    # Retrieve the authors.
     authors = [creator.text.strip() for creator in beyondwords_feed.findall("channel/item/author")]
-    assert not any(author == removed_author for author in authors)
+
+    assert not any(author == "RemovedAuthor" for author in authors)

@@ -9,6 +9,7 @@ class BaseFeedConfig:
     email: str
     author: str
     rss_filename: str
+    removed_authors_file: str
 
 
 @dataclass
@@ -26,7 +27,6 @@ class FeedGeneratorConfig(BaseFeedConfig):
     title_prefix: str = None
     date_format: str = '%a, %d %b %Y %H:%M:%S %z'
     top_post_only: bool = False
-    removed_authors_file: str = "removed_authors.txt"
 
     def get_search_period_timedelta(self) -> timedelta | None:
         """
@@ -48,4 +48,3 @@ class BeyondWordsInputConfig(BaseFeedConfig):
     source: str
     max_entries: int
     relevant_feeds: list = None
-    removed_authors_file: str = "removed_authors.txt"

@@ -53,7 +53,7 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
     storage = create_storage(config, running_on_gcp)
     removed_authors = storage.read_removed_authors()
     for item in feed.findall('channel/item'):
-        author = item.find('author').text
+        author = item.find('author').text.strip()
         if author in removed_authors:
             feed.find('channel').remove(item)
     return feed
