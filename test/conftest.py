@@ -232,5 +232,17 @@ def write_test_beyondwords_feed(storage):
 
 @pytest.fixture(autouse=True)
 def restore_beyondwords_feed(storage):
+    """
+    Write the beyondwords feed to an initial state with only one item.
+    The feed is written before executing the tests, to ensure that the file has the desired content for the tests.
+    The feed is again written after executing the tests so the developer can inspect the file.
+    The fixture is marked `autouse` so it runs for every test.
+    Args:
+        storage: Storage object to read and write feeds.
+
+    """
+    # Write the file before the tests to ensure that the file is present.
     write_test_beyondwords_feed(storage)
     yield
+    # Restore the file after so it can be inspected by the developer.
+    write_test_beyondwords_feed(storage)

@@ -2,6 +2,11 @@ from bs4 import BeautifulSoup
 
 from feed_processing.feed_updaters import update_beyondwords_input_feed
 
+"""
+Note: The unit tests for the `update_beyondwords_feed` function use static files located inside `test/files`.
+These files are used in place of the actual feeds or the removed_authors.txt file that are present on GCP.
+"""
+
 
 def test_posts_with_250_characters_or_less_in_content_are_discarded(
         default_beyondwords_input_config,
