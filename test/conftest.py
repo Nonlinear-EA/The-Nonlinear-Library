@@ -5,6 +5,7 @@ from xml.etree import ElementTree
 
 import pytest
 from lxml import etree
+from lxml.etree import CDATA
 
 from feed_processing.feed_config import FeedGeneratorConfig, BeyondWordsInputConfig
 from feed_processing.storage import LocalStorage, create_storage
@@ -23,6 +24,15 @@ feed_namespace_map = {
     "content": "http://purl.org/rss/1.0/modules/content/",
     "atom": "http://www.w3.org/2005/Atom"
 }
+
+lorem_ipsum = """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ac sollicitudin urna. Morbi mollis 
+condimentum aliquet. Nulla sagittis malesuada metus, quis tincidunt libero tempor sit amet. Maecenas suscipit nisl et 
+ultrices scelerisque. Nunc gravida varius diam, eget sagittis felis vehicula in. Praesent ut porta metus. Quisque 
+dapibus, elit non rutrum viverra, mauris justo luctus odio, quis commodo massa risus sed nisl. Phasellus pharetra 
+lorem a mauris gravida, at faucibus nunc mollis. Donec a justo nec ligula sodales malesuada vestibulum efficitur 
+massa. Etiam luctus, nibh vitae fermentum cursus, lacus lorem condimentum nunc, viverra aliquet eros mi ut nulla. In 
+hac habitasse platea dictumst. Etiam convallis mollis viverra. Sed ac pretium turpis, quis tincidunt purus. Aenean 
+sed risus in sapien consectetur suscipit sit amet quis ipsum."""
 
 
 def get_feed_reference_date_str(date_format='%Y-%m-%d %H:%M:%S'):
@@ -199,11 +209,28 @@ def storage(default_config):
     return create_storage(default_config, False)
 
 
+def get_empty_test_forum_feed():
+    feed_root = etree.Element("rss", nsmap=feed_namespace_map)
+    channel = etree.SubElement(feed_root, "channel")
+    # Add at least a single to emulate history items.
+    item = etree.SubElement(channel, "item")
+    title = etree.SubElement(item, "title")
+    title.text = CDATA("Unknown - This is a history item by The Author")
+    # Create some description and content
+    description = etree.SubElement(item, "description")
+    description.text = CDATA("This is a history item. It should not be included again by future feed updates.")
+    content = etree.SubElement(item, "content")
+    content.text = CDATA(f"This is a history item on some date by Author <p>{lorem_ipsum}</p>")
+    return feed_root
+
+
+def write_test_beyondwords_feed(storage):
+    root = get_empty_test_forum_feed()
+    tree = etree.ElementTree(root)
+    tree.write(beyondwords_input_feed, pretty_print=True, xml_declaration=True)
+
+
 @pytest.fixture(autouse=True)
 def restore_beyondwords_feed(storage):
+    write_test_beyondwords_feed(storage)
     yield
-    print("Restoring BeyondWords feed.")
-    feed_root = etree.Element("rss", nsmap=feed_namespace_map)
-    etree.SubElement(feed_root, "channel")
-    tree = etree.ElementTree(feed_root)
-    tree.write(beyondwords_input_feed, pretty_print=True, xml_declaration=True)

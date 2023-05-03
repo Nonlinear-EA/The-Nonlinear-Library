@@ -272,15 +272,17 @@ def find_website(url, short=True):
 def prepend_website_abbreviation_to_feed_item_titles(feed):
     prefix = find_website(feed.find('channel/link').text)
     for item_title in feed.findall('channel/item/title'):
-        item_title.text = f'{prefix} - {item_title.text}'
+        item_title.text = f'{prefix} - {item_title.text.strip()}'
     return feed
 
 
 def save_new_items(new_items, config, running_on_gcp):
     storage = create_storage(config, running_on_gcp)
     feed = storage.read_podcast_feed()
+    existing_titles = [title.text.strip() for title in feed.findall("channel/item/title")]
     for item in new_items:
-        feed.find('channel').append(item)
+        if not item_title_is_duplicate(item.find("title").text, existing_titles):
+            feed.find('channel').append(item)
     feed_str = etree.tostring(feed, xml_declaration=True)
     storage.write_podcast_feed(feed_str)
     return feed_str
@@ -296,7 +298,7 @@ def add_author_tag_to_feed_items(feed):
 
 def append_author_to_item_titles(feed):
     for item in feed.findall('channel/item'):
-        item.find('title').text = f'{item.find("title").text} by {item.find("author").text}'
+        item.find('title').text = f'{item.find("title").text.strip()} by {item.find("author").text.strip()}'
     return feed
 
 
@@ -340,7 +342,6 @@ def remove_posts_with_empty_content(feed):
 
 def get_titles_from_feed(feed_filename: str, config: BaseFeedConfig, running_on_gcp: bool = True):
     feed = get_feed(feed_filename, config, running_on_gcp)
-
     return [title.text for title in feed.findall('channel/item/title')]
 
 
@@ -349,14 +350,15 @@ def get_feed(filename: str, config: BaseFeedConfig, running_on_gcp: bool = True)
     return storage.read_podcast_feed(filename)
 
 
-def remove_duplicate_items(feed: Element, existing_titles: List[str]) -> Element:
-    def item_title_is_duplicate(title):
-        title_exists = (title in existing_title for existing_title in existing_titles)
-        return any(title_exists)
+def item_title_is_duplicate(title: str, existing_titles: List[str]):
+    title_exists = (title.strip() in existing_title.strip() for existing_title in existing_titles)
+    return any(title_exists)
 
+
+def remove_duplicate_items(feed: Element, existing_titles: List[str]) -> Element:
     n_entries = len(feed.findall('channel/item'))
     for item in feed.findall('channel/item'):
-        if item_title_is_duplicate(item.find('title').text):
+        if item_title_is_duplicate(item.find('title').text, existing_titles):
             feed.find('channel').remove(item)
     print(f'Removed {n_entries - len(feed.findall("channel/item"))} duplicate entries.')
     return feed
@@ -372,6 +374,7 @@ def update_podcast_feed(
 
     Args:
         feed_config: Object with meta-data and filtering criteria to produce an RSS feed file.
+        running_on_gcp: True if function is running on Google Cloud else False
 
     Returns: The file name of the produced XML string and the xml string and the title of the new episode
     """
@@ -426,7 +429,10 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
 
     titles_from_other_feeds = reduce(concatenate_item_titles, config.relevant_feeds, [])
 
+    # Remove duplicates from other relevant feeds.
     remove_duplicate_items(feed, titles_from_other_feeds)
+
+    # Remove items that might already be present in the feed.
 
     # The author tag is used to remove posts from removed authors, append it to each item
     add_author_tag_to_feed_items(feed)
