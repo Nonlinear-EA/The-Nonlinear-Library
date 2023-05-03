@@ -17,7 +17,7 @@ history_titles = [
     'LW - This is a history LW episode'
 ]
 
-beyondwords_input_feed = "./files/test_beyondwords_feed.xml"
+beyondwords_input_feed = "./files/beyondwords_output_feed.xml"
 
 feed_namespace_map = {
     "dc": "http://purl.org/dc/elements/1.1/",
@@ -46,7 +46,7 @@ def reference_date():
 @pytest.fixture(autouse=True)
 def set_random_seed_to_reference_time():
     """
-    Initialize the random package using the reference date from the test_beyondwords_feed.xml file.
+    Initialize the random package using the reference date from the beyondwords_output_feed.xml file.
 
     This fixture is flaged as `autouse` so it will be called before every test
 
@@ -63,21 +63,21 @@ def mock_get_feed_tree_from_source():
 
     """
     with patch('feed_processing.podcast_feed_generator.get_feed_tree_from_source') as mock:
-        mock.return_value = ElementTree.parse('files/test_beyondwords_feed.xml').getroot()
+        mock.return_value = ElementTree.parse('files/beyondwords_output_feed.xml').getroot()
         yield
 
 
 @pytest.fixture
 def mock_get_forum_feed_from_source():
     with patch('feed_processing.feed_updaters.get_feed_tree_from_url') as mock:
-        mock.return_value = etree.parse("files/test_forum_feed.xml")
+        mock.return_value = etree.parse("files/forum_feed.xml")
         yield
 
 
 @pytest.fixture
 def mock_read_podcast_feed():
     with patch.object(LocalStorage, 'read_podcast_feed') as mock:
-        mock.return_value = ElementTree.parse('../manual_tests/rss_files/podcast_feed.xml').getroot()
+        mock.return_value = etree.parse('./files/podcast_input_feed.xml').getroot()
         yield
 
 
@@ -112,7 +112,7 @@ def cleanup_podcast_feed():
     for prefix, uri in namespaces.items():
         ElementTree.register_namespace(prefix, uri)
     tree = ElementTree.ElementTree(podcast_feed)
-    tree.write('./podcast_feed.xml')
+    tree.write('./podcast_input_feed.xml')
 
 
 @pytest.fixture
@@ -129,7 +129,7 @@ def mock_get_post_karma():
 
 
 @pytest.fixture
-def default_config() -> FeedGeneratorConfig:
+def default_podcast_feed_config() -> FeedGeneratorConfig:
     return FeedGeneratorConfig(
         source='https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143',
         author='The Nonlinear Fund',
@@ -155,7 +155,7 @@ def forum_title_prefix(request):
 
 @pytest.fixture
 def beyondwords_feed():
-    return ElementTree.parse('files/test_beyondwords_feed.xml').getroot()
+    return ElementTree.parse('files/beyondwords_output_feed.xml').getroot()
 
 
 @pytest.fixture(params=(FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_DAY, None))
@@ -170,15 +170,15 @@ def search_period_time_delta(search_period: FeedGeneratorConfig.SearchPeriod):
 
 @pytest.fixture(params=(True, False))
 def feed_config(
-        default_config,
+        default_podcast_feed_config,
         search_period,
         forum_title_prefix,
         request
 ):
-    default_config.search_period = search_period
-    default_config.title_prefix = forum_title_prefix
-    default_config.top_post_only = request.param
-    return default_config
+    default_podcast_feed_config.search_period = search_period
+    default_podcast_feed_config.title_prefix = forum_title_prefix
+    default_podcast_feed_config.top_post_only = request.param
+    return default_podcast_feed_config
 
 
 @pytest.fixture
@@ -192,21 +192,21 @@ def default_beyondwords_input_config():
         rss_filename=beyondwords_input_feed,
         removed_authors_file="./files/removed_authors.txt",
         relevant_feeds=[
-            "./files/relevant_feed_1.xml"
+            "./files/relevant_forum_feed_1.xml"
         ]
     )
 
 
 @pytest.fixture()
-def feed_config_all(default_config, forum_title_prefix):
-    default_config.title_prefix = forum_title_prefix
-    default_config.top_post_only = False
-    return default_config
+def feed_config_all(default_podcast_feed_config, forum_title_prefix):
+    default_podcast_feed_config.title_prefix = forum_title_prefix
+    default_podcast_feed_config.top_post_only = False
+    return default_podcast_feed_config
 
 
 @pytest.fixture()
-def storage(default_config):
-    return create_storage(default_config, False)
+def storage(default_podcast_feed_config):
+    return create_storage(default_podcast_feed_config, False)
 
 
 def get_empty_test_forum_feed():
@@ -234,9 +234,11 @@ def write_test_beyondwords_feed(storage):
 def restore_beyondwords_feed(storage):
     """
     Write the beyondwords feed to an initial state with only one item.
+
     The feed is written before executing the tests, to ensure that the file has the desired content for the tests.
-    The feed is again written after executing the tests so the developer can inspect the file.
-    The fixture is marked `autouse` so it runs for every test.
+
+    The feed is written again after executing the tests so the developer can inspect the file.
+
     Args:
         storage: Storage object to read and write feeds.
 

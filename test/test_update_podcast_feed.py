@@ -9,7 +9,7 @@ search_periods = (FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.
 
 @freezegun.freeze_time(get_feed_reference_date_str())
 def test_update_podcast_feed_updates_channel_title(
-        feed_config,
+        default_podcast_feed_config,
         mock_get_feed_tree_from_source,
         mock_read_podcast_feed,
         mock_write_podcast_feed,
@@ -17,9 +17,9 @@ def test_update_podcast_feed_updates_channel_title(
         storage,
         cleanup_podcast_feed
 ):
-    feed_config.title = 'This is the title'
+    default_podcast_feed_config.title = 'This is the title'
 
-    update_podcast_feed(feed_config, False)
+    update_podcast_feed(default_podcast_feed_config, False)
     feed = storage.read_podcast_feed()
 
     assert feed.find('channel/title').text == 'This is the title'
