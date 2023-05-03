@@ -33,9 +33,10 @@ def test_posts_with_no_paragraph_elements_in_content_are_discarded(
     beyondwords_feed = storage.read_podcast_feed("./files/test_beyondwords_feed.xml")
     content_html = [BeautifulSoup(description.text, "html.parser") for description in
                     beyondwords_feed.findall("channel/item/content")]
+    number_of_p_elements_per_item = [len(html_code.find_all("p")) for html_code in content_html]
 
     # Check that all items in the feed have at least one paragraph.
-    assert all(len(html_code.find_all("p")) > 0 for html_code in content_html)
+    assert all(number_of_p_tags > 0 for number_of_p_tags in number_of_p_elements_per_item)
 
 
 def test_posts_that_area_already_present_in_other_relevant_files_are_discarded(
@@ -43,14 +44,15 @@ def test_posts_that_area_already_present_in_other_relevant_files_are_discarded(
         mock_get_forum_feed_from_source,
         storage
 ):
-    relevant_feed_entry_title = "This entry is in relevant_feed_1.xml"
-
     update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
 
+    # Retrieve titles from newly written feed.
     beyondwords_feed = storage.read_podcast_feed("./files/test_beyondwords_feed.xml")
     item_titles = [title.text for title in beyondwords_feed.findall("channel/item/title")]
 
-    assert not any(relevant_feed_entry_title == title for title in item_titles)
+    # An item with title 'This entry is in relevant_feed_1.xml' is indeed present in the file
+    # `test/files/relevant_feed_1.xml` and in `test/files/test_forum_feed.xml`.
+    assert not any("This entry is in relevant_feed_1.xml" in title for title in item_titles)
 
 
 def test_posts_from_removed_authors_are_discarded(
@@ -65,6 +67,8 @@ def test_posts_from_removed_authors_are_discarded(
     # Retrieve the authors.
     authors = [creator.text.strip() for creator in beyondwords_feed.findall("channel/item/author")]
 
+    # 'RemovedAuthor' is present in the `files/removed_authors.txt` file, so any posts from them should be excluded
+    # from the beyondwords feed.
     assert not any(author == "RemovedAuthor" for author in authors)
 
 
@@ -83,4 +87,6 @@ def test_forum_items_that_are_already_present_in_beyondwords_feed_are_discarded(
     titles = [title.text.strip() for title in beyondwords_feed.findall("channel/item/title") if
               "This is a history item" in title.text.strip()]
 
+    # An item with the title "Unknown - This is a history item by The Author" is present in both the beyondwords feed
+    # and the forum's test feed. Each entry should appear only once in the beyondwords feed.
     assert len(titles) == 1

@@ -13,43 +13,5 @@ massa. Etiam luctus, nibh vitae fermentum cursus, lacus lorem condimentum nunc, 
 hac habitasse platea dictumst. Etiam convallis mollis viverra. Sed ac pretium turpis, quis tincidunt purus. Aenean 
 sed risus in sapien consectetur suscipit sit amet quis ipsum.</p>]]></content>
     </item>
-  <item>
-            <title><![CDATA[Unknown - This is the first entry by The Author]]></title>
-            <description><![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: 
-                This is the first entry, published by 
-                The Author
-             on May 2, 2023 on Unknown. ]]></description>
-            <link>https://aforumontheinternet.com/first_entry</link>
-            <guid isPermaLink="false">ZKYpu4WAiwTXDSrX8</guid>
-            <dc:creator><![CDATA[
-                The Author
-            ]]></dc:creator>
-            <pubDate>Tue, 02 May 2023 16:21:20 GMT</pubDate>
-        <author>
-                The Author
-            </author><content><![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: 
-                This is the first entry, published by 
-                The Author
-             on May 2, 2023 on Unknown. <p> 
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus urna enim, ut interdum justo varius placerat. Integer rhoncus maximus arcu. Curabitur non scelerisque lorem.
-                </p><p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org</p>]]></content></item>
-        <item>
-            <title><![CDATA[Unknown - This entry has no content and should be discarded by The Author]]></title>
-            <description><![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: 
-                This entry has no content and should be discarded, published by 
-                The Author
-             on May 2, 2023 on Unknown. ]]></description>
-            <link>https://aforumontheinternet.com/first_entry</link>
-            <guid isPermaLink="false">ZKYpu4WAiwTXDSrX8</guid>
-            <dc:creator><![CDATA[
-                The Author
-            ]]></dc:creator>
-            <pubDate>Tue, 02 May 2023 16:21:20 GMT</pubDate>
-        <author>
-                The Author
-            </author><content><![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: 
-                This entry has no content and should be discarded, published by 
-                The Author
-             on May 2, 2023 on Unknown. <p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org</p>]]></content></item>
-    </channel>
+  </channel>
 </rss>
