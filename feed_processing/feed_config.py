@@ -13,7 +13,7 @@ class BaseFeedConfig:
 
 
 @dataclass
-class FeedGeneratorConfig(BaseFeedConfig):
+class PodcastFeedConfig(BaseFeedConfig):
     class SearchPeriod(Enum):
         ONE_WEEK = 7
         ONE_DAY = 1
@@ -33,9 +33,9 @@ class FeedGeneratorConfig(BaseFeedConfig):
         Returns a timedelta based on the string provided as search period
         """
 
-        if self.search_period == FeedGeneratorConfig.SearchPeriod.ONE_WEEK:
+        if self.search_period == PodcastFeedConfig.SearchPeriod.ONE_WEEK:
             return timedelta(weeks=1)
-        elif self.search_period == FeedGeneratorConfig.SearchPeriod.ONE_DAY:
+        elif self.search_period == PodcastFeedConfig.SearchPeriod.ONE_DAY:
             return timedelta(days=1)
         elif self.search_period is None:
             return None

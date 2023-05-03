@@ -2,7 +2,7 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from functools import reduce
 from time import strptime, mktime
-from typing import List, Tuple
+from typing import List
 from urllib.parse import urlparse
 
 import requests
@@ -11,7 +11,7 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 
 from feed_processing.configs import beyondwords_feed_namespaces
-from feed_processing.feed_config import FeedGeneratorConfig, BaseFeedConfig, BeyondWordsInputConfig
+from feed_processing.feed_config import PodcastFeedConfig, BaseFeedConfig, BeyondWordsInputConfig
 from feed_processing.storage import create_storage
 
 outro_str = '<p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit ' \
@@ -59,7 +59,7 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
     return feed
 
 
-def filter_entries_by_search_period(feed: Element, feed_config: FeedGeneratorConfig):
+def filter_entries_by_search_period(feed: Element, feed_config: PodcastFeedConfig):
     """
     Return entries that were published within a period defined in the FeedGeneratorConfig object.
     
@@ -149,12 +149,6 @@ def filter_items(feed, feed_config, running_on_gcp) -> List[Element]:
     print(f'Removed {n_entries - get_number_of_entries()} entries due to removed author.')
 
     n_entries = get_number_of_entries()
-
-    # Filter entries by checking if their titles match the provided title_prefix
-    if feed_config.title_prefix:
-        for entry in feed.findall('channel/item'):
-            if not entry.find('title').text.startswith(feed_config.title_prefix):
-                feed.find('channel').remove(entry)
 
     # Update guid if provided in the feed_config
     if feed_config.guid_suffix:
@@ -364,10 +358,18 @@ def remove_duplicate_items(feed: Element, existing_titles: List[str]) -> Element
     return feed
 
 
+def filter_entries_by_title_prefix(feed, title_prefix):
+    # Filter entries by checking if their titles match the provided title_prefix
+    if title_prefix:
+        for entry in feed.findall('channel/item'):
+            if not entry.find('title').text.startswith(title_prefix):
+                feed.find('channel').remove(entry)
+
+
 def update_podcast_feed(
-        feed_config: FeedGeneratorConfig,
+        feed_config: PodcastFeedConfig,
         running_on_gcp
-) -> Tuple[str, list] | None:
+):
     """
     Get an RSS feed for podcast apps that is produced from a source and applying filtering criteria defined in the
     provided feed_config object.
@@ -379,36 +381,47 @@ def update_podcast_feed(
     Returns: The file name of the produced XML string and the xml string and the title of the new episode
     """
 
-    new_items = get_new_items_from_beyondwords_feed(feed_config, running_on_gcp)
-    if len(new_items) == 0:
-        print('No items match the filter. Returning.')
-        return None
+    # Get feed from source
+    feed = get_feed_tree_from_url(feed_config.source)
 
-    storage = create_storage(feed_config, running_on_gcp)
-    podcast_feed = storage.read_podcast_feed()
+    # Filter out entries from other forums.
+    filter_entries_by_title_prefix(feed, feed_config.title_prefix)
 
-    new_items = create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file(podcast_feed, new_items)
-    if len(new_items) == 0:
-        print('No items were found which are not already contained within the RSS feed. Returning.')
-        return None
+    # Filter out entries from removed authors
+    remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
 
-    # Update values from the provided configuration
-    podcast_feed.find('./channel/title').text = feed_config.title
-    podcast_feed.find('./channel/image/url').text = feed_config.image_url
-
-    for item in new_items:
-        print('Adding item with title ', item.find('title').text, ' to the RSS feed.')
-        podcast_feed.find('./channel').append(item)
-
-    new_items_titles = [item.find('title').text for item in new_items]
-    print(f"Writing to RSS feed {len(new_items)} new entries: {', '.join(new_items_titles)}")
-
-    xml_feed = etree.tostring(podcast_feed, encoding='UTF-8', xml_declaration=True)
-
-    storage = create_storage(feed_config, running_on_gcp)
-    storage.write_podcast_feed(xml_feed)
-
-    return storage.rss_filename, new_items_titles
+    return feed
+    # new_items = get_new_items_from_beyondwords_feed(feed_config, running_on_gcp)
+    #
+    # if len(new_items) == 0:
+    #     print('No items match the filter. Returning.')
+    #     return None
+    #
+    # storage = create_storage(feed_config, running_on_gcp)
+    # podcast_feed = storage.read_podcast_feed()
+    #
+    # new_items = create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file(podcast_feed, new_items)
+    # if len(new_items) == 0:
+    #     print('No items were found which are not already contained within the RSS feed. Returning.')
+    #     return None
+    #
+    # # Update values from the provided configuration
+    # podcast_feed.find('./channel/title').text = feed_config.title
+    # podcast_feed.find('./channel/image/url').text = feed_config.image_url
+    #
+    # for item in new_items:
+    #     print('Adding item with title ', item.find('title').text, ' to the RSS feed.')
+    #     podcast_feed.find('./channel').append(item)
+    #
+    # new_items_titles = [item.find('title').text for item in new_items]
+    # print(f"Writing to RSS feed {len(new_items)} new entries: {', '.join(new_items_titles)}")
+    #
+    # xml_feed = etree.tostring(podcast_feed, encoding='UTF-8', xml_declaration=True)
+    #
+    # storage = create_storage(feed_config, running_on_gcp)
+    # storage.write_podcast_feed(xml_feed)
+    #
+    # return storage.rss_filename, new_items_titles
 
 
 def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
@@ -466,3 +479,5 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
         save_new_items(new_items, config, running_on_gcp)
     else:
         print(f'No new items to add to the {config.rss_filename} feed.')
+
+    return feed

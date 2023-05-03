@@ -7,7 +7,7 @@ import pytest
 from lxml import etree
 from lxml.etree import CDATA
 
-from feed_processing.feed_config import FeedGeneratorConfig, BeyondWordsInputConfig
+from feed_processing.feed_config import PodcastFeedConfig, BeyondWordsInputConfig
 from feed_processing.storage import LocalStorage, create_storage
 
 forum_prefixes = ('AF - ', 'EA - ', 'LW - ')  # TODO: Not necessary to test different prefixes
@@ -17,7 +17,8 @@ history_titles = [
     'LW - This is a history LW episode'
 ]
 
-beyondwords_input_feed = "./files/beyondwords_output_feed.xml"
+beyondwords_input_feed = "./files/beyondwords_input_feed.xml"
+beyondwords_output_feed = "./files/beyondwords_output_feed.xml"
 
 feed_namespace_map = {
     "dc": "http://purl.org/dc/elements/1.1/",
@@ -43,32 +44,26 @@ def reference_date():
     return datetime(year=2023, month=4, day=5)
 
 
-@pytest.fixture(autouse=True)
-def set_random_seed_to_reference_time():
-    """
-    Initialize the random package using the reference date from the beyondwords_output_feed.xml file.
-
-    This fixture is flaged as `autouse` so it will be called before every test
-
-    """
-    random.seed(reference_date().timestamp())
-
-
 @pytest.fixture
-def mock_get_feed_tree_from_source():
+def mock_get_feed_tree_from_url_to_return_beyondwords_output_feed():
     """
-    Mock the get_feed_tree_from_source from the podcast_feed_generator module, so it returns the root of a static xml
+    Mock the get_feed_tree_from_source from the `feed_updaters` module, so it returns the root of a static xml
     file, instead of downloading the rss feed from BeyondWords.
     Returns:
 
     """
-    with patch('feed_processing.podcast_feed_generator.get_feed_tree_from_source') as mock:
-        mock.return_value = ElementTree.parse('files/beyondwords_output_feed.xml').getroot()
+    with patch('feed_processing.feed_updaters.get_feed_tree_from_url') as mock:
+        mock.return_value = etree.parse('files/beyondwords_output_feed.xml').getroot()
         yield
 
 
+def mock_get_feed_tree_from_url_to_return_beyondwords_output_feed_with_item_from_removed_author():
+    with patch('feed_processing.feed_updaters.get_feed_tree_from_url') as mock:
+        mock.return_value = etree.parse("files/beyondwords_output_feed_with_removed_authors.xml").getroot()
+
+
 @pytest.fixture
-def mock_get_forum_feed_from_source():
+def mock_get_forum_feed():
     with patch('feed_processing.feed_updaters.get_feed_tree_from_url') as mock:
         mock.return_value = etree.parse("files/forum_feed.xml")
         yield
@@ -77,7 +72,7 @@ def mock_get_forum_feed_from_source():
 @pytest.fixture
 def mock_read_podcast_feed():
     with patch.object(LocalStorage, 'read_podcast_feed') as mock:
-        mock.return_value = etree.parse('./files/podcast_input_feed.xml').getroot()
+        mock.return_value = etree.parse('./files/podcast_feed.xml').getroot()
         yield
 
 
@@ -112,7 +107,7 @@ def cleanup_podcast_feed():
     for prefix, uri in namespaces.items():
         ElementTree.register_namespace(prefix, uri)
     tree = ElementTree.ElementTree(podcast_feed)
-    tree.write('./podcast_input_feed.xml')
+    tree.write('./beyondwords_input_feed.xml')
 
 
 @pytest.fixture
@@ -123,14 +118,14 @@ def mock_get_post_karma():
     Mocking this function allows speeding up the tests. The mocked function returns a random number.
 
     """
-    with patch('feed_processing.podcast_feed_generator.get_post_karma') as mock:
+    with patch('feed_processing.feed_updaters.get_post_karma') as mock:
         mock.return_value = str(int(random.random() * 100))
         yield
 
 
 @pytest.fixture
-def default_podcast_feed_config() -> FeedGeneratorConfig:
-    return FeedGeneratorConfig(
+def default_podcast_feed_config() -> PodcastFeedConfig:
+    return PodcastFeedConfig(
         source='https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143',
         author='The Nonlinear Fund',
         email='podcast@nonlinear.org',
@@ -155,16 +150,16 @@ def forum_title_prefix(request):
 
 @pytest.fixture
 def beyondwords_feed():
-    return ElementTree.parse('files/beyondwords_output_feed.xml').getroot()
+    return ElementTree.parse('files/beyondwords_input_feed.xml').getroot()
 
 
-@pytest.fixture(params=(FeedGeneratorConfig.SearchPeriod.ONE_DAY, FeedGeneratorConfig.SearchPeriod.ONE_DAY, None))
+@pytest.fixture(params=(PodcastFeedConfig.SearchPeriod.ONE_DAY, PodcastFeedConfig.SearchPeriod.ONE_DAY, None))
 def search_period(request):
     return request.param
 
 
 @pytest.fixture()
-def search_period_time_delta(search_period: FeedGeneratorConfig.SearchPeriod):
+def search_period_time_delta(search_period: PodcastFeedConfig.SearchPeriod):
     return timedelta(days=search_period.value)
 
 
@@ -221,6 +216,9 @@ def get_empty_test_forum_feed():
     description.text = CDATA("This is a history item. It should not be included again by future feed updates.")
     content = etree.SubElement(item, "content")
     content.text = CDATA(f"This is a history item on some date by Author <p>{lorem_ipsum}</p>")
+    # Add an author
+    author = etree.SubElement(item, "author")
+    author.text = "The Author"
     return feed_root
 
 
@@ -241,8 +239,8 @@ def restore_beyondwords_feed(storage):
 
     Args:
         storage: Storage object to read and write feeds.
-
     """
+
     # Write the file before the tests to ensure that the file is present.
     write_test_beyondwords_feed(storage)
     yield
