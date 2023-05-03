@@ -1,4 +1,5 @@
-<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     version="2.0">
     <channel>
         <title>The Nonlinear Library: Your title goes here!</title>
         <description>The Nonlinear Library allows you to easily listen to top EA and rationalist content on your podcast
@@ -11,9 +12,11 @@
         <language>en-us</language>
         <link>https://www.nonlinear.org</link>
         <image>
-            <url>https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png</url>
+            <url>
+                https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png
+            </url>
         </image>
-        <itunes:keywords />
+        <itunes:keywords/>
         <itunes:owner>
             <itunes:name>The Nonlinear Fund</itunes:name>
             <itunes:email>podcast@nonlinear.org</itunes:email>
@@ -21,7 +24,8 @@
         <itunes:category text="Education">
         </itunes:category>
         <itunes:explicit>no</itunes:explicit>
-        <itunes:image href="https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png" />
+        <itunes:image
+                href="https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png"/>
         <itunes:author>The Nonlinear Fund</itunes:author>
         <itunes:summary>
             The Nonlinear Library allows you to easily listen to top EA and rationalist content on your podcast player.
@@ -40,7 +44,8 @@
             <content:encoded>
                 Some content
             </content:encoded>
-            <enclosure length="3457964" type="audio/mpeg" url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6602663/media/65d44a6de89342548e354513667f24d8_compiled.mp3" />
+            <enclosure length="3457964" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6602663/media/65d44a6de89342548e354513667f24d8_compiled.mp3"/>
             <pubDate>Tue, 04 Apr 2023 21:33:38 +0000</pubDate>
             <itunes:title>EA - This is an EA episode that is (supposedly) online!!!</itunes:title>
             <itunes:subtitle>
@@ -54,10 +59,52 @@
                 https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
             </itunes:image>
             <itunes:duration>02:52</itunes:duration>
-            <itunes:keywords />
+            <itunes:keywords/>
             <itunes:explicit>no</itunes:explicit>
             <itunes:episodeType>full</itunes:episodeType>
             <itunes:episode>5484</itunes:episode>
+        </item>
+        <item>
+            <guid isPermaLink="false">o3r2Qru84Rz5LsQk9_NL_LW</guid>
+            <title>TF - A post from an episode that's already online by Online Author</title>
+            <description>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </description>
+            <author>Online Author</author>
+            <link>
+                https://testforum.com/anentry
+            </link>
+            <content:encoded>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </content:encoded>
+            <enclosure length="2713004" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6786462/media/77387f7527bce1ecbad23c8a81a5c7de_compiled.mp3"/>
+            <pubDate>Wed, 03 May 2023 19:33:39 +0000</pubDate>
+            <itunes:title>TF - A post from an episode that's already online by Online Author
+            </itunes:title>
+            <itunes:subtitle>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:subtitle>
+            <itunes:summary>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:summary>
+            <itunes:author>Online Author</itunes:author>
+            <itunes:image>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </itunes:image>
+            <itunes:duration>02:15</itunes:duration>
+            <itunes:keywords></itunes:keywords>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:episodeType>full</itunes:episodeType>
+            <itunes:episode>5824</itunes:episode>
         </item>
     </channel>
 </rss>

@@ -1,17 +1,246 @@
-<?xml version='1.0' encoding='ASCII'?>
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <item>
-      <title><![CDATA[Unknown - This is a history item by The Author]]></title>
-      <description><![CDATA[This is a history item. It should not be included again by future feed updates.]]></description>
-      <content><![CDATA[This is a history item on some date by Author <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ac sollicitudin urna. Morbi mollis 
-condimentum aliquet. Nulla sagittis malesuada metus, quis tincidunt libero tempor sit amet. Maecenas suscipit nisl et 
-ultrices scelerisque. Nunc gravida varius diam, eget sagittis felis vehicula in. Praesent ut porta metus. Quisque 
-dapibus, elit non rutrum viverra, mauris justo luctus odio, quis commodo massa risus sed nisl. Phasellus pharetra 
-lorem a mauris gravida, at faucibus nunc mollis. Donec a justo nec ligula sodales malesuada vestibulum efficitur 
-massa. Etiam luctus, nibh vitae fermentum cursus, lacus lorem condimentum nunc, viverra aliquet eros mi ut nulla. In 
-hac habitasse platea dictumst. Etiam convallis mollis viverra. Sed ac pretium turpis, quis tincidunt purus. Aenean 
-sed risus in sapien consectetur suscipit sit amet quis ipsum.</p>]]></content>
-    </item>
-  </channel>
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
+    <channel>
+        <title>The Nonlinear Library</title>
+        <description>The Nonlinear Library allows you to easily listen to top EA and rationalist content on your podcast
+            player. We use text-to-speech software to create an automatically updating repository of audio content from
+            the EA Forum, Alignment Forum, LessWrong, and other EA blogs. To find out more, please visit us at
+            nonlinear.org
+        </description>
+        <author>The Nonlinear Fund</author>
+        <copyright>© 2023 The Nonlinear Fund</copyright>
+        <language>en-us</language>
+        <link>https://www.nonlinear.org</link>
+        <image>
+            <url>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </url>
+        </image>
+        <itunes:keywords></itunes:keywords>
+        <itunes:owner>
+            <itunes:name>The Nonlinear Fund</itunes:name>
+            <itunes:email>podcast@nonlinear.org</itunes:email>
+        </itunes:owner>
+        <itunes:category text="Education">
+        </itunes:category>
+        <itunes:explicit>no</itunes:explicit>
+        <itunes:image
+                href="https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png"/>
+        <itunes:author>The Nonlinear Fund</itunes:author>
+        <itunes:summary>
+            <![CDATA[The Nonlinear Library allows you to easily listen to top EA and rationalist content on your podcast player. We use text-to-speech software to create an automatically updating repository of audio content from the EA Forum, Alignment Forum, LessWrong, and other EA blogs. To find out more, please visit us at nonlinear.org]]>
+        </itunes:summary>
+        <lastBuildDate>Wed, 03 May 2023 20:21:53 +0000</lastBuildDate>
+        <item>
+            <guid isPermaLink="false">o3r2Qru84Rz5LsQk9_NL_LW</guid>
+            <title>TF - A post from TestForum by Author One</title>
+            <description>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </description>
+            <author>Author One</author>
+            <link>
+                https://testforum.com/anentry
+            </link>
+            <content:encoded>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </content:encoded>
+            <enclosure length="2713004" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6786462/media/77387f7527bce1ecbad23c8a81a5c7de_compiled.mp3"/>
+            <pubDate>Wed, 03 May 2023 19:33:39 +0000</pubDate>
+            <itunes:title>TF - A post from TestForum by Author One
+            </itunes:title>
+            <itunes:subtitle>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:subtitle>
+            <itunes:summary>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:summary>
+            <itunes:author>Author One</itunes:author>
+            <itunes:image>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </itunes:image>
+            <itunes:duration>02:15</itunes:duration>
+            <itunes:keywords></itunes:keywords>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:episodeType>full</itunes:episodeType>
+            <itunes:episode>5824</itunes:episode>
+        </item>
+        <item>
+            <guid isPermaLink="false">o3r2Qru84Rz5LsQk9_NL_LW</guid>
+            <title>TF - A post by a removed author by RemovedAuthor</title>
+            <description>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </description>
+            <author>RemovedAuthor</author>
+            <link>
+                https://testforum.com/anentry
+            </link>
+            <content:encoded>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </content:encoded>
+            <enclosure length="2713004" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6786462/media/77387f7527bce1ecbad23c8a81a5c7de_compiled.mp3"/>
+            <pubDate>Wed, 03 May 2023 19:33:39 +0000</pubDate>
+            <itunes:title>TF - A post by a removed author by RemovedAuthor
+            </itunes:title>
+            <itunes:subtitle>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:subtitle>
+            <itunes:summary>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:summary>
+            <itunes:author>RemovedAuthor</itunes:author>
+            <itunes:image>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </itunes:image>
+            <itunes:duration>02:15</itunes:duration>
+            <itunes:keywords></itunes:keywords>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:episodeType>full</itunes:episodeType>
+            <itunes:episode>5824</itunes:episode>
+        </item>
+        <item>
+            <guid isPermaLink="false">o3r2Qru84Rz5LsQk9_NL_LW</guid>
+            <title>TF - A duplicated post by Duplicated Author</title>
+            <description>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </description>
+            <author>Duplicated Author</author>
+            <link>
+                https://testforum.com/anentry
+            </link>
+            <content:encoded>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </content:encoded>
+            <enclosure length="2713004" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6786462/media/77387f7527bce1ecbad23c8a81a5c7de_compiled.mp3"/>
+            <pubDate>Wed, 03 May 2023 19:33:39 +0000</pubDate>
+            <itunes:title>TF - A duplicated post by Duplicated Author
+            </itunes:title>
+            <itunes:subtitle>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:subtitle>
+            <itunes:summary>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:summary>
+            <itunes:author>Duplicated Author</itunes:author>
+            <itunes:image>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </itunes:image>
+            <itunes:duration>02:15</itunes:duration>
+            <itunes:keywords></itunes:keywords>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:episodeType>full</itunes:episodeType>
+            <itunes:episode>5824</itunes:episode>
+        </item>
+        <item>
+            <guid isPermaLink="false">o3r2Qru84Rz5LsQk9_NL_LW</guid>
+            <title>F2 - A post from a different forum</title>
+            <description>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </description>
+            <author>Author One</author>
+            <link>
+                https://testforum.com/anentry
+            </link>
+            <content:encoded>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </content:encoded>
+            <enclosure length="2713004" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6786462/media/77387f7527bce1ecbad23c8a81a5c7de_compiled.mp3"/>
+            <pubDate>Wed, 03 May 2023 19:33:39 +0000</pubDate>
+            <itunes:title>F2 - A post from a different forum
+            </itunes:title>
+            <itunes:subtitle>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:subtitle>
+            <itunes:summary>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:summary>
+            <itunes:author>Author One</itunes:author>
+            <itunes:image>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </itunes:image>
+            <itunes:duration>02:15</itunes:duration>
+            <itunes:keywords></itunes:keywords>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:episodeType>full</itunes:episodeType>
+            <itunes:episode>5824</itunes:episode>
+        </item>
+        <item>
+            <guid isPermaLink="false">o3r2Qru84Rz5LsQk9_NL_LW</guid>
+            <title>TF - A post from an episode that's already online by Online Author</title>
+            <description>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </description>
+            <author>Online Author</author>
+            <link>
+                https://testforum.com/anentry
+            </link>
+            <content:encoded>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </content:encoded>
+            <enclosure length="2713004" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6786462/media/77387f7527bce1ecbad23c8a81a5c7de_compiled.mp3"/>
+            <pubDate>Wed, 03 May 2023 19:33:39 +0000</pubDate>
+            <itunes:title>TF - A post from an episode that's already online by Online Author
+            </itunes:title>
+            <itunes:subtitle>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:subtitle>
+            <itunes:summary>
+                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
+Some bla bla.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+            </itunes:summary>
+            <itunes:author>Online Author</itunes:author>
+            <itunes:image>
+                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+            </itunes:image>
+            <itunes:duration>02:15</itunes:duration>
+            <itunes:keywords></itunes:keywords>
+            <itunes:explicit>no</itunes:explicit>
+            <itunes:episodeType>full</itunes:episodeType>
+            <itunes:episode>5824</itunes:episode>
+        </item>
+    </channel>
 </rss>

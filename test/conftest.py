@@ -45,7 +45,7 @@ def reference_date():
 
 
 @pytest.fixture
-def mock_get_feed_tree_from_url_to_return_beyondwords_output_feed():
+def mock_get_feed_tree_from_url_to_return_default_beyondwords_output_feed():
     """
     Mock the get_feed_tree_from_source from the `feed_updaters` module, so it returns the root of a static xml
     file, instead of downloading the rss feed from BeyondWords.
@@ -133,7 +133,8 @@ def default_podcast_feed_config() -> PodcastFeedConfig:
         title="The Nonlinear Library: Your title goes here!",
         gcp_bucket='rssfile',
         rss_filename='nonlinear-library-podcast-feed.xml',
-        removed_authors_file="./files/removed_authors.txt"
+        removed_authors_file="./files/removed_authors.txt",
+
     )
 
 
@@ -229,7 +230,7 @@ def write_test_beyondwords_feed(storage):
 
 
 @pytest.fixture(autouse=True)
-def restore_beyondwords_feed(storage):
+def restore_beyondwords_input_feed(storage):
     """
     Write the beyondwords feed to an initial state with only one item.
 
@@ -246,3 +247,16 @@ def restore_beyondwords_feed(storage):
     yield
     # Restore the file after so it can be inspected by the developer.
     write_test_beyondwords_feed(storage)
+
+
+def overwrite_beyondwords_output_feed_with_default_file():
+    with open("./files/beyondwords_output_feed_default.xml") as input_file:
+        with open("./files/beyondwords_output_feed.xml", mode="w") as output_file:
+            output_file.writelines(input_file.readlines())
+
+
+@pytest.fixture(autouse=True)
+def restore_beyondwords_output_feed():
+    overwrite_beyondwords_output_feed_with_default_file()
+    yield
+    overwrite_beyondwords_output_feed_with_default_file()
