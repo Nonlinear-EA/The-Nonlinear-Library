@@ -10,7 +10,7 @@ These files are used in place of the actual feeds or the removed_authors.txt fil
 
 def test_posts_with_250_characters_or_less_in_content_are_discarded(
         default_beyondwords_input_config,
-        mock_get_forum_feed,
+        mock_get_feed_tree_from_url_to_return_test_forum_feed,
         storage
 ):
     update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
@@ -24,7 +24,7 @@ def test_posts_with_250_characters_or_less_in_content_are_discarded(
 
 def test_posts_with_no_paragraph_elements_in_content_are_discarded(
         default_beyondwords_input_config,
-        mock_get_forum_feed,
+        mock_get_feed_tree_from_url_to_return_test_forum_feed,
         storage
 ):
     update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
@@ -41,7 +41,7 @@ def test_posts_with_no_paragraph_elements_in_content_are_discarded(
 
 def test_posts_that_area_already_present_in_other_relevant_files_are_discarded(
         default_beyondwords_input_config,
-        mock_get_forum_feed,
+        mock_get_feed_tree_from_url_to_return_test_forum_feed,
         storage
 ):
     update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
@@ -57,7 +57,7 @@ def test_posts_that_area_already_present_in_other_relevant_files_are_discarded(
 
 def test_posts_from_removed_authors_are_discarded(
         default_beyondwords_input_config,
-        mock_get_forum_feed,
+        mock_get_feed_tree_from_url_to_return_test_forum_feed,
         storage
 ):
     update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
@@ -74,7 +74,7 @@ def test_posts_from_removed_authors_are_discarded(
 
 def test_forum_items_that_are_already_present_in_beyondwords_feed_are_discarded(
         default_beyondwords_input_config,
-        mock_get_forum_feed,
+        mock_get_feed_tree_from_url_to_return_test_forum_feed,
         storage
 ):
     update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)

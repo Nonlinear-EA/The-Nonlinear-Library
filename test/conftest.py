@@ -1,7 +1,6 @@
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import patch
-from xml.etree import ElementTree
 
 import pytest
 from lxml import etree
@@ -9,13 +8,6 @@ from lxml.etree import CDATA
 
 from feed_processing.feed_config import PodcastFeedConfig, BeyondWordsInputConfig
 from feed_processing.storage import LocalStorage, create_storage
-
-forum_prefixes = ('AF - ', 'EA - ', 'LW - ')  # TODO: Not necessary to test different prefixes
-history_titles = [
-    'AF - This is a history AF episode',
-    'EA - This is a history EA episode',
-    'LW - This is a history LW episode'
-]
 
 beyondwords_input_feed = "./files/beyondwords_input_feed.xml"
 beyondwords_output_feed = "./files/beyondwords_output_feed.xml"
@@ -45,7 +37,7 @@ def reference_date():
 
 
 @pytest.fixture
-def mock_get_feed_tree_from_url_to_return_default_beyondwords_output_feed():
+def mock_get_feed_tree_from_url_to_return_test_beyondwords_output_feed():
     """
     Mock the get_feed_tree_from_source from the `feed_updaters` module, so it returns the root of a static xml
     file, instead of downloading the rss feed from BeyondWords.
@@ -57,20 +49,15 @@ def mock_get_feed_tree_from_url_to_return_default_beyondwords_output_feed():
         yield
 
 
-def mock_get_feed_tree_from_url_to_return_beyondwords_output_feed_with_item_from_removed_author():
-    with patch('feed_processing.feed_updaters.get_feed_tree_from_url') as mock:
-        mock.return_value = etree.parse("files/beyondwords_output_feed_with_removed_authors.xml").getroot()
-
-
 @pytest.fixture
-def mock_get_forum_feed():
+def mock_get_feed_tree_from_url_to_return_test_forum_feed():
     with patch('feed_processing.feed_updaters.get_feed_tree_from_url') as mock:
         mock.return_value = etree.parse("files/forum_feed.xml")
         yield
 
 
 @pytest.fixture
-def mock_read_podcast_feed():
+def mock_read_podcast_feed_to_return_test_podcast_feed():
     with patch.object(LocalStorage, 'read_podcast_feed') as mock:
         mock.return_value = etree.parse('./files/podcast_feed.xml').getroot()
         yield
@@ -80,34 +67,11 @@ def mock_read_podcast_feed():
 def mock_write_podcast_feed():
     with patch.object(LocalStorage, 'write_podcast_feed') as mock:
         def save_podcast_feed(*args):
-            with open('../manual_tests/rss_files/podcast_feed.xml', 'wb') as f:
+            with open('./files/podcast_feed_test_output.xml', 'wb') as f:
                 f.write(args[0])
 
         mock.side_effect = save_podcast_feed
         yield
-
-
-@pytest.fixture
-def cleanup_podcast_feed():
-    yield
-    podcast_feed = ElementTree.parse('../manual_tests/rss_files/podcast_feed.xml').getroot()
-    i = 0
-    for item in podcast_feed.findall('channel/item'):
-        i += 1
-        if i == 1:
-            continue
-        podcast_feed.find('channel').remove(item)
-    # Register namespaces before parsing to string.
-    namespaces = {
-        # The atom namespace is not used in the resulting feeds and is not added to the xml files.
-        "atom": "http://www.w3.org/2005/Atom",
-        "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
-        "content": "http://purl.org/rss/1.0/modules/content/"
-    }
-    for prefix, uri in namespaces.items():
-        ElementTree.register_namespace(prefix, uri)
-    tree = ElementTree.ElementTree(podcast_feed)
-    tree.write('./beyondwords_input_feed.xml')
 
 
 @pytest.fixture
@@ -138,45 +102,6 @@ def default_podcast_feed_config() -> PodcastFeedConfig:
     )
 
 
-@pytest.fixture()
-def removed_authors():
-    with open('rss_files/removed_authors.txt', 'r') as f:
-        return [author for author in f.readlines()]
-
-
-@pytest.fixture(params=forum_prefixes)
-def forum_title_prefix(request):
-    return request.param
-
-
-@pytest.fixture
-def beyondwords_feed():
-    return ElementTree.parse('files/beyondwords_input_feed.xml').getroot()
-
-
-@pytest.fixture(params=(PodcastFeedConfig.SearchPeriod.ONE_DAY, PodcastFeedConfig.SearchPeriod.ONE_DAY, None))
-def search_period(request):
-    return request.param
-
-
-@pytest.fixture()
-def search_period_time_delta(search_period: PodcastFeedConfig.SearchPeriod):
-    return timedelta(days=search_period.value)
-
-
-@pytest.fixture(params=(True, False))
-def feed_config(
-        default_podcast_feed_config,
-        search_period,
-        forum_title_prefix,
-        request
-):
-    default_podcast_feed_config.search_period = search_period
-    default_podcast_feed_config.title_prefix = forum_title_prefix
-    default_podcast_feed_config.top_post_only = request.param
-    return default_podcast_feed_config
-
-
 @pytest.fixture
 def default_beyondwords_input_config():
     return BeyondWordsInputConfig(
@@ -191,13 +116,6 @@ def default_beyondwords_input_config():
             "./files/relevant_forum_feed_1.xml"
         ]
     )
-
-
-@pytest.fixture()
-def feed_config_all(default_podcast_feed_config, forum_title_prefix):
-    default_podcast_feed_config.title_prefix = forum_title_prefix
-    default_podcast_feed_config.top_post_only = False
-    return default_podcast_feed_config
 
 
 @pytest.fixture()
@@ -245,7 +163,7 @@ def restore_beyondwords_input_feed(storage):
     # Write the file before the tests to ensure that the file is present.
     write_test_beyondwords_feed(storage)
     yield
-    # Restore the file after so it can be inspected by the developer.
+    # Restore the file after, so it can be inspected by the developer.
     write_test_beyondwords_feed(storage)
 
 
