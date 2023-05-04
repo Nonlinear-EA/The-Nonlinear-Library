@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from difflib import SequenceMatcher
 from functools import reduce
@@ -381,6 +382,8 @@ def update_feed_for_podcast_apps(
     Returns: The file name of the produced XML string and the xml string and the title of the new episode
     """
 
+    logger = logging.getLogger("update_feed_for_podcast_apps")
+
     # Get feed from source
     feed = get_feed_tree_from_url(feed_config.source)
 
@@ -393,40 +396,28 @@ def update_feed_for_podcast_apps(
     # Filter out entries that are already published in the feed for podcast apps.
     storage = create_storage(feed_config, running_on_gcp)
     feed_for_podcast_apps = storage.read_podcast_feed()
-    existing_titles = feed_for_podcast_apps.findall("channel/item/title")
-    
+
+    items_from_beyondwords_output_feed = feed.findall("channel/item")
+    new_items = create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file(
+        feed_for_podcast_apps,
+        items_from_beyondwords_output_feed)
+
+    if not new_items:
+        logger.info("No new items in the latest BeyondWords feed.")
+
+    # Append the new items to the podcast apps feed.
+    for item in new_items:
+        item_title = item.find("title").text.strip()
+        logger.info(f"Adding new item '{item_title}' to the RSS feed.")
+        feed_for_podcast_apps.append(item)
+
+    logger.info(f"Added {len(new_items)} new items to the RSS feed.")
+
+    xml_feed = etree.tostring(feed_for_podcast_apps, encoding='utf-8', xml_declaration=True)
+    storage = create_storage(feed_config, running_on_gcp)
+    storage.write_podcast_feed(xml_feed)
+
     return feed
-    # new_items = get_new_items_from_beyondwords_feed(feed_config, running_on_gcp)
-    #
-    # if len(new_items) == 0:
-    #     print('No items match the filter. Returning.')
-    #     return None
-    #
-    # storage = create_storage(feed_config, running_on_gcp)
-    # podcast_feed = storage.read_podcast_feed()
-    #
-    # new_items = create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file(podcast_feed, new_items)
-    # if len(new_items) == 0:
-    #     print('No items were found which are not already contained within the RSS feed. Returning.')
-    #     return None
-    #
-    # # Update values from the provided configuration
-    # podcast_feed.find('./channel/title').text = feed_config.title
-    # podcast_feed.find('./channel/image/url').text = feed_config.image_url
-    #
-    # for item in new_items:
-    #     print('Adding item with title ', item.find('title').text, ' to the RSS feed.')
-    #     podcast_feed.find('./channel').append(item)
-    #
-    # new_items_titles = [item.find('title').text for item in new_items]
-    # print(f"Writing to RSS feed {len(new_items)} new entries: {', '.join(new_items_titles)}")
-    #
-    # xml_feed = etree.tostring(podcast_feed, encoding='UTF-8', xml_declaration=True)
-    #
-    # storage = create_storage(feed_config, running_on_gcp)
-    # storage.write_podcast_feed(xml_feed)
-    #
-    # return storage.rss_filename, new_items_titles
 
 
 def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
