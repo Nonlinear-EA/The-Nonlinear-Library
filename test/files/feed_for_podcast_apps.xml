@@ -34,29 +34,29 @@
         </itunes:summary>
         <lastBuildDate>Tue, 04 Apr 2023 22:26:03 +0000</lastBuildDate>
         <item>
-            <guid isPermaLink="false">A3ZLLanDZZt9sgGQ9_NL_EA</guid>
-            <title>EA - This is an EA episode that is (supposedly) online!!!</title>
+            <guid isPermaLink="false">1_NL_TF</guid>
+            <title>TF - This is one episode</title>
             <description>
                 This is the episode's description
             </description>
-            <author>jackva</author>
-            <link>https://ea-forum.org/post</link>
+            <author>The Author</author>
+            <link>https://dalink.com/entry</link>
             <content:encoded>
                 Some content
             </content:encoded>
             <enclosure length="3457964" type="audio/mpeg"
                        url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6602663/media/65d44a6de89342548e354513667f24d8_compiled.mp3"/>
             <pubDate>Tue, 04 Apr 2023 21:33:38 +0000</pubDate>
-            <itunes:title>EA - This is an EA episode that is (supposedly) online!!!</itunes:title>
+            <itunes:title>TF - This is one episode</itunes:title>
             <itunes:subtitle>
                 Episode subtitle
             </itunes:subtitle>
             <itunes:summary>
-                This is an episode about some EA-related topic.
+                This is an episode about on a TestForum.
             </itunes:summary>
-            <itunes:author>jackva</itunes:author>
+            <itunes:author>The Author</itunes:author>
             <itunes:image>
-                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+                https://dabucket.com/daimage.png
             </itunes:image>
             <itunes:duration>02:52</itunes:duration>
             <itunes:keywords/>
@@ -65,46 +65,35 @@
             <itunes:episode>5484</itunes:episode>
         </item>
         <item>
-            <guid isPermaLink="false">o3r2Qru84Rz5LsQk9_NL_LW</guid>
-            <title>TF - A post from an episode that's already online by Online Author</title>
+            <guid isPermaLink="false">1_NL_TF</guid>
+            <title>TF - This is another episode</title>
             <description>
-                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
-Some bla bla.
-Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+                This is the episode's description
             </description>
-            <author>Online Author</author>
-            <link>
-                https://testforum.com/anentry
-            </link>
+            <author>The Author</author>
+            <link>https://dalink.com/entry_2</link>
             <content:encoded>
-                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
-Some bla bla.
-Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+                Some content
             </content:encoded>
-            <enclosure length="2713004" type="audio/mpeg"
-                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6786462/media/77387f7527bce1ecbad23c8a81a5c7de_compiled.mp3"/>
-            <pubDate>Wed, 03 May 2023 19:33:39 +0000</pubDate>
-            <itunes:title>TF - A post from an episode that's already online by Online Author
-            </itunes:title>
+            <enclosure length="3457964" type="audio/mpeg"
+                       url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6602663/media/65d44a6de89342548e354513667f24d8_compiled.mp3"/>
+            <pubDate>Tue, 04 Apr 2023 21:33:38 +0000</pubDate>
+            <itunes:title>TF - This another episode</itunes:title>
             <itunes:subtitle>
-                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
-Some bla bla.
-Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+                Episode subtitle
             </itunes:subtitle>
             <itunes:summary>
-                <![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: Are Emergent Abilities of Large Language Models a Mirage? [linkpost], published by Matthew Barnett on May 2, 2023 on LessWrong.
-Some bla bla.
-Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]>
+                This is an episode about on a TestForum.
             </itunes:summary>
-            <itunes:author>Online Author</itunes:author>
+            <itunes:author>The Author</itunes:author>
             <itunes:image>
-                https://speechkit-prod.s3.eu-west-1.amazonaws.com/distribution_images%2Fdistribution%2F%2FNonlinearnormal.png
+                https://dabucket.com/daimage.png
             </itunes:image>
-            <itunes:duration>02:15</itunes:duration>
-            <itunes:keywords></itunes:keywords>
+            <itunes:duration>02:52</itunes:duration>
+            <itunes:keywords/>
             <itunes:explicit>no</itunes:explicit>
             <itunes:episodeType>full</itunes:episodeType>
-            <itunes:episode>5824</itunes:episode>
+            <itunes:episode>5484</itunes:episode>
         </item>
     </channel>
 </rss>

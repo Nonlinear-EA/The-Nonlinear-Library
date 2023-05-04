@@ -30,7 +30,7 @@ flowchart TD
     BWFeed --> BW[[BeyondWords TTS]]
     BW --> BWOutputFeed[BeyondWords Output Feed]
     BWOutputFeed --> Aggregators[[Podcast Feed Aggregators]]
-    Aggregators --> PodcastFeeds[Podcast Feeds]
+    Aggregators --> PodcastFeeds[Feeds for Podcast Apps]
     PodcastFeeds --> PodcastApps[Podcast Apps]
 
 ```

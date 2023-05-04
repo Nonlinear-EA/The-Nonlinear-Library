@@ -1,11 +1,27 @@
+import pytest
 from bs4 import BeautifulSoup
 
+from feed_processing.feed_config import BeyondWordsInputConfig
 from feed_processing.feed_updaters import update_beyondwords_input_feed
 
 """
 Note: The unit tests for the `update_beyondwords_feed` function use static files located inside `test/files`.
 These files are used in place of the actual feeds or the removed_authors.txt file that are present on GCP.
 """
+
+
+@pytest.fixture
+def default_beyondwords_input_config():
+    return BeyondWordsInputConfig(
+        author="The Nonlinear Fund",
+        email="main@nonlinear.com",
+        gcp_bucket="newcode",
+        source="https://someurl.com/forum-feed.xml",
+        max_entries=30,
+        rss_filename="./files/beyondwords_input_feed.xml",
+        removed_authors_file="./files/removed_authors.txt",
+        relevant_feeds=["./files/relevant_forum_feed_1.xml"]
+    )
 
 
 def test_posts_with_250_characters_or_less_in_content_are_discarded(

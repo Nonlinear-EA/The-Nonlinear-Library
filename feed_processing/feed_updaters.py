@@ -366,7 +366,7 @@ def filter_entries_by_title_prefix(feed, title_prefix):
                 feed.find('channel').remove(entry)
 
 
-def update_podcast_feed(
+def update_feed_for_podcast_apps(
         feed_config: PodcastFeedConfig,
         running_on_gcp
 ):
@@ -390,6 +390,11 @@ def update_podcast_feed(
     # Filter out entries from removed authors
     remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
 
+    # Filter out entries that are already published in the feed for podcast apps.
+    storage = create_storage(feed_config, running_on_gcp)
+    feed_for_podcast_apps = storage.read_podcast_feed()
+    existing_titles = feed_for_podcast_apps.findall("channel/item/title")
+    
     return feed
     # new_items = get_new_items_from_beyondwords_feed(feed_config, running_on_gcp)
     #
@@ -444,8 +449,6 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
 
     # Remove duplicates from other relevant feeds.
     remove_duplicate_items(feed, titles_from_other_feeds)
-
-    # Remove items that might already be present in the feed.
 
     # The author tag is used to remove posts from removed authors, append it to each item
     add_author_tag_to_feed_items(feed)

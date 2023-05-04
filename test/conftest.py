@@ -6,17 +6,9 @@ import pytest
 from lxml import etree
 from lxml.etree import CDATA
 
-from feed_processing.feed_config import PodcastFeedConfig, BeyondWordsInputConfig
 from feed_processing.storage import LocalStorage, create_storage
 
-beyondwords_input_feed = "./files/beyondwords_input_feed.xml"
 beyondwords_output_feed = "./files/beyondwords_output_feed.xml"
-
-feed_namespace_map = {
-    "dc": "http://purl.org/dc/elements/1.1/",
-    "content": "http://purl.org/rss/1.0/modules/content/",
-    "atom": "http://www.w3.org/2005/Atom"
-}
 
 lorem_ipsum = """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ac sollicitudin urna. Morbi mollis 
 condimentum aliquet. Nulla sagittis malesuada metus, quis tincidunt libero tempor sit amet. Maecenas suscipit nisl et 
@@ -59,7 +51,7 @@ def mock_get_feed_tree_from_url_to_return_test_forum_feed():
 @pytest.fixture
 def mock_read_podcast_feed_to_return_test_podcast_feed():
     with patch.object(LocalStorage, 'read_podcast_feed') as mock:
-        mock.return_value = etree.parse('./files/podcast_feed.xml').getroot()
+        mock.return_value = etree.parse('./files/feed_for_podcast_apps.xml').getroot()
         yield
 
 
@@ -87,43 +79,17 @@ def mock_get_post_karma():
         yield
 
 
-@pytest.fixture
-def default_podcast_feed_config() -> PodcastFeedConfig:
-    return PodcastFeedConfig(
-        source='https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143',
-        author='The Nonlinear Fund',
-        email='podcast@nonlinear.org',
-        image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
-        title="The Nonlinear Library: Your title goes here!",
-        gcp_bucket='rssfile',
-        rss_filename='nonlinear-library-podcast-feed.xml',
-        removed_authors_file="./files/removed_authors.txt",
-
-    )
-
-
-@pytest.fixture
-def default_beyondwords_input_config():
-    return BeyondWordsInputConfig(
-        author="The Nonlinear Fund",
-        email="main@nonlinear.com",
-        gcp_bucket="newcode",
-        source="https://someurl.com/forum-feed.xml",
-        max_entries=30,
-        rss_filename=beyondwords_input_feed,
-        removed_authors_file="./files/removed_authors.txt",
-        relevant_feeds=[
-            "./files/relevant_forum_feed_1.xml"
-        ]
-    )
-
-
 @pytest.fixture()
-def storage(default_podcast_feed_config):
-    return create_storage(default_podcast_feed_config, False)
+def storage(default_config_for_podcast_apps_feed):
+    return create_storage(default_config_for_podcast_apps_feed, False)
 
 
 def get_empty_test_forum_feed():
+    feed_namespace_map = {
+        "dc": "http://purl.org/dc/elements/1.1/",
+        "content": "http://purl.org/rss/1.0/modules/content/",
+        "atom": "http://www.w3.org/2005/Atom"
+    }
     feed_root = etree.Element("rss", nsmap=feed_namespace_map)
     channel = etree.SubElement(feed_root, "channel")
     # Add at least a single to emulate history items.
@@ -144,37 +110,40 @@ def get_empty_test_forum_feed():
 def write_test_beyondwords_feed(storage):
     root = get_empty_test_forum_feed()
     tree = etree.ElementTree(root)
-    tree.write(beyondwords_input_feed, pretty_print=True, xml_declaration=True)
+    tree.write("./files/", pretty_print=True, xml_declaration=True)
 
 
-@pytest.fixture(autouse=True)
-def restore_beyondwords_input_feed(storage):
-    """
-    Write the beyondwords feed to an initial state with only one item.
-
-    The feed is written before executing the tests, to ensure that the file has the desired content for the tests.
-
-    The feed is written again after executing the tests so the developer can inspect the file.
-
-    Args:
-        storage: Storage object to read and write feeds.
-    """
-
-    # Write the file before the tests to ensure that the file is present.
-    write_test_beyondwords_feed(storage)
-    yield
-    # Restore the file after, so it can be inspected by the developer.
-    write_test_beyondwords_feed(storage)
-
+# @pytest.fixture(autouse=True)
+# def restore_beyondwords_input_feed(storage):
+#     """
+#     Write the beyondwords feed to an initial state with only one item.
+#
+#     The feed is written before executing the tests, to ensure that the file has the desired content for the tests.
+#
+#     The feed is written again after executing the tests so the developer can inspect the file.
+#
+#     Args:
+#         storage: Storage object to read and write feeds.
+#     """
+#
+#     # Write the file before the tests to ensure that the file is present.
+#     write_test_beyondwords_feed(storage)
+#     yield
+#     # Restore the file after, so it can be inspected by the developer.
+#     write_test_beyondwords_feed(storage)
 
 def overwrite_beyondwords_output_feed_with_default_file():
     with open("./files/beyondwords_output_feed_default.xml") as input_file:
         with open("./files/beyondwords_output_feed.xml", mode="w") as output_file:
             output_file.writelines(input_file.readlines())
 
-
-@pytest.fixture(autouse=True)
-def restore_beyondwords_output_feed():
-    overwrite_beyondwords_output_feed_with_default_file()
-    yield
-    overwrite_beyondwords_output_feed_with_default_file()
+# @pytest.fixture(autouse=True)
+# def restore_beyondwords_output_feed():
+#     """
+#     Write to the BeyondWords test feed before starting the test to ensure it has the required content for the tests.
+#     After the tests are done (after the `yield` statement) restore the feed to its original value.
+#
+#     """
+#     overwrite_beyondwords_output_feed_with_default_file()
+#     yield
+#     overwrite_beyondwords_output_feed_with_default_file()
