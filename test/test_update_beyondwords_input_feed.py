@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock
 
 import pytest
-from bs4 import BeautifulSoup
 
 from feed_processing.feed_config import BeyondWordsInputConfig
 from feed_processing.feed_updaters import update_beyondwords_input_feed
@@ -35,8 +34,7 @@ def test_posts_with_250_characters_or_less_in_description_are_discarded(
     # Retrieve test forum feed
     forum_feed = storage.read_podcast_feed("./files/forum_feed.xml")
     # Set the description of an item to a string less than 250 words.
-    item_description = forum_feed.find('channel/item/description')
-    item_description.text = "Very short string"
+    forum_feed.find('channel/item/description').text = "Very short string"
     # Mock get_feed_tree_from_url, so it returns the modified feed.
     mock_get_feed_tree_from_url = MagicMock(return_value=forum_feed)
     mocker.patch('feed_processing.feed_updaters.get_feed_tree_from_url', new=mock_get_feed_tree_from_url)
@@ -49,23 +47,30 @@ def test_posts_with_250_characters_or_less_in_description_are_discarded(
 
 def test_posts_with_no_paragraph_elements_in_description_are_discarded(
         default_beyondwords_input_config,
-        mock_get_feed_tree_from_url_to_return_test_forum_feed,
-        storage
+        mocker,
+        storage,
+        disable_write_podcast_feed,
 ):
     # Retrieve test forum feed.
     forum_feed = storage.read_podcast_feed("./files/forum_feed.xml")
-    item_
+    default_beyondwords_input_config.min_chars = 100
+    item_description = """This description is shorter than usual but the character threshold is set so that it is not 
+    discarded because of that. It should be discarded because it has no p tags"""
+    item_to_modify = forum_feed.find("channel/item")
+    item_to_modify.find("description").text = item_description
+    item_to_modify.find("title").text = "This item should be discarded"
 
-    update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
+    # Mock get_feed_tree_from_url, so it returns the modified feed.
+    mock_get_feed_tree_from_url = MagicMock(return_value=forum_feed)
+    mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
+
+    beyondwords_input_feed = update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
 
     # Retrieve feed that was just written by `update_beyondwords_input_feed`
-    beyondwords_feed = storage.read_podcast_feed("./files/beyondwords_input_feed.xml")
-    content_html = [BeautifulSoup(description.text, "html.parser") for description in
-                    beyondwords_feed.findall("channel/item/content")]
-    number_of_p_elements_per_item = [len(html_code.find_all("p")) for html_code in content_html]
+    item_titles = [title.text for title in beyondwords_input_feed.findall("channel/item/title")]
 
     # Check that all items in the feed have at least one paragraph.
-    assert all(number_of_p_tags > 0 for number_of_p_tags in number_of_p_elements_per_item)
+    assert not any("This item should be discarded" in title for title in item_titles)
 
 
 def test_posts_that_area_already_present_in_other_relevant_files_are_discarded(

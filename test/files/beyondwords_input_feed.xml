@@ -1,32 +1,47 @@
 <?xml version='1.0' encoding='ASCII'?>
 <rss>
     <channel>
-        <item>
-            <title><![CDATA[TF - This is a post that will be processed by BeyondWords]]></title>
-            <description><![CDATA[This is a post that will be processed by BeyondWords]]></description>
-            <content><![CDATA[This is a history item on some date by Author <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ac sollicitudin urna. Morbi mollis
-condimentum aliquet. Nulla sagittis malesuada metus, quis tincidunt libero tempor sit amet. Maecenas suscipit nisl et 
-ultrices scelerisque. Nunc gravida varius diam, eget sagittis felis vehicula in. Praesent ut porta metus. Quisque 
-dapibus, elit non rutrum viverra, mauris justo luctus odio, quis commodo massa risus sed nisl. Phasellus pharetra 
-lorem a mauris gravida, at faucibus nunc mollis. Donec a justo nec ligula sodales malesuada vestibulum efficitur 
-massa. Etiam luctus, nibh vitae fermentum cursus, lacus lorem condimentum nunc, viverra aliquet eros mi ut nulla. In 
-hac habitasse platea dictumst. Etiam convallis mollis viverra. Sed ac pretium turpis, quis tincidunt purus. Aenean 
-sed risus in sapien consectetur suscipit sit amet quis ipsum.</p>]]></content>
-            <author>The Author</author>
+        <item xmlns:dc="http://purl.org/dc/elements/1.1/">
+            <title><![CDATA[Unknown - This is the first entry by The Author]]></title>
+            <description><![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: 
+                This is the first entry, published by 
+                The Author
+             on May 2, 2023 on Unknown. ]]></description>
+            <link>https://aforumontheinternet.com/first_entry</link>
+            <guid isPermaLink="false">ZKYpu4WAiwTXDSrX8</guid>
+            <dc:creator><![CDATA[
+                The Author
+            ]]></dc:creator>
+            <pubDate>Tue, 02 May 2023 16:21:20 GMT</pubDate>
+            <author>
+                The Author
+            </author>
+            <content><![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is:
+                This is the first entry, published by 
+                The Author
+             on May 2, 2023 on Unknown. <p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org</p>]]></content>
         </item>
-        <item>
-            <title><![CDATA[TF2 - This is a post from a different forum that will be processed by BeyondWords]]></title>
-            <description>
-                <![CDATA[This is a post from a different forum that will be processed by BeyondWords]]></description>
-            <content><![CDATA[This is a history item on some date by Author <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ac sollicitudin urna. Morbi mollis
-condimentum aliquet. Nulla sagittis malesuada metus, quis tincidunt libero tempor sit amet. Maecenas suscipit nisl et
-ultrices scelerisque. Nunc gravida varius diam, eget sagittis felis vehicula in. Praesent ut porta metus. Quisque
-dapibus, elit non rutrum viverra, mauris justo luctus odio, quis commodo massa risus sed nisl. Phasellus pharetra
-lorem a mauris gravida, at faucibus nunc mollis. Donec a justo nec ligula sodales malesuada vestibulum efficitur
-massa. Etiam luctus, nibh vitae fermentum cursus, lacus lorem condimentum nunc, viverra aliquet eros mi ut nulla. In
-hac habitasse platea dictumst. Etiam convallis mollis viverra. Sed ac pretium turpis, quis tincidunt purus. Aenean
-sed risus in sapien consectetur suscipit sit amet quis ipsum.</p>]]></content>
-            <author>The OtherAuthor</author>
+        <item xmlns:dc="http://purl.org/dc/elements/1.1/">
+            <title><![CDATA[Unknown - This is the second item by The OtherAuthor]]></title>
+            <description><![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: 
+                This is the second item, published by 
+                The OtherAuthor
+             on May 2, 2023 on Unknown. ]]></description>
+            <link>https://aforumontheinternet.com/first_entry</link>
+            <guid isPermaLink="false">ZKYpu4WAiwTXDSrX8</guid>
+            <dc:creator><![CDATA[
+                The OtherAuthor
+            ]]></dc:creator>
+            <pubDate>Tue, 02 May 2023 16:21:20 GMT</pubDate>
+            <author>
+                The OtherAuthor
+            </author>
+            <content><![CDATA[Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is:
+                This is the second item, published by 
+                The OtherAuthor
+             on May 2, 2023 on Unknown. <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus urna enim, ut interdum justo varius placerat. Integer rhoncus maximus arcu. Curabitur non scelerisque lorem.
+                </p><p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org</p>]]></content>
         </item>
     </channel>
 </rss>

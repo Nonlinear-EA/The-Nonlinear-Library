@@ -291,12 +291,12 @@ def append_new_items_to_feed(new_items, feed):
 
     """
     existing_titles = [title.text.strip() for title in feed.findall("channel/item/title")]
-    new_items = []
+    appended_items = []
     for item in new_items:
         if not item_title_is_duplicate(item.find("title").text, existing_titles):
             feed.find('channel').append(item)
-            new_items += [item]
-    return new_items
+            appended_items += [item]
+    return appended_items
 
 
 def add_author_tag_to_feed_items(feed):
@@ -339,15 +339,6 @@ def edit_item_description(feed):
         else:
             item.append(cdata_element('content', content_text))
 
-    return feed
-
-
-def remove_posts_with_empty_content(feed):
-    for item in feed.findall('channel/item'):
-        description_html = BeautifulSoup(item.find('description').text, 'html.parser')
-        if len(description_html.find_all('p')) < 1:
-            feed.find('channel').remove(item)
-            print(f"Removed item '{item.find('title').text}' due to empty content, possibly a cross post.")
     return feed
 
 
@@ -425,6 +416,24 @@ def update_feed_for_podcast_apps(
     return beyondwords_output_feed
 
 
+def remove_posts_with_short_description(feed, min_chars: int):
+    for item in feed.findall('channel/item'):
+        if len(item.find("description").text) < min_chars:
+            feed.find('channel').remove(item)
+            print(f"Removed item '{item.find('title').text}' because it has less than {min_chars}.")
+    return feed
+
+
+def remove_posts_without_paragraphs(feed):
+    for item in feed.findall('channel/item'):
+        description_html = BeautifulSoup(item.find('description').text, 'html.parser')
+        if len(description_html.find_all('p')) < 1:
+            feed.find('channel').remove(item)
+            print(f"Removed item '{item.find('title').text}' due to empty content, possibly a cross post.")
+
+    return feed
+
+
 def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
     """
     Update the BeyondWords input feed with the new posts from a forum.
@@ -450,7 +459,9 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     # The author tag is used to remove posts from removed authors, append it to each item
     add_author_tag_to_feed_items(feed)
 
-    remove_posts_with_empty_content(feed)
+    # Remove items that might be cross posts or have very short content.
+    remove_posts_without_paragraphs(feed)
+    remove_posts_with_short_description(feed, config.min_chars)
 
     # Appends intro and outro to description and creates content tag if not present.
     edit_item_description(feed)

@@ -47,4 +47,5 @@ class PodcastFeedConfig(BaseFeedConfig):
 class BeyondWordsInputConfig(BaseFeedConfig):
     source: str
     max_entries: int
-    relevant_feeds: list = None
+    relevant_feeds: list = None,
+    min_chars: int = 250

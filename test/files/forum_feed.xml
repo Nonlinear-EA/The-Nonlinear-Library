@@ -33,7 +33,7 @@
         </item>
         <item>
             <title>
-                <![CDATA[This is a history item]]>
+                <![CDATA[This is the second item]]>
             </title>
             <description>
                 <![CDATA[Published on May 2, 2023 3:45 PM GMT by The Author
@@ -48,7 +48,7 @@
             <link>https://aforumontheinternet.com/first_entry</link>
             <guid isPermaLink="false">ZKYpu4WAiwTXDSrX8</guid>
             <dc:creator>
-                <![CDATA[The Author]]>
+                <![CDATA[The OtherAuthor]]>
             </dc:creator>
             <pubDate>Tue, 02 May 2023 16:21:20 GMT</pubDate>
         </item>
