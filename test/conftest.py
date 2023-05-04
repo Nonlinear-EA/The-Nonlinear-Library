@@ -128,7 +128,7 @@ def write_test_beyondwords_feed(storage):
     tree.write("./files/", pretty_print=True, xml_declaration=True)
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def disable_write_podcast_feed(mocker):
     """
     Disable the `write_podcast_feed` method from the storage interface, so the test files are not overwritten.

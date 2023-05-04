@@ -357,7 +357,7 @@ def item_title_is_duplicate(title: str, existing_titles: List[str]):
     return any(title_exists)
 
 
-def remove_duplicate_items(feed: Element, existing_titles: List[str]) -> Element:
+def remove_items_also_found_in_other_relevant_files(feed: Element, existing_titles: List[str]) -> Element:
     n_entries = len(feed.findall('channel/item'))
     for item in feed.findall('channel/item'):
         if item_title_is_duplicate(item.find('title').text, existing_titles):
@@ -454,7 +454,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     titles_from_other_feeds = reduce(concatenate_item_titles, config.relevant_feeds, [])
 
     # Remove duplicates from other relevant feeds.
-    remove_duplicate_items(feed, titles_from_other_feeds)
+    remove_items_also_found_in_other_relevant_files(feed, titles_from_other_feeds)
 
     # The author tag is used to remove posts from removed authors, append it to each item
     add_author_tag_to_feed_items(feed)
