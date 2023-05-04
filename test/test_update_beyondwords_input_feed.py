@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 import pytest
 from bs4 import BeautifulSoup
 
@@ -24,25 +26,36 @@ def default_beyondwords_input_config():
     )
 
 
-def test_posts_with_250_characters_or_less_in_content_are_discarded(
+def test_posts_with_250_characters_or_less_in_description_are_discarded(
         default_beyondwords_input_config,
-        mock_get_feed_tree_from_url_to_return_test_forum_feed,
-        storage
+        disable_write_podcast_feed,
+        storage,
+        mocker
 ):
-    update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
+    # Retrieve test forum feed
+    forum_feed = storage.read_podcast_feed("./files/forum_feed.xml")
+    # Set the description of an item to a string less than 250 words.
+    item_description = forum_feed.find('channel/item/description')
+    item_description.text = "Very short string"
+    # Mock get_feed_tree_from_url, so it returns the modified feed.
+    mock_get_feed_tree_from_url = MagicMock(return_value=forum_feed)
+    mocker.patch('feed_processing.feed_updaters.get_feed_tree_from_url', new=mock_get_feed_tree_from_url)
 
-    # Retrieve feed that was just written by `update_beyondwords_input_feed`
-    beyondwords_feed = storage.read_podcast_feed("./files/beyondwords_input_feed.xml")
+    beyondwords_input_feed = update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
 
     # Check that the content from all entries is 250 characters or more.
-    assert all(len(content.text) >= 250 for content in beyondwords_feed.findall('channel/item/description'))
+    assert all(len(content.text) >= 250 for content in beyondwords_input_feed.findall('channel/item/description'))
 
 
-def test_posts_with_no_paragraph_elements_in_content_are_discarded(
+def test_posts_with_no_paragraph_elements_in_description_are_discarded(
         default_beyondwords_input_config,
         mock_get_feed_tree_from_url_to_return_test_forum_feed,
         storage
 ):
+    # Retrieve test forum feed.
+    forum_feed = storage.read_podcast_feed("./files/forum_feed.xml")
+    item_
+
     update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
 
     # Retrieve feed that was just written by `update_beyondwords_input_feed`

@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='ASCII'?>
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <item>
-      <title><![CDATA[Unknown - This is a history item by The Author]]></title>
-      <description><![CDATA[This is a history item. It should not be included again by future feed updates.]]></description>
-      <content><![CDATA[This is a history item on some date by Author <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ac sollicitudin urna. Morbi mollis 
+<rss>
+    <channel>
+        <item>
+            <title><![CDATA[TF - This is a post that will be processed by BeyondWords]]></title>
+            <description><![CDATA[This is a post that will be processed by BeyondWords]]></description>
+            <content><![CDATA[This is a history item on some date by Author <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ac sollicitudin urna. Morbi mollis
 condimentum aliquet. Nulla sagittis malesuada metus, quis tincidunt libero tempor sit amet. Maecenas suscipit nisl et 
 ultrices scelerisque. Nunc gravida varius diam, eget sagittis felis vehicula in. Praesent ut porta metus. Quisque 
 dapibus, elit non rutrum viverra, mauris justo luctus odio, quis commodo massa risus sed nisl. Phasellus pharetra 
@@ -12,7 +12,21 @@ lorem a mauris gravida, at faucibus nunc mollis. Donec a justo nec ligula sodale
 massa. Etiam luctus, nibh vitae fermentum cursus, lacus lorem condimentum nunc, viverra aliquet eros mi ut nulla. In 
 hac habitasse platea dictumst. Etiam convallis mollis viverra. Sed ac pretium turpis, quis tincidunt purus. Aenean 
 sed risus in sapien consectetur suscipit sit amet quis ipsum.</p>]]></content>
-      <author>The Author</author>
-    </item>
-  </channel>
+            <author>The Author</author>
+        </item>
+        <item>
+            <title><![CDATA[TF2 - This is a post from a different forum that will be processed by BeyondWords]]></title>
+            <description>
+                <![CDATA[This is a post from a different forum that will be processed by BeyondWords]]></description>
+            <content><![CDATA[This is a history item on some date by Author <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ac sollicitudin urna. Morbi mollis
+condimentum aliquet. Nulla sagittis malesuada metus, quis tincidunt libero tempor sit amet. Maecenas suscipit nisl et
+ultrices scelerisque. Nunc gravida varius diam, eget sagittis felis vehicula in. Praesent ut porta metus. Quisque
+dapibus, elit non rutrum viverra, mauris justo luctus odio, quis commodo massa risus sed nisl. Phasellus pharetra
+lorem a mauris gravida, at faucibus nunc mollis. Donec a justo nec ligula sodales malesuada vestibulum efficitur
+massa. Etiam luctus, nibh vitae fermentum cursus, lacus lorem condimentum nunc, viverra aliquet eros mi ut nulla. In
+hac habitasse platea dictumst. Etiam convallis mollis viverra. Sed ac pretium turpis, quis tincidunt purus. Aenean
+sed risus in sapien consectetur suscipit sit amet quis ipsum.</p>]]></content>
+            <author>The OtherAuthor</author>
+        </item>
+    </channel>
 </rss>

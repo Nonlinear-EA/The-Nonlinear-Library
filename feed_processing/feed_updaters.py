@@ -291,10 +291,12 @@ def append_new_items_to_feed(new_items, feed):
 
     """
     existing_titles = [title.text.strip() for title in feed.findall("channel/item/title")]
+    new_items = []
     for item in new_items:
         if not item_title_is_duplicate(item.find("title").text, existing_titles):
             feed.find('channel').append(item)
-    return feed
+            new_items += [item]
+    return new_items
 
 
 def add_author_tag_to_feed_items(feed):
@@ -399,32 +401,28 @@ def update_feed_for_podcast_apps(
     logger = logging.getLogger("update_feed_for_podcast_apps")
 
     # Get feed from source
-    feed = get_feed_tree_from_url(feed_config.source)
+    beyondwords_output_feed = get_feed_tree_from_url(feed_config.source)
 
     # Filter out entries from other forums.
-    filter_entries_by_title_prefix(feed, feed_config.title_prefix)
+    filter_entries_by_title_prefix(beyondwords_output_feed, feed_config.title_prefix)
 
-    # Filter out entries from removed authors
-    remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
+    # Filter out entries from removed authors.
+    remove_items_from_removed_authors(beyondwords_output_feed, feed_config, running_on_gcp)
 
-    # Filter out entries that are already published in the feed for podcast apps.
+    # Add new items to the podcast apps feed.
     storage = create_storage(feed_config, running_on_gcp)
     feed_for_podcast_apps = storage.read_podcast_feed()
-
-    items_from_beyondwords_output_feed = feed.findall("channel/item")
-    new_items = create_new_list_only_containing_items_that_havent_been_added_to_the_rss_file(
-        feed_for_podcast_apps,
-        items_from_beyondwords_output_feed)
+    items_from_beyondwords_output_feed = beyondwords_output_feed.findall("channel/item")
+    new_items = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
 
     if not new_items:
-        logger.info("No new items in the latest BeyondWords feed.")
-        return feed
+        logger.info("No new items to add to BeyondWords input feed.")
+    else:
+        logger.info(f"Adding {len(new_items)} to the BeyondWords input feed in {feed_config.rss_filename}")
 
-    append_new_items_to_feed(new_items, feed)
+    save_feed(beyondwords_output_feed, storage)
 
-    save_feed(feed, storage)
-
-    return feed
+    return beyondwords_output_feed
 
 
 def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp=True):
@@ -436,6 +434,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
         running_on_gcp: True if function is running on GCP otherwise False
 
     """
+    logger = logging.getLogger("update_beyondwords_input_feed")
 
     feed = get_feed_tree_from_url(config.source)
 
@@ -474,11 +473,20 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     # Replace text of elements with CDATA strings with CDATA strings
     replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
 
-    new_items = feed.findall('channel/item')
-    if new_items:
-        print(f'Saving {len(new_items)} new items to {config.rss_filename} feed.')
-        append_new_items_to_feed(new_items, config, running_on_gcp, None)
+    forum_items = feed.findall('channel/item')
+    if not forum_items:
+        logger.info("No new items to add to BeyondWords input feed.")
+
+    # Append new items to feed
+    storage = create_storage(config, running_on_gcp)
+    beyondwords_input_feed = storage.read_podcast_feed()
+    new_items = append_new_items_to_feed(forum_items, beyondwords_input_feed)
+
+    if not new_items:
+        logger.info("No new items to add to BeyondWords input feed.")
     else:
-        print(f'No new items to add to the {config.rss_filename} feed.')
+        logger.info(f"Adding {len(new_items)} to the BeyondWords input feed in {config.rss_filename}")
+
+    save_feed(beyondwords_input_feed, storage)
 
     return feed

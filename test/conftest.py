@@ -6,6 +6,7 @@ import pytest
 from lxml import etree
 from lxml.etree import CDATA
 
+from feed_processing.feed_config import PodcastFeedConfig
 from feed_processing.storage import LocalStorage, create_storage
 
 beyondwords_output_feed = "./files/beyondwords_output_feed.xml"
@@ -79,6 +80,20 @@ def mock_get_post_karma():
         yield
 
 
+@pytest.fixture
+def default_config_for_podcast_apps_feed() -> PodcastFeedConfig:
+    return PodcastFeedConfig(
+        source='https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143',
+        author='The Nonlinear Fund',
+        email='podcast@nonlinear.org',
+        image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
+        title="The Nonlinear Library: Your title goes here!",
+        gcp_bucket='rssfile',
+        rss_filename='./files/feed_for_podcast_apps.xml',
+        removed_authors_file="./files/removed_authors.txt"
+    )
+
+
 @pytest.fixture()
 def storage(default_config_for_podcast_apps_feed):
     return create_storage(default_config_for_podcast_apps_feed, False)
@@ -113,37 +128,19 @@ def write_test_beyondwords_feed(storage):
     tree.write("./files/", pretty_print=True, xml_declaration=True)
 
 
-# @pytest.fixture(autouse=True)
-# def restore_beyondwords_input_feed(storage):
-#     """
-#     Write the beyondwords feed to an initial state with only one item.
-#
-#     The feed is written before executing the tests, to ensure that the file has the desired content for the tests.
-#
-#     The feed is written again after executing the tests so the developer can inspect the file.
-#
-#     Args:
-#         storage: Storage object to read and write feeds.
-#     """
-#
-#     # Write the file before the tests to ensure that the file is present.
-#     write_test_beyondwords_feed(storage)
-#     yield
-#     # Restore the file after, so it can be inspected by the developer.
-#     write_test_beyondwords_feed(storage)
+@pytest.fixture
+def disable_write_podcast_feed(mocker):
+    """
+    Disable the `write_podcast_feed` method from the storage interface, so the test files are not overwritten.
+    Args:
+        mocker:
+
+    """
+    mocker.patch.object(LocalStorage, 'write_podcast_feed', lambda a, b: None)
+    yield
+
 
 def overwrite_beyondwords_output_feed_with_default_file():
     with open("./files/beyondwords_output_feed_default.xml") as input_file:
         with open("./files/beyondwords_output_feed.xml", mode="w") as output_file:
             output_file.writelines(input_file.readlines())
-
-# @pytest.fixture(autouse=True)
-# def restore_beyondwords_output_feed():
-#     """
-#     Write to the BeyondWords test feed before starting the test to ensure it has the required content for the tests.
-#     After the tests are done (after the `yield` statement) restore the feed to its original value.
-#
-#     """
-#     overwrite_beyondwords_output_feed_with_default_file()
-#     yield
-#     overwrite_beyondwords_output_feed_with_default_file()
