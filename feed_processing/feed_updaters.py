@@ -271,16 +271,30 @@ def prepend_website_abbreviation_to_feed_item_titles(feed):
     return feed
 
 
-def save_new_items(new_items, config, running_on_gcp):
-    storage = create_storage(config, running_on_gcp)
-    feed = storage.read_podcast_feed()
+def get_feed_str(feed):
+    return etree.tostring(feed, xml_declaration=True)
+
+
+def save_feed(feed, storage):
+    xml_str = get_feed_str(feed)
+    storage.write_podcast_feed(xml_str)
+
+
+def append_new_items_to_feed(new_items, feed):
+    """
+    Returns a feed with appended `new_items`, while checking that the item titles are not duplicated.
+    Args:
+        new_items: Items to be added to the feed.
+        feed: Feed which will be appended the new items.
+
+    Returns: Feed with new items.
+
+    """
     existing_titles = [title.text.strip() for title in feed.findall("channel/item/title")]
     for item in new_items:
         if not item_title_is_duplicate(item.find("title").text, existing_titles):
             feed.find('channel').append(item)
-    feed_str = etree.tostring(feed, xml_declaration=True)
-    storage.write_podcast_feed(feed_str)
-    return feed_str
+    return feed
 
 
 def add_author_tag_to_feed_items(feed):
@@ -404,18 +418,11 @@ def update_feed_for_podcast_apps(
 
     if not new_items:
         logger.info("No new items in the latest BeyondWords feed.")
+        return feed
 
-    # Append the new items to the podcast apps feed.
-    for item in new_items:
-        item_title = item.find("title").text.strip()
-        logger.info(f"Adding new item '{item_title}' to the RSS feed.")
-        feed_for_podcast_apps.append(item)
+    append_new_items_to_feed(new_items, feed)
 
-    logger.info(f"Added {len(new_items)} new items to the RSS feed.")
-
-    xml_feed = etree.tostring(feed_for_podcast_apps, encoding='utf-8', xml_declaration=True)
-    storage = create_storage(feed_config, running_on_gcp)
-    storage.write_podcast_feed(xml_feed)
+    save_feed(feed, storage)
 
     return feed
 
@@ -470,7 +477,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     new_items = feed.findall('channel/item')
     if new_items:
         print(f'Saving {len(new_items)} new items to {config.rss_filename} feed.')
-        save_new_items(new_items, config, running_on_gcp)
+        append_new_items_to_feed(new_items, config, running_on_gcp, None)
     else:
         print(f'No new items to add to the {config.rss_filename} feed.')
 
