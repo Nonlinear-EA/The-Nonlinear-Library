@@ -5,7 +5,6 @@ from lxml.etree import XMLParser, XMLSyntaxError
 from feed_processing.feed_updaters import download_file_from_url
 
 xml_files_urls = [
-    "https://github.com/Nonlinear-EA/The-Nonlinear-Library/blob/main/README.md",  # Invalid file to test alerts.
     "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-EA.xml",
     "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-EA-daily.xml",
     "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-EA-weekly.xml",
@@ -47,6 +46,4 @@ def check_xml_files_integrity(urls, running_on_gcp=True):
 
 
 if __name__ == '__main__':
-    # os.environ["GCLOUD_PROJECT"] = "crucial-alpha-321109"
-
     check_xml_files_integrity(xml_files_urls)
