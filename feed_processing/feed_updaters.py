@@ -121,7 +121,7 @@ def get_feed_tree_from_url(url, cache: bool = True) -> Element:
         tree = etree.parse(url, parser)
         return tree.getroot()
 
-    # Parse to a XML tree
+    # Parse to an XML tree
     return etree.fromstring(xml_data, parser)
 
 
