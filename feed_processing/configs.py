@@ -1,6 +1,7 @@
 from feed_processing.feed_config import PodcastProviderFeedConfig, BeyondWordsInputConfig
 
 beyondwords_rss_output = 'https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143'
+beyondwords_sandbox_rss_output = "https://audio.beyondwords.io/f/28554/88747/read_8617d3aee53f3ab844a309d37895c143"
 nll_author = 'The Nonlinear Fund'
 gcp_bucket_newcode = 'newcode'
 nonlinear_email = 'podcast@nonlinear.org'
@@ -68,7 +69,7 @@ def af_weekly_config():
 
 def ea_all_config():
     return PodcastProviderFeedConfig(
-        source=beyondwords_rss_output,
+        source=beyondwords_sandbox_rss_output,
         author=nll_author,
         email=nonlinear_email,
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20EA%20Forum.png',
@@ -77,7 +78,8 @@ def ea_all_config():
         title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-EA.xml',
-        top_post_only=False
+        top_post_only=False,
+        removed_authors_file="rss_file/removed_authors.txt"
     )
 
 
@@ -182,7 +184,7 @@ def beyondwords_af_config():
         gcp_bucket=gcp_bucket_newcode,
         source='https://www.alignmentforum.org/feed.xml?view=community-rss&karmaThreshold=0',
         max_entries=30,
-        rss_filename='../manual_tests/rss_files/nonlinear-library-AF.xml',
+        rss_filename='rss_files/nonlinear-library-AF.xml',
         relevant_feeds=['rss_files/nonlinear-library-AF.xml',
                         'rss_files/nonlinear-library-EA.xml',
                         'rss_files/nonlinear-library-LW.xml'],
@@ -197,7 +199,7 @@ def beyondwords_lw_config():
         gcp_bucket=gcp_bucket_newcode,
         source='https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
         max_entries=30,
-        rss_filename='../manual_tests/rss_files/nonlinear-library-LW.xml',
+        rss_filename='rss_files/nonlinear-library-LW.xml',
         relevant_feeds=['rss_files/nonlinear-library-LW.xml',
                         'rss_files/nonlinear-library-AF.xml',
                         'rss_files/nonlinear-library-EA.xml'],

@@ -9,7 +9,7 @@ from feed_processing.configs import lw_daily_config
 from feed_processing.configs import lw_weekly_config
 from feed_processing.create_beyondwords_inputs import main_create_beyondwords_nonlinear_library_project_inputs
 from feed_processing.feed_updaters import update_feed_for_podcast_apps, update_beyondwords_input_feed
-from manual_tests.xml_file_integrity_check import check_xml_files_integrity, xml_files_urls
+from manual_tests.xml_file_integrity_check import check_xml_files_integrity
 
 
 def af_daily(a=None, b=None):
@@ -78,4 +78,16 @@ def create_beyondwords_nonlinear_library_project_inputs(a=None, b=None):
 
 
 def do_xml_file_integrity_checks(a=None, b=None):
+    xml_files_urls = [
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-EA.xml",
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-EA-daily.xml",
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-EA-weekly.xml",
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-AF.xml",
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-AF-daily.xml",
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-AF-weekly.xml",
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-LW.xml",
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-LW-daily.xml",
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-LW-weekly.xml",
+        "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated.xml"
+    ]
     check_xml_files_integrity(xml_files_urls)
