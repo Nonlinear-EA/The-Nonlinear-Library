@@ -1,5 +1,4 @@
-import logging
-
+from google.cloud import logging
 from lxml import etree
 from lxml.etree import XMLParser, XMLSyntaxError
 
@@ -31,18 +30,23 @@ def xml_string_is_valid(xml_str):
     return None
 
 
-def check_xml_files_integrity(urls):
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger("xml_file_integrity_check")
+def check_xml_files_integrity(urls, running_on_gcp=True):
+    logging_client = logging.Client()
+
+    # This log can be found in the Cloud Logging console under 'Custom Logs'.
+    logger = logging_client.logger("XML Integrity Checks")
 
     for xml_file_url in urls:
         xml_str = download_file_from_url(xml_file_url, cache=False)
         xml_file_validation_exception = xml_string_is_valid(xml_str)
         if xml_file_validation_exception:
-            logger.critical(f"File '{xml_file_url}' is invalid. Exception: {xml_file_validation_exception}")
+            logger.log_text(f"File '{xml_file_url}' is invalid. Exception: {xml_file_validation_exception}",
+                            severity="CRITICAL")
         else:
-            logger.log(logging.INFO, f"File '{xml_file_url}' okay.")
+            logger.log_text(f"File '{xml_file_url}' okay.")
 
 
 if __name__ == '__main__':
+    # os.environ["GCLOUD_PROJECT"] = "crucial-alpha-321109"
+
     check_xml_files_integrity(xml_files_urls)
