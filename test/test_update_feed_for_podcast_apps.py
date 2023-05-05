@@ -63,7 +63,7 @@ def test_update_feed_for_podcast_apps_does_not_include_duplicates_in_podcast_fee
         disable_write_podcast_feed
 ):
     # Get the podcast apps feed and set the title of one item.
-    feed_for_podcast_apps = storage.read_podcast_feed("./files/feed_for_podcast_apps.xml")
+    feed_for_podcast_apps = storage.read_podcast_feed("./files/podcast_provider_feed.xml")
     duplicate_item_title = feed_for_podcast_apps.find("channel/item/title")
     duplicate_item_title.text = "TF - This post should not be found multiple times in podcast app feed"
     # Save this feed

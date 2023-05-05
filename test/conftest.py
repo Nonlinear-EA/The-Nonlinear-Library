@@ -40,7 +40,7 @@ def default_podcast_provider_feed_config() -> PodcastProviderFeedConfig:
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
         title="The Nonlinear Library: Your title goes here!",
         gcp_bucket='rssfile',
-        rss_filename='./files/feed_for_podcast_apps.xml',
+        rss_filename='files/podcast_provider_feed.xml',
         removed_authors_file="./files/removed_authors.txt"
     )
 
