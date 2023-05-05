@@ -170,7 +170,8 @@ def beyondwords_ea_config():
         rss_filename='../manual_tests/rss_files/nonlinear-library-EA.xml',
         relevant_feeds=['rss_files/nonlinear-library-EA.xml',
                         'rss_files/nonlinear-library-AF.xml',
-                        'rss_files/nonlinear-library-LW.xml']
+                        'rss_files/nonlinear-library-LW.xml'],
+        removed_authors_file="rss_files/removed_authors.txt"
     )
 
 
@@ -184,7 +185,8 @@ def beyondwords_af_config():
         rss_filename='../manual_tests/rss_files/nonlinear-library-AF.xml',
         relevant_feeds=['rss_files/nonlinear-library-AF.xml',
                         'rss_files/nonlinear-library-EA.xml',
-                        'rss_files/nonlinear-library-LW.xml']
+                        'rss_files/nonlinear-library-LW.xml'],
+        removed_authors_file="rss_files/removed_authors.txt"
     )
 
 
@@ -198,5 +200,6 @@ def beyondwords_lw_config():
         rss_filename='../manual_tests/rss_files/nonlinear-library-LW.xml',
         relevant_feeds=['rss_files/nonlinear-library-LW.xml',
                         'rss_files/nonlinear-library-AF.xml',
-                        'rss_files/nonlinear-library-EA.xml']
+                        'rss_files/nonlinear-library-EA.xml'],
+        removed_authors_file="rss_files/removed_authors.txt"
     )
