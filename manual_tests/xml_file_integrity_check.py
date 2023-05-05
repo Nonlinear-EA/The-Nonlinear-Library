@@ -34,7 +34,7 @@ def check_xml_files_integrity(urls, running_on_gcp=True):
     logging_client = logging.Client()
 
     # This log can be found in the Cloud Logging console under 'Custom Logs'.
-    logger = logging_client.logger("XML Integrity Checks")
+    logger = logging_client.logger("XML_Integrity_Checks")
 
     for xml_file_url in urls:
         xml_str = download_file_from_url(xml_file_url, cache=False)
