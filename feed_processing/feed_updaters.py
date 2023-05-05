@@ -12,7 +12,7 @@ from lxml import etree
 from lxml.etree import XMLParser, Element
 
 from feed_processing.configs import beyondwords_feed_namespaces
-from feed_processing.feed_config import PodcastFeedConfig, BaseFeedConfig, BeyondWordsInputConfig
+from feed_processing.feed_config import PodcastProviderFeedConfig, BaseFeedConfig, BeyondWordsInputConfig
 from feed_processing.storage import create_storage
 
 outro_str = '<p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit ' \
@@ -60,7 +60,7 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
     return feed
 
 
-def filter_entries_by_search_period(feed: Element, feed_config: PodcastFeedConfig):
+def filter_entries_by_search_period(feed: Element, feed_config: PodcastProviderFeedConfig):
     """
     Return entries that were published within a period defined in the FeedGeneratorConfig object.
     
@@ -379,7 +379,7 @@ def filter_entries_by_title_prefix(feed, title_prefix):
 
 
 def update_feed_for_podcast_apps(
-        feed_config: PodcastFeedConfig,
+        feed_config: PodcastProviderFeedConfig,
         running_on_gcp
 ):
     """
