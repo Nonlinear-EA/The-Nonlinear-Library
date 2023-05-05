@@ -27,7 +27,14 @@ def default_beyondwords_input_config():
     )
 
 
-def test_posts_with_250_characters_or_less_in_description_are_discarded(
+@pytest.fixture(autouse=True)
+def cleanup_test_beyondwords_input_feed():
+    yield
+    if os.path.exists("./files/test_beyondwords_input_feed.xml"):
+        os.remove("./files/test_beyondwords_input_feed.xml")
+
+
+def test_posts_with_the_minimum_characters_or_less_in_description_are_discarded(
         default_beyondwords_input_config,
         disable_write_podcast_feed,
         storage,
@@ -40,7 +47,7 @@ def test_posts_with_250_characters_or_less_in_description_are_discarded(
     # Mock get_feed_tree_from_url, so it returns the modified feed.
     mock_get_feed_tree_from_url = MagicMock(return_value=forum_feed)
     mocker.patch('feed_processing.feed_updaters.get_feed_tree_from_url', new=mock_get_feed_tree_from_url)
-
+    default_beyondwords_input_config.min_chars = 250
     beyondwords_input_feed = update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
 
     # Check that the content from all entries is 250 characters or more.
@@ -61,7 +68,6 @@ def test_posts_with_no_paragraph_elements_in_description_are_discarded(
     discarded because of that. It should be discarded because it has no p tags"""
     item_to_modify = forum_feed.find("channel/item")
     item_to_modify.find("description").text = item_description
-
     # Mock get_feed_tree_from_url, so it returns the modified feed.
     mock_get_feed_tree_from_url = MagicMock(return_value=forum_feed)
     mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
@@ -111,19 +117,10 @@ def test_posts_from_removed_authors_are_discarded(
 
     beyondwords_feed = update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
 
-    # Retrieve the authors.
+    # Retrieve the authors. 'RemovedAuthor' is present in the `files/removed_authors.txt` file, assert that no posts
+    # from that author are present in the resulting feed.
     authors = [creator.text.strip() for creator in beyondwords_feed.findall("channel/item/author")]
-
-    # 'RemovedAuthor' is present in the `files/removed_authors.txt` file, so any posts from them should be excluded
-    # from the beyondwords feed.
     assert not any(author == "RemovedAuthor" for author in authors)
-
-
-@pytest.fixture(autouse=True)
-def cleanup_test_beyondwords_input_feed():
-    yield
-    if os.path.exists("./files/test_beyondwords_input_feed.xml"):
-        os.remove("./files/test_beyondwords_input_feed.xml")
 
 
 def test_forum_items_that_are_already_present_in_beyondwords_feed_are_discarded(
@@ -140,19 +137,17 @@ def test_forum_items_that_are_already_present_in_beyondwords_feed_are_discarded(
     mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
     # Create a file to act as the current beyondwords_input feed based on the file `./files/beyondwords_input_feed.xml`
     existing_beyondwords_input_feed = storage.read_podcast_feed("./files/beyondwords_input_feed.xml")
-    # The update function prepends a shorthand for the forum to the title.
-    existing_beyondwords_input_feed.find("channel/item/title").text = f"Unknown - {duplicate_item_title}"
+    # Set the value of an item in the existing beyondwords feed, so it matches the item that should not be duplicated.
+    # The update function adds a shorthand as prefix and 'by <Author>' as suffix. Do this too for the test feed.
+    existing_beyondwords_input_feed.find("channel/item/title").text = f"Unknown - {duplicate_item_title} by The Author"
     existing_beyondwords_input_feed.write("./files/test_beyondwords_input_feed.xml", xml_declaration=True,
                                           encoding="utf-8")
-    # Set up the config so the update function loads the feed from this file.
+    # Set up the config so the update function loads the feed from the file we just created.
     default_beyondwords_input_config.rss_filename = "./files/test_beyondwords_input_feed.xml"
 
     beyondwords_input_feed = update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
 
-    # Check that the item with the `duplicate_item_title` is present only once.
-    # Retrieve titles that match 'This is a history item'
-    titles = [title.text.strip() for title in beyondwords_input_feed.findall("channel/item/title")]
-
-    # An item with the title "Unknown - This is a history item by The Author" is present in both the beyondwords feed
-    # and the forum's test feed. Each entry should appear only once in the beyondwords feed.
+    # Retrieve titles with the substring `duplicate_item_title` in them, then assert that it is only found once.
+    titles = [title.text.strip() for title in beyondwords_input_feed.findall("channel/item/title") if
+              duplicate_item_title in title.text.strip()]
     assert len(titles) == 1

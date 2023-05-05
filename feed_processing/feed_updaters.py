@@ -9,10 +9,10 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from lxml import etree
-from lxml.etree import XMLParser, Element
+from lxml.etree import XMLParser, Element, CDATA
 
 from feed_processing.configs import beyondwords_feed_namespaces
-from feed_processing.feed_config import PodcastFeedConfig, BaseFeedConfig, BeyondWordsInputConfig
+from feed_processing.feed_config import PodcastProviderFeedConfig, BaseFeedConfig, BeyondWordsInputConfig
 from feed_processing.storage import create_storage
 
 outro_str = '<p>Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit ' \
@@ -60,7 +60,7 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
     return feed
 
 
-def filter_entries_by_search_period(feed: Element, feed_config: PodcastFeedConfig):
+def filter_entries_by_search_period(feed: Element, feed_config: PodcastProviderFeedConfig):
     """
     Return entries that were published within a period defined in the FeedGeneratorConfig object.
     
@@ -121,7 +121,7 @@ def get_feed_tree_from_url(url, cache: bool = True) -> Element:
         tree = etree.parse(url, parser)
         return tree.getroot()
 
-    # Parse to a XML tree
+    # Parse to an XML tree
     return etree.fromstring(xml_data, parser)
 
 
@@ -331,17 +331,12 @@ def get_intro_str(item):
 
 def edit_item_description(feed):
     for item in feed.findall('channel/item'):
-        intro_str = get_intro_str(item)
         description_text = item.find('description').text
         description_html = BeautifulSoup(description_text, 'html.parser')
-        content = "<br/>".join([str(paragraph) for paragraph in description_html.find_all('p')[1:]])
-        content_text = intro_str + content + outro_str
-        item.find('description').text = etree.CDATA(intro_str)
+        description_text = "\n".join(
+            str(paragraph_text) for paragraph_text in description_html.find_all('p')[:1]) + "<br/>..."
 
-        if item.find('content'):
-            item.find('content').text = etree.CDATA(content_text)
-        else:
-            item.append(cdata_element('content', content_text))
+        item.find('description').text = etree.CDATA(description_text)
 
     return feed
 
@@ -379,7 +374,7 @@ def filter_entries_by_title_prefix(feed, title_prefix):
 
 
 def update_feed_for_podcast_apps(
-        feed_config: PodcastFeedConfig,
+        feed_config: PodcastProviderFeedConfig,
         running_on_gcp
 ):
     """
@@ -420,7 +415,7 @@ def update_feed_for_podcast_apps(
     return beyondwords_output_feed
 
 
-def remove_posts_with_short_description(feed, min_chars: int):
+def remove_posts_with_less_than_the_minimum_characters_in_description(feed, min_chars: int):
     for item in feed.findall('channel/item'):
         if len(item.find("description").text) < min_chars:
             feed.find('channel').remove(item)
@@ -428,12 +423,23 @@ def remove_posts_with_short_description(feed, min_chars: int):
     return feed
 
 
-def remove_posts_without_paragraphs(feed):
+def remove_posts_without_paragraphs_in_description(feed):
     for item in feed.findall('channel/item'):
         description_html = BeautifulSoup(item.find('description').text, 'html.parser')
         if len(description_html.find_all('p')) < 1:
             feed.find('channel').remove(item)
             print(f"Removed item '{item.find('title').text}' due to empty content, possibly a cross post.")
+
+    return feed
+
+
+def add_content_to_feed_items(feed):
+    for item in feed.findall("channel/item"):
+        intro_str = get_intro_str(item)
+        description_text = item.find('description').text
+        content_text = intro_str + description_text + outro_str
+        content_element = etree.SubElement(item, "content")
+        content_element.text = CDATA(content_text)
 
     return feed
 
@@ -463,11 +469,13 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     # The author tag is used to remove posts from removed authors, append it to each item
     add_author_tag_to_feed_items(feed)
 
-    # Remove items that might be cross posts or have very short content.
-    remove_posts_without_paragraphs(feed)
-    remove_posts_with_short_description(feed, config.min_chars)
+    # Remove items that are too short.
+    remove_posts_without_paragraphs_in_description(feed)
+    remove_posts_with_less_than_the_minimum_characters_in_description(feed, config.min_chars)
 
     # Appends intro and outro to description and creates content tag if not present.
+    # Create content tag.
+    add_content_to_feed_items(feed)
     edit_item_description(feed)
 
     remove_items_from_removed_authors(feed, config, running_on_gcp)

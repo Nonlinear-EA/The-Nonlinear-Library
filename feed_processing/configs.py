@@ -1,4 +1,4 @@
-from feed_processing.feed_config import PodcastFeedConfig, BeyondWordsInputConfig
+from feed_processing.feed_config import PodcastProviderFeedConfig, BeyondWordsInputConfig
 
 beyondwords_rss_output = 'https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143'
 nll_author = 'The Nonlinear Fund'
@@ -19,7 +19,7 @@ beyondwords_feed_namespaces = {
 
 
 def af_all_config():
-    return PodcastFeedConfig(
+    return PodcastProviderFeedConfig(
         source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
@@ -35,7 +35,7 @@ def af_all_config():
 
 
 def af_daily_config():
-    return PodcastFeedConfig(
+    return PodcastProviderFeedConfig(
         source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
@@ -43,7 +43,7 @@ def af_daily_config():
         guid_suffix='_AF-day',
         title="The Nonlinear Library: Alignment Forum Daily",
         title_prefix='AF - ',
-        search_period=PodcastFeedConfig.SearchPeriod.ONE_DAY,
+        search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_DAY,
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-AF-daily.xml',
         top_post_only=True
@@ -51,7 +51,7 @@ def af_daily_config():
 
 
 def af_weekly_config():
-    return PodcastFeedConfig(
+    return PodcastProviderFeedConfig(
         source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
@@ -59,7 +59,7 @@ def af_weekly_config():
         guid_suffix='_AF-week',
         title="The Nonlinear Library: Alignment Forum Weekly",
         title_prefix='AF - ',
-        search_period=PodcastFeedConfig.SearchPeriod.ONE_WEEK,
+        search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-AF-weekly.xml',
         top_post_only=True
@@ -67,7 +67,7 @@ def af_weekly_config():
 
 
 def ea_all_config():
-    return PodcastFeedConfig(
+    return PodcastProviderFeedConfig(
         source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
@@ -82,14 +82,14 @@ def ea_all_config():
 
 
 def ea_daily_config():
-    return PodcastFeedConfig(
+    return PodcastProviderFeedConfig(
         source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20EA%20Forum%20Daily.png',
         title="The Nonlinear Library: EA Forum Daily",
         guid_suffix='_EA-day',
-        search_period=PodcastFeedConfig.SearchPeriod.ONE_DAY,
+        search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_DAY,
         title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-EA-daily.xml',
@@ -98,7 +98,7 @@ def ea_daily_config():
 
 
 def ea_weekly_config():
-    return PodcastFeedConfig(
+    return PodcastProviderFeedConfig(
         source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
@@ -106,7 +106,7 @@ def ea_weekly_config():
         guid_suffix='_EA-week',
         title='The Nonlinear Library: EA Forum Weekly',
         title_prefix='EA - ',
-        search_period=PodcastFeedConfig.SearchPeriod.ONE_WEEK,
+        search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-EA-weekly.xml',
         top_post_only=True
@@ -114,7 +114,7 @@ def ea_weekly_config():
 
 
 def lw_all_config():
-    return PodcastFeedConfig(
+    return PodcastProviderFeedConfig(
         source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
@@ -129,14 +129,14 @@ def lw_all_config():
 
 
 def lw_daily_config():
-    return PodcastFeedConfig(
+    return PodcastProviderFeedConfig(
         source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong%20Daily.png',
         title='The Nonlinear Library: LessWrong Daily',
         guid_suffix='_LW-day',
-        search_period=PodcastFeedConfig.SearchPeriod.ONE_DAY,
+        search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_DAY,
         title_prefix='LW - ',
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-LW-daily.xml',
@@ -145,7 +145,7 @@ def lw_daily_config():
 
 
 def lw_weekly_config():
-    return PodcastFeedConfig(
+    return PodcastProviderFeedConfig(
         source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
@@ -153,7 +153,7 @@ def lw_weekly_config():
         guid_suffix='_LW-week',
         title='The Nonlinear Library: LessWrong Weekly',
         title_prefix='LW - ',
-        search_period=PodcastFeedConfig.SearchPeriod.ONE_WEEK,
+        search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-LW-weekly.xml',
         top_post_only=True
@@ -167,10 +167,11 @@ def beyondwords_ea_config():
         gcp_bucket=gcp_bucket_newcode,
         source='https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
         max_entries=30,
-        rss_filename='../manual_tests/rss_files/nonlinear-library-EA.xml',
+        rss_filename='rss_files/nonlinear-library-EA.xml',
         relevant_feeds=['rss_files/nonlinear-library-EA.xml',
                         'rss_files/nonlinear-library-AF.xml',
-                        'rss_files/nonlinear-library-LW.xml']
+                        'rss_files/nonlinear-library-LW.xml'],
+        removed_authors_file="rss_files/removed_authors.txt"
     )
 
 
@@ -184,7 +185,8 @@ def beyondwords_af_config():
         rss_filename='../manual_tests/rss_files/nonlinear-library-AF.xml',
         relevant_feeds=['rss_files/nonlinear-library-AF.xml',
                         'rss_files/nonlinear-library-EA.xml',
-                        'rss_files/nonlinear-library-LW.xml']
+                        'rss_files/nonlinear-library-LW.xml'],
+        removed_authors_file="rss_files/removed_authors.txt"
     )
 
 
@@ -198,5 +200,6 @@ def beyondwords_lw_config():
         rss_filename='../manual_tests/rss_files/nonlinear-library-LW.xml',
         relevant_feeds=['rss_files/nonlinear-library-LW.xml',
                         'rss_files/nonlinear-library-AF.xml',
-                        'rss_files/nonlinear-library-EA.xml']
+                        'rss_files/nonlinear-library-EA.xml'],
+        removed_authors_file="rss_files/removed_authors.txt"
     )
