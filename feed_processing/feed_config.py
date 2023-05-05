@@ -9,10 +9,11 @@ class BaseFeedConfig:
     email: str
     author: str
     rss_filename: str
+    removed_authors_file: str
 
 
 @dataclass
-class FeedGeneratorConfig(BaseFeedConfig):
+class PodcastProviderFeedConfig(BaseFeedConfig):
     class SearchPeriod(Enum):
         ONE_WEEK = 7
         ONE_DAY = 1
@@ -32,9 +33,9 @@ class FeedGeneratorConfig(BaseFeedConfig):
         Returns a timedelta based on the string provided as search period
         """
 
-        if self.search_period == FeedGeneratorConfig.SearchPeriod.ONE_WEEK:
+        if self.search_period == PodcastProviderFeedConfig.SearchPeriod.ONE_WEEK:
             return timedelta(weeks=1)
-        elif self.search_period == FeedGeneratorConfig.SearchPeriod.ONE_DAY:
+        elif self.search_period == PodcastProviderFeedConfig.SearchPeriod.ONE_DAY:
             return timedelta(days=1)
         elif self.search_period is None:
             return None
@@ -46,4 +47,5 @@ class FeedGeneratorConfig(BaseFeedConfig):
 class BeyondWordsInputConfig(BaseFeedConfig):
     source: str
     max_entries: int
-    relevant_feeds: list = None
+    relevant_feeds: list = None,
+    min_chars: int = 250

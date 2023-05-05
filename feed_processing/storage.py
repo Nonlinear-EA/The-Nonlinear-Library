@@ -3,7 +3,7 @@ from typing import List
 from lxml import etree
 from lxml.etree import XMLParser, Element
 
-from feed import BaseFeedConfig
+from feed_processing.feed_config import BaseFeedConfig
 
 
 class StorageInterface:
@@ -11,8 +11,8 @@ class StorageInterface:
     Interface to read and write text files.
     """
 
-    def __init__(self, rss_filename: str):
-        self.removed_authors_filename = 'removed_authors.txt'
+    def __init__(self, rss_filename: str, removed_authors_filename: str = "./removed_authors"):
+        self.removed_authors_filename = removed_authors_filename
         self.rss_filename = rss_filename
 
     def write_podcast_feed(self, feed: str):
@@ -31,12 +31,12 @@ class LocalStorage(StorageInterface):
     """
 
     def __init__(
-            self, rss_filename: str
+            self, rss_filename: str, removed_authors_filename: str = "./removed_authors.txt"
     ):
-        super().__init__(rss_filename)
+        super().__init__(rss_filename, removed_authors_filename)
 
     def read_removed_authors(self):
-        removed_authors = self.__read_file('./removed_authors.txt')
+        removed_authors = self.__read_file(self.removed_authors_filename)
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 
@@ -77,12 +77,13 @@ class GoogleCloudStorage(StorageInterface):
     """
     gcp_bucket: str
 
-    def __init__(self, gcp_bucket, rss_filename: str):
-        super().__init__(rss_filename)
+    def __init__(self, gcp_bucket, rss_filename: str, removed_authors_filename: str = "./removed_authors.txt"):
+        super().__init__(rss_filename, removed_authors_filename)
         self.gcp_bucket = gcp_bucket
 
     def read_removed_authors(self):
-        removed_authors = self.__read_file('./removed_authors.txt')
+        print(f"Loading removed authors from {self.removed_authors_filename}")
+        removed_authors = self.__read_file(self.removed_authors_filename)
         print('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 
@@ -134,6 +135,10 @@ def create_storage(feed_config: BaseFeedConfig, running_on_gcp: bool):
 
     """
     if running_on_gcp:
-        return GoogleCloudStorage(gcp_bucket=feed_config.gcp_bucket, rss_filename=feed_config.rss_filename)
+        return GoogleCloudStorage(
+            gcp_bucket=feed_config.gcp_bucket,
+            rss_filename=feed_config.rss_filename,
+            removed_authors_filename=feed_config.removed_authors_file)
     else:
-        return LocalStorage(rss_filename=feed_config.rss_filename)
+        return LocalStorage(rss_filename=feed_config.rss_filename,
+                            removed_authors_filename=feed_config.removed_authors_file, )

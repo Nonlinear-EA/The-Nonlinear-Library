@@ -15,6 +15,26 @@ have also been uploaded to GCP Functions where they are triggered periodically.
 
 The control flow through this project is illustrated in ![control flow](flow.svg) and described below.
 
+### The new control flow
+
+```mermaid
+flowchart TD
+    EAForum(EA Forum)
+    LWForum(LW Forum)
+    AFForum(Alignment Forum)
+    BWFeedUpdater[[Update BeyondWords input feed]]
+    EAForum --> BWFeedUpdater
+    LWForum --> BWFeedUpdater
+    AFForum --> BWFeedUpdater
+    BWFeedUpdater --> BWFeed[BeyondWords input feed]
+    BWFeed --> BW[[BeyondWords TTS]]
+    BW --> BWOutputFeed[BeyondWords Output Feed]
+    BWOutputFeed --> Aggregators[[Podcast Feed Aggregators]]
+    Aggregators --> PodcastFeeds[Feeds for Podcast Apps]
+    PodcastFeeds --> PodcastApps[Podcast Apps]
+
+```
+
 The control flow through this project begins when `nnl.py` parses new posts from each of the 3 forums, then outputs that
 to a
 public file in Cloud Bucket which
@@ -29,18 +49,18 @@ and create new RSS files in Cloud Bucket, which we use to create podcasts specif
 
 ```mermaid
 flowchart TD
-   Step1[Download RSS Feed from BeyondWords] --> FilterByRemovedAuthors[Filter out entries from removed authors]
-   FilterByRemovedAuthors --> FilterBySearchPeriod[Filter out entries outside the search period]
-   FilterBySearchPeriod --> FilterByEntriesInHistory[Filter out entries not in history titles]
-   FilterByEntriesInHistory --> GetKarma[Get karma for each entry]
-   GetKarma --> GetMaxKarmaEntry[Get entry with the most karma]
-   GetMaxKarmaEntry --> IfMaxKarmaEntryInHistoryTitles{Max karma entry in history titles?}
-   IfMaxKarmaEntryInHistoryTitles -- no --> AddMaxKarmaEntryToHistoryTitles[Add entry to history titles]
-   AddMaxKarmaEntryToHistoryTitles --> SaveHistoryTitles[Save history titles]
-   IfMaxKarmaEntryInHistoryTitles -- yes --> Continue[Continue]
-   Continue --> ModifyEntriesValues[Update entries' values]
-   SaveHistoryTitles --> ModifyEntriesValues
-   ModifyEntriesValues --> ReturnXml[Return an xml file]
+    Step1[Download RSS Feed from BeyondWords] --> FilterByRemovedAuthors[Filter out entries from removed authors]
+    FilterByRemovedAuthors --> FilterBySearchPeriod[Filter out entries outside the search period]
+    FilterBySearchPeriod --> FilterByEntriesInHistory[Filter out entries not in history titles]
+    FilterByEntriesInHistory --> GetKarma[Get karma for each entry]
+    GetKarma --> GetMaxKarmaEntry[Get entry with the most karma]
+    GetMaxKarmaEntry --> IfMaxKarmaEntryInHistoryTitles{Max karma entry in history titles?}
+    IfMaxKarmaEntryInHistoryTitles -- no --> AddMaxKarmaEntryToHistoryTitles[Add entry to history titles]
+    AddMaxKarmaEntryToHistoryTitles --> SaveHistoryTitles[Save history titles]
+    IfMaxKarmaEntryInHistoryTitles -- yes --> Continue[Continue]
+    Continue --> ModifyEntriesValues[Update entries' values]
+    SaveHistoryTitles --> ModifyEntriesValues
+    ModifyEntriesValues --> ReturnXml[Return an xml file]
 ```
 
 ###

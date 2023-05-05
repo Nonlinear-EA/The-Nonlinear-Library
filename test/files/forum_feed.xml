@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/"
+     version="2.0">
+    <channel>
+        <title>
+            <![CDATA[Some Internet Forum's Feed]]>
+        </title>
+        <description>
+            <![CDATA[A forum on the internet]]>
+        </description>
+        <link>https://aforumontheinternet.com</link>
+        <lastBuildDate>Tue, 02 May 2023 19:52:44 GMT</lastBuildDate>
+        <item>
+            <title>
+                <![CDATA[This is the first entry]]>
+            </title>
+            <description>
+                <![CDATA[Published on May 2, 2023 3:45 PM GMT by The Author
+                <p>
+                This is an entry that says something about x and y that has paragraphs.
+
+                <p> 
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus urna enim, ut interdum justo varius placerat. Integer rhoncus maximus arcu. Curabitur non scelerisque lorem.
+                </p>
+                ]]>
+            </description>
+            <link>https://aforumontheinternet.com/first_entry</link>
+            <guid isPermaLink="false">ZKYpu4WAiwTXDSrX8</guid>
+            <dc:creator>
+                <![CDATA[The Author]]>
+            </dc:creator>
+            <pubDate>Tue, 02 May 2023 16:21:20 GMT</pubDate>
+        </item>
+        <item>
+            <title>
+                <![CDATA[This is the second item]]>
+            </title>
+            <description>
+                <![CDATA[Published on May 2, 2023 3:45 PM GMT by The Author
+                <p>
+                This is an entry that says something about x and y that has paragraphs.
+
+                <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla rhoncus urna enim, ut interdum justo varius placerat. Integer rhoncus maximus arcu. Curabitur non scelerisque lorem.
+                </p>
+                ]]>
+            </description>
+            <link>https://aforumontheinternet.com/first_entry</link>
+            <guid isPermaLink="false">ZKYpu4WAiwTXDSrX8</guid>
+            <dc:creator>
+                <![CDATA[The OtherAuthor]]>
+            </dc:creator>
+            <pubDate>Tue, 02 May 2023 16:21:20 GMT</pubDate>
+        </item>
+    </channel>
+</rss>
