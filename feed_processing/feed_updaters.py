@@ -313,7 +313,7 @@ def add_author_tag_to_feed_items(feed):
 
 def append_author_to_item_titles(feed):
     for item in feed.findall('channel/item'):
-        item.find('title').text = f'{item.find("title").text.strip()} by {item.find("author").text.strip()}'
+        item.find('title').text = CDATA(f'{item.find("title").text.strip()} by {item.find("author").text.strip()}')
     return feed
 
 
@@ -332,11 +332,8 @@ def get_intro_str(item):
 def edit_item_description(feed):
     for item in feed.findall('channel/item'):
         description_text = item.find('description').text
-        description_html = BeautifulSoup(description_text, 'html.parser')
-        description_text = "\n".join(
-            str(paragraph_text) for paragraph_text in description_html.find_all('p')[:1]) + "<br/>..."
-
-        item.find('description').text = etree.CDATA(description_text)
+        description = f"{get_intro_str(item)} <br/> {description_text} <p>{outro_str}</p>"
+        item.find('description').text = etree.CDATA(description)
 
     return feed
 
@@ -464,37 +461,26 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     titles_from_other_feeds = reduce(concatenate_item_titles, config.relevant_feeds, [])
 
     # Remove duplicates from other relevant feeds.
-    remove_items_also_found_in_other_relevant_files(feed, titles_from_other_feeds)
+    feed = remove_items_also_found_in_other_relevant_files(feed, titles_from_other_feeds)
 
     # The author tag is used to remove posts from removed authors, append it to each item
-    add_author_tag_to_feed_items(feed)
+    feed = add_author_tag_to_feed_items(feed)
 
     # Remove items that are too short.
-    remove_posts_without_paragraphs_in_description(feed)
-    remove_posts_with_less_than_the_minimum_characters_in_description(feed, config.min_chars)
+    feed = remove_posts_without_paragraphs_in_description(feed)
+    feed = remove_posts_with_less_than_the_minimum_characters_in_description(feed, config.min_chars)
 
     # Appends intro and outro to description and creates content tag if not present.
     # Create content tag.
-    add_content_to_feed_items(feed)
-    edit_item_description(feed)
+    feed = edit_item_description(feed)
 
-    remove_items_from_removed_authors(feed, config, running_on_gcp)
+    feed = remove_items_from_removed_authors(feed, config, running_on_gcp)
 
     # Modify item titles by prepending the forum abbreviation
-    prepend_website_abbreviation_to_feed_item_titles(feed)
+    feed = prepend_website_abbreviation_to_feed_item_titles(feed)
 
     # Modify item titles by appending 'by <author>'
-    append_author_to_item_titles(feed)
-
-    # The list below contains the xpaths of the items that contain XML CDATA strings
-    cdata_xpaths = [
-        'channel/title',
-        'channel/item/dc:creator',
-        'channel/item/title'
-    ]
-
-    # Replace text of elements with CDATA strings with CDATA strings
-    replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
+    feed = append_author_to_item_titles(feed)
 
     forum_items = feed.findall('channel/item')
     if not forum_items:

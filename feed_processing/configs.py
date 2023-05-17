@@ -173,7 +173,7 @@ def beyondwords_ea_config():
         relevant_feeds=['rss_files/nonlinear-library-EA.xml',
                         'rss_files/nonlinear-library-AF.xml',
                         'rss_files/nonlinear-library-LW.xml'],
-        removed_authors_file="rss_files/removed_authors.txt"
+        removed_authors_file="rss_files/removed_authors.txt",
     )
 
 
@@ -188,7 +188,7 @@ def beyondwords_af_config():
         relevant_feeds=['rss_files/nonlinear-library-AF.xml',
                         'rss_files/nonlinear-library-EA.xml',
                         'rss_files/nonlinear-library-LW.xml'],
-        removed_authors_file="rss_files/removed_authors.txt"
+        removed_authors_file="rss_files/removed_authors.txt",
     )
 
 
