@@ -482,14 +482,14 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     # Modify item titles by appending 'by <author>'
     feed = append_author_to_item_titles(feed)
 
-    forum_items = feed.findall('channel/item')
-    if not forum_items:
+    new_feed_items = feed.findall('channel/item')
+    if not new_feed_items:
         logger.info("No new items to add to BeyondWords input feed.")
 
     # Append new items to feed
     storage = create_storage(config, running_on_gcp)
     beyondwords_input_feed = storage.read_podcast_feed()
-    new_items = append_new_items_to_feed(forum_items, beyondwords_input_feed)
+    new_items = append_new_items_to_feed(new_feed_items, beyondwords_input_feed)
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")
