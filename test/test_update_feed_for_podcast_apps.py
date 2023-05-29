@@ -91,5 +91,16 @@ def test_update_feed_for_podcast_provider_saves_new_items(
         mocker, disable_write_podcast_feed
 ):
     feed_for_podcast_apps = storage.read_podcast_feed("./files/podcast_provider_feed.xml")
+    beyondwords_output_feed = storage.read_podcast_feed("./files/beyondwords_output_feed.xml")
+    new_item = beyondwords_output_feed.find("channel/item")
+    new_item_title = "TF - This is a new item and it should show up in the podcast provider feed after the update"
+    new_item.find("title").text = new_item_title
+    mock_get_feed_tree_from_url = MagicMock(return_value=beyondwords_output_feed)
+    mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
+
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
+
+    feed_titles = [title.text.strip() for title in feed.findall("channel/item/title")]
+    assert new_item_title in feed_titles
     
 # TODO: Test that update feed creates feeds with appropriate meta-data, such as channel title, image, etc.

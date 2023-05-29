@@ -300,7 +300,7 @@ def append_new_items_to_feed(new_items, feed):
         if not item_title_is_duplicate(item.find("title").text, existing_titles):
             feed.find('channel').append(item)
             appended_items += [item]
-    return appended_items
+    return appended_items, feed
 
 
 def add_author_tag_to_feed_items(feed):
@@ -400,7 +400,7 @@ def update_podcast_provider_feed(
     storage = create_storage(feed_config, running_on_gcp)
     feed_for_podcast_apps = storage.read_podcast_feed()
     items_from_beyondwords_output_feed = feed.findall("channel/item")
-    new_items = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
+    new_items, feed = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")
@@ -488,7 +488,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     # Append new items to feed
     storage = create_storage(config, running_on_gcp)
     beyondwords_input_feed = storage.read_podcast_feed()
-    new_items = append_new_items_to_feed(new_feed_items, beyondwords_input_feed)
+    new_items, feed = append_new_items_to_feed(new_feed_items, beyondwords_input_feed)
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")
