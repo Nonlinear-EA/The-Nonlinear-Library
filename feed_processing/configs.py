@@ -6,6 +6,10 @@ nll_author = 'The Nonlinear Fund'
 gcp_bucket_newcode = 'newcode'
 nonlinear_email = 'podcast@nonlinear.org'
 
+podcast_description = """The Nonlinear Library allows you to easily listen to top EA and rationalist content on your 
+podcast player. We use text-to-speech software to create an automatically updating repository of audio content from 
+the EA Forum, Alignment Forum, LessWrong, and other EA blogs. To find out more, please visit us at nonlinear.org"""
+
 beyondwords_feed_input_sources = [
     'https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
     'https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
@@ -26,6 +30,7 @@ def af_all_config():
         email=nonlinear_email,
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum.png',
         title="The Nonlinear Library: Alignment Forum",
+        description=podcast_description,
         title_prefix='AF -',
         guid_suffix='_AF',
         gcp_bucket=gcp_bucket_newcode,
@@ -43,6 +48,7 @@ def af_daily_config():
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Daily.png',
         guid_suffix='_AF-day',
         title="The Nonlinear Library: Alignment Forum Daily",
+        description=podcast_description,
         title_prefix='AF - ',
         search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_DAY,
         gcp_bucket=gcp_bucket_newcode,
@@ -59,6 +65,7 @@ def af_weekly_config():
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20Alignment%20Forum%20Weekly.png',
         guid_suffix='_AF-week',
         title="The Nonlinear Library: Alignment Forum Weekly",
+        description=podcast_description,
         title_prefix='AF - ',
         search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
@@ -75,6 +82,7 @@ def ea_all_config():
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20EA%20Forum.png',
         guid_suffix='_EA',
         title='The Nonlinear Library: EA Forum',
+        description=podcast_description,
         title_prefix='EA - ',
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-EA.xml',
@@ -90,6 +98,7 @@ def ea_daily_config():
         email=nonlinear_email,
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20EA%20Forum%20Daily.png',
         title="The Nonlinear Library: EA Forum Daily",
+        description=podcast_description,
         guid_suffix='_EA-day',
         search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_DAY,
         title_prefix='EA - ',
@@ -107,6 +116,7 @@ def ea_weekly_config():
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20EA%20Forum%20Weekly.png',
         guid_suffix='_EA-week',
         title='The Nonlinear Library: EA Forum Weekly',
+        description=podcast_description,
         title_prefix='EA - ',
         search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,
@@ -123,6 +133,7 @@ def lw_all_config():
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong.png',
         guid_suffix='_LW',
         title='The Nonlinear Library: LessWrong',
+        description=podcast_description,
         title_prefix='LW - ',
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-LW.xml',
@@ -137,6 +148,7 @@ def lw_daily_config():
         email=nonlinear_email,
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong%20Daily.png',
         title='The Nonlinear Library: LessWrong Daily',
+        description=podcast_description,
         guid_suffix='_LW-day',
         search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_DAY,
         title_prefix='LW - ',
@@ -154,6 +166,7 @@ def lw_weekly_config():
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong%20Weekly.png',
         guid_suffix='_LW-week',
         title='The Nonlinear Library: LessWrong Weekly',
+        description=podcast_description,
         title_prefix='LW - ',
         search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_WEEK,
         gcp_bucket=gcp_bucket_newcode,

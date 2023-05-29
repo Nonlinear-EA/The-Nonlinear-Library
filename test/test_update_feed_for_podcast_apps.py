@@ -121,4 +121,40 @@ def test_update_feed_for_podcast_providers_updates_channel_title(
 
     assert feed_channel_title == "The Nonlinear Library: Test Podcast"
 
+
+def test_update_feed_for_podcast_providers_updates_channel_description(
+        default_podcast_provider_feed_config,
+        storage,
+        mocker,
+        disable_write_podcast_feed
+):
+    default_podcast_provider_feed_config.description = "This is the podcast's description."
+    beyondwords_output_feed = storage.read_podcast_feed("./files/beyondwords_output_feed.xml")
+    mock_get_feed_tree_from_url = MagicMock(return_value=beyondwords_output_feed)
+    mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
+
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
+
+    feed_channel_description = feed.find("channel/description").text
+
+    assert feed_channel_description == "This is the podcast's description."
+
+
+def test_update_feed_for_podcast_providers_updates_channel_author(
+        default_podcast_provider_feed_config,
+        storage,
+        mocker,
+        disable_write_podcast_feed
+):
+    default_podcast_provider_feed_config.author = "The Podcast Author"
+    beyondwords_output_feed = storage.read_podcast_feed("./files/beyondwords_output_feed.xml")
+    mock_get_feed_tree_from_url = MagicMock(return_value=beyondwords_output_feed)
+    mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
+
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
+
+    feed_channel_description = feed.find("channel/author").text
+
+    assert feed_channel_description == "The Podcast Author"
+
 # TODO: Test that update feed creates feeds with appropriate meta-data, such as channel title, image, etc.

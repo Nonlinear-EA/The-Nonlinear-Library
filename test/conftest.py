@@ -41,7 +41,8 @@ def default_podcast_provider_feed_config() -> PodcastProviderFeedConfig:
         title="The Nonlinear Library: Your title goes here!",
         gcp_bucket='rssfile',
         rss_filename='files/podcast_provider_feed.xml',
-        removed_authors_file="./files/removed_authors.txt"
+        removed_authors_file="./files/removed_authors.txt",
+        description="This is the podcast description, so, bla bla bla"
     )
 
 

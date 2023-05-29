@@ -370,6 +370,44 @@ def filter_entries_by_title_prefix(feed, title_prefix):
                 feed.find('channel').remove(entry)
 
 
+def update_feed_datum(feed, xpath: str, new_value: str, create_element_if_xpath_element_is_none=True):
+    element = feed.find(xpath)
+    logger = logging.getLogger("update_feed_datum")
+    if element is None and create_element_if_xpath_element_is_none:
+        breadcrumbs = xpath.split("/")
+        if not breadcrumbs:
+            parent = "/"
+            child = xpath.strip("/")
+        else:
+            parent = "/".join(breadcrumb for breadcrumb in breadcrumbs[:-1])
+            child = breadcrumbs[-1]
+        element = etree.SubElement(feed.find(parent), child)
+    elif element is None and not create_element_if_xpath_element_is_none:
+        return feed
+    element.text = new_value
+    return feed
+
+
+def update_feed_channel_title(feed, feed_config: PodcastProviderFeedConfig):
+    channel_title = feed.find("channel/title")
+    if channel_title is None:
+        channel_title = etree.SubElement(feed.find("channel"), "title")
+    channel_title.text = feed_config.title
+    return feed
+
+
+def update_feed_channel_description(feed, feed_config: PodcastProviderFeedConfig):
+    description = feed.find("channel/description")
+    if description is None:
+        description = etree.SubElement(feed.find("channel"), "description")
+    description.text = feed_config.description
+    return feed
+
+
+def update_feed_channel_author(feed, feed_config):
+    return update_feed_datum(feed, "channel/author", feed_config.author)
+
+
 def update_podcast_provider_feed(
         feed_config: PodcastProviderFeedConfig,
         running_on_gcp
@@ -401,6 +439,11 @@ def update_podcast_provider_feed(
     feed_for_podcast_apps = storage.read_podcast_feed()
     items_from_beyondwords_output_feed = feed.findall("channel/item")
     new_items, feed = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
+
+    # Update meta-data
+    feed = update_feed_datum(feed, "channel/title", feed_config.title)
+    feed = update_feed_datum(feed, "channel/description", feed_config.description)
+    feed = update_feed_datum(feed, "channel/author", feed_config.author)
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")
