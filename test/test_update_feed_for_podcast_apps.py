@@ -206,8 +206,6 @@ def test_update_feed_for_podcast_providers_updates_itunes_image(
 
     feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
 
-    feed_itunes_image_element = feed.find(f"channel/{{{itunes_namespace}}}summary").text
+    feed_itunes_image_element = feed.find(f"channel/{{{itunes_namespace}}}image")
     feed_itunes_image_href = feed_itunes_image_element.attrib["href"]
     assert feed_itunes_image_href == "https://image.feed.url/image.jpg"
-
-# TODO: Test that update feed creates feeds with appropriate meta-data, such as channel title, image, etc.

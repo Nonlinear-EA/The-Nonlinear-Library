@@ -435,13 +435,21 @@ def update_podcast_provider_feed(
     feed = update_feed_datum(feed, "channel/description", feed_config.description)
     feed = update_feed_datum(feed, "channel/author", feed_config.author)
     feed = update_feed_datum(feed, "channel/image/url", feed_config.image_url)
-
+    # Update meta-data with custom namespaces
     itunes_summary = feed.find("channel/{%s}summary" % beyondwords_feed_namespaces["itunes"])
     if itunes_summary is None:
         itunes_summary = etree.Element("{%s}summary" % beyondwords_feed_namespaces["itunes"],
                                        nsmap=beyondwords_feed_namespaces)
         itunes_summary.text = feed_config.description
         feed.find("channel").append(itunes_summary)
+
+    itunes_image_tag = "channel/{%s}image" % beyondwords_feed_namespaces["itunes"]
+    itunes_image = feed.find("channel/{%s}image" % beyondwords_feed_namespaces["itunes"])
+    if itunes_image is None:
+        itunes_image = etree.Element(itunes_image_tag, {"href": feed_config.image_url})
+        feed.find("channel").append(itunes_image)
+    else:
+        itunes_image.attrib["href"] = feed_config.image_url
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")
