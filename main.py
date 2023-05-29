@@ -1,3 +1,6 @@
+import logging
+import sys
+
 from feed_processing.configs import af_all_config, beyondwords_ea_config, beyondwords_af_config, beyondwords_lw_config
 from feed_processing.configs import af_daily_config
 from feed_processing.configs import af_weekly_config
@@ -39,6 +42,7 @@ def ea_weekly(a=None, b=None):
 
 def ea_all(a=None, b=None):
     print('running ea_all')
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     update_podcast_provider_feed(ea_all_config(), True)
 
 
