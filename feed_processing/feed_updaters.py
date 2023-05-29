@@ -370,42 +370,32 @@ def filter_entries_by_title_prefix(feed, title_prefix):
                 feed.find('channel').remove(entry)
 
 
-def update_feed_datum(feed, xpath: str, new_value: str, create_element_if_xpath_element_is_none=True):
+def create_feed_element(feed, xpath, namespaces=None):
     element = feed.find(xpath)
-    logger = logging.getLogger("update_feed_datum")
-    if element is None and create_element_if_xpath_element_is_none:
+    if element is None:
         breadcrumbs = xpath.split("/")
         if not breadcrumbs:
-            parent = "/"
-            child = xpath.strip("/")
-        else:
-            parent = "/".join(breadcrumb for breadcrumb in breadcrumbs[:-1])
-            child = breadcrumbs[-1]
-        element = etree.SubElement(feed.find(parent), child)
+            raise ValueError(f"Invalid XPath {breadcrumbs}")
+
+        parent_path = "/".join(breadcrumbs[:-1])
+        child = breadcrumbs[-1]
+        parent = feed.find(parent_path)
+        if parent is None:
+            feed, parent = create_feed_element(feed, parent_path)
+        element = etree.SubElement(parent, child)
+
+    return feed, element
+
+
+def update_feed_datum(feed, xpath: str, new_value: str, namespaces: object = None,
+                      create_element_if_xpath_element_is_none=True):
+    element = feed.find(xpath, namespaces=namespaces)
+    if element is None and create_element_if_xpath_element_is_none:
+        feed, element = create_feed_element(feed, xpath, namespaces)
     elif element is None and not create_element_if_xpath_element_is_none:
         return feed
     element.text = new_value
     return feed
-
-
-def update_feed_channel_title(feed, feed_config: PodcastProviderFeedConfig):
-    channel_title = feed.find("channel/title")
-    if channel_title is None:
-        channel_title = etree.SubElement(feed.find("channel"), "title")
-    channel_title.text = feed_config.title
-    return feed
-
-
-def update_feed_channel_description(feed, feed_config: PodcastProviderFeedConfig):
-    description = feed.find("channel/description")
-    if description is None:
-        description = etree.SubElement(feed.find("channel"), "description")
-    description.text = feed_config.description
-    return feed
-
-
-def update_feed_channel_author(feed, feed_config):
-    return update_feed_datum(feed, "channel/author", feed_config.author)
 
 
 def update_podcast_provider_feed(
@@ -438,12 +428,20 @@ def update_podcast_provider_feed(
     storage = create_storage(feed_config, running_on_gcp)
     feed_for_podcast_apps = storage.read_podcast_feed()
     items_from_beyondwords_output_feed = feed.findall("channel/item")
-    new_items, feed = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
+    new_items, feed = append_new_items_to_feed(items_from_beyondwords_output_feed, feed)
 
     # Update meta-data
     feed = update_feed_datum(feed, "channel/title", feed_config.title)
     feed = update_feed_datum(feed, "channel/description", feed_config.description)
     feed = update_feed_datum(feed, "channel/author", feed_config.author)
+    feed = update_feed_datum(feed, "channel/image/url", feed_config.image_url)
+
+    itunes_summary = feed.find("channel/{%s}summary" % beyondwords_feed_namespaces["itunes"])
+    if itunes_summary is None:
+        itunes_summary = etree.Element("{%s}summary" % beyondwords_feed_namespaces["itunes"],
+                                       nsmap=beyondwords_feed_namespaces)
+        itunes_summary.text = feed_config.description
+        feed.find("channel").append(itunes_summary)
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")
