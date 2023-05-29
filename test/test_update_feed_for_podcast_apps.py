@@ -85,12 +85,12 @@ def test_update_feed_for_podcast_apps_does_not_include_duplicates_in_podcast_fee
                                                            "podcast app feed"]) == 1
 
 
-def test_update_feed_for_podcast_provider_saves_new_items(
+def test_update_feed_for_podcast_provider_adds_new_items_to_feed(
         default_podcast_provider_feed_config,
         storage,
-        mocker, disable_write_podcast_feed
+        mocker,
+        disable_write_podcast_feed
 ):
-    feed_for_podcast_apps = storage.read_podcast_feed("./files/podcast_provider_feed.xml")
     beyondwords_output_feed = storage.read_podcast_feed("./files/beyondwords_output_feed.xml")
     new_item = beyondwords_output_feed.find("channel/item")
     new_item_title = "TF - This is a new item and it should show up in the podcast provider feed after the update"
@@ -102,5 +102,23 @@ def test_update_feed_for_podcast_provider_saves_new_items(
 
     feed_titles = [title.text.strip() for title in feed.findall("channel/item/title")]
     assert new_item_title in feed_titles
-    
+
+
+def test_update_feed_for_podcast_providers_updates_channel_title(
+        default_podcast_provider_feed_config,
+        storage,
+        mocker,
+        disable_write_podcast_feed
+):
+    default_podcast_provider_feed_config.title = "The Nonlinear Library: Test Podcast"
+    beyondwords_output_feed = storage.read_podcast_feed("./files/beyondwords_output_feed.xml")
+    mock_get_feed_tree_from_url = MagicMock(return_value=beyondwords_output_feed)
+    mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
+
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
+
+    feed_channel_title = feed.find("channel/title").text
+
+    assert feed_channel_title == "The Nonlinear Library: Test Podcast"
+
 # TODO: Test that update feed creates feeds with appropriate meta-data, such as channel title, image, etc.
