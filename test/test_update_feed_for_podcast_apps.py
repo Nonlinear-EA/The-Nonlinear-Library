@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from feed_processing.feed_updaters import update_feed_for_podcast_apps
+from feed_processing.feed_updaters import update_podcast_provider_feed
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +29,7 @@ def test_update_feed_for_podcast_apps_discards_new_items_from_forums_that_dont_m
     # Mock the get_feed_tree_from_url, so it returns the modified feed
     mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
 
-    feed = update_feed_for_podcast_apps(default_podcast_provider_feed_config, False)
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
 
     assert all(title.text.split("-")[0].strip() == "AForumPrefix" for title in feed.findall("channel/item/title"))
 
@@ -51,7 +51,7 @@ def test_update_feed_for_podcast_apps_discards_new_items_from_removed_authors(
     mock_get_feed_tree_from_url = MagicMock(return_value=modified_input_feed)
     mocker.patch('feed_processing.feed_updaters.get_feed_tree_from_url', new=mock_get_feed_tree_from_url)
 
-    feed = update_feed_for_podcast_apps(default_podcast_provider_feed_config, False)
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
 
     assert not any(author.text.strip() == "RemovedAuthor" for author in feed.findall("channel/item/author"))
 
@@ -78,10 +78,18 @@ def test_update_feed_for_podcast_apps_does_not_include_duplicates_in_podcast_fee
     mock_get_feed_tree_from_url = MagicMock(return_value=beyondwords_output_feed)
     mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
 
-    feed = update_feed_for_podcast_apps(default_podcast_provider_feed_config, False)
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
 
     feed_titles = [title.text.strip() for title in feed.findall("channel/item/title")]
     assert len([title for title in feed_titles if title == "TF - This post should not be found multiple times in "
                                                            "podcast app feed"]) == 1
 
+
+def test_update_feed_for_podcast_provider_saves_new_items(
+        default_podcast_provider_feed_config,
+        storage,
+        mocker, disable_write_podcast_feed
+):
+    feed_for_podcast_apps = storage.read_podcast_feed("./files/podcast_provider_feed.xml")
+    
 # TODO: Test that update feed creates feeds with appropriate meta-data, such as channel title, image, etc.

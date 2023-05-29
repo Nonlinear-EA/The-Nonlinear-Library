@@ -79,7 +79,7 @@ def ea_all_config():
         gcp_bucket=gcp_bucket_newcode,
         rss_filename='nonlinear-library-aggregated-EA.xml',
         top_post_only=False,
-        removed_authors_file="rss_file/removed_authors.txt"
+        removed_authors_file="rss_files/removed_authors.txt"
     )
 
 

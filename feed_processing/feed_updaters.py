@@ -370,7 +370,7 @@ def filter_entries_by_title_prefix(feed, title_prefix):
                 feed.find('channel').remove(entry)
 
 
-def update_feed_for_podcast_apps(
+def update_podcast_provider_feed(
         feed_config: PodcastProviderFeedConfig,
         running_on_gcp
 ):
@@ -388,28 +388,27 @@ def update_feed_for_podcast_apps(
     logger = logging.getLogger("update_feed_for_podcast_apps")
 
     # Get feed from source
-    beyondwords_output_feed = get_feed_tree_from_url(feed_config.source)
+    feed = get_feed_tree_from_url(feed_config.source)
 
     # Filter out entries from other forums.
-    filter_entries_by_title_prefix(beyondwords_output_feed, feed_config.title_prefix)
+    filter_entries_by_title_prefix(feed, feed_config.title_prefix)
 
     # Filter out entries from removed authors.
-    remove_items_from_removed_authors(beyondwords_output_feed, feed_config, running_on_gcp)
+    remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
 
     # Add new items to the podcast apps feed.
     storage = create_storage(feed_config, running_on_gcp)
     feed_for_podcast_apps = storage.read_podcast_feed()
-    items_from_beyondwords_output_feed = beyondwords_output_feed.findall("channel/item")
+    items_from_beyondwords_output_feed = feed.findall("channel/item")
     new_items = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")
     else:
         logger.info(f"Adding {len(new_items)} to the BeyondWords input feed in {feed_config.rss_filename}")
+        save_feed(feed, storage)
 
-    save_feed(beyondwords_output_feed, storage)
-
-    return beyondwords_output_feed
+    return feed
 
 
 def remove_posts_with_less_than_the_minimum_characters_in_description(feed, min_chars: int):
