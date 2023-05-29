@@ -1,3 +1,5 @@
+import os
+
 from feed_processing.feed_config import PodcastProviderFeedConfig, BeyondWordsInputConfig
 
 beyondwords_rss_output = 'https://audio.beyondwords.io/f/8692/7888/read_8617d3aee53f3ab844a309d37895c143'
@@ -34,10 +36,11 @@ def af_all_config():
         description=podcast_description,
         title_prefix='AF -',
         guid_suffix='_AF',
-        gcp_bucket=gcp_bucket_newcode,
+        gcp_bucket=os.environ["GCP_BUCKET_NAME"],
         rss_filename='nonlinear-library-aggregated-AF.xml',
         top_post_only=False,
-        search_period=None
+        search_period=None,
+        removed_authors_file="removed_authors.txt"
     )
 
 
@@ -85,10 +88,10 @@ def ea_all_config():
         title='The Nonlinear Library: EA Forum',
         description=podcast_description,
         title_prefix='EA - ',
-        gcp_bucket=gcp_bucket_newcode,
+        gcp_bucket=os.environ["GCP_BUCKET_NAME"],
         rss_filename='nonlinear-library-aggregated-EA.xml',
         top_post_only=False,
-        removed_authors_file="rss_files/removed_authors.txt"
+        removed_authors_file="removed_authors.txt"
     )
 
 

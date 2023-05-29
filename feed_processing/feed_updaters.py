@@ -276,7 +276,7 @@ def prepend_website_abbreviation_to_feed_item_titles(feed):
 
 
 def get_feed_str(feed):
-    return etree.tostring(feed, xml_declaration=True)
+    return etree.tostring(feed, xml_declaration=True, encoding='utf-8')
 
 
 def save_feed(feed, storage):
@@ -428,7 +428,7 @@ def update_podcast_provider_feed(
     storage = create_storage(feed_config, running_on_gcp)
     feed_for_podcast_apps = storage.read_podcast_feed()
     items_from_beyondwords_output_feed = feed.findall("channel/item")
-    new_items, feed = append_new_items_to_feed(items_from_beyondwords_output_feed, feed)
+    new_items, feed = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
 
     # Update meta-data
     feed = update_feed_datum(feed, "channel/title", feed_config.title)
@@ -442,20 +442,32 @@ def update_podcast_provider_feed(
                                        nsmap=beyondwords_feed_namespaces)
         itunes_summary.text = feed_config.description
         feed.find("channel").append(itunes_summary)
-
-    itunes_image_tag = "channel/{%s}image" % beyondwords_feed_namespaces["itunes"]
     itunes_image = feed.find("channel/{%s}image" % beyondwords_feed_namespaces["itunes"])
     if itunes_image is None:
-        itunes_image = etree.Element(itunes_image_tag, {"href": feed_config.image_url})
+        itunes_image = etree.Element("{%s}image" % beyondwords_feed_namespaces["itunes"],
+                                     attrib={"href": feed_config.image_url},
+                                     nsmap=beyondwords_feed_namespaces)
         feed.find("channel").append(itunes_image)
     else:
         itunes_image.attrib["href"] = feed_config.image_url
+
+    # Update meta-data of new items
+    for item in feed.findall("channel/item"):
+        feed_itunes_image = item.find("{%s}image" % beyondwords_feed_namespaces["itunes"])
+        if feed_itunes_image is None:
+            item_itunes_image = etree.Element("{%s}image" % beyondwords_feed_namespaces["itunes"],
+                                              attrib={"href": feed_config.image_url},
+                                              nsmap=beyondwords_feed_namespaces)
+            item.append(item_itunes_image)
+        else:
+            feed_itunes_image.attrib["href"] = feed_config.image_url
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")
     else:
         logger.info(f"Adding {len(new_items)} to the BeyondWords input feed in {feed_config.rss_filename}")
-        save_feed(feed, storage)
+
+    save_feed(feed, storage)
 
     return feed
 
