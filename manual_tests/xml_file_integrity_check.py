@@ -57,7 +57,8 @@ if __name__ == '__main__':
         "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-LW-daily.xml",
         "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated-LW-weekly.xml",
         "https://storage.googleapis.com/rssfile/nonlinear-library-aggregated.xml",
-        "https://storage.googleapis.com/newcode/rss_files/nonlinear-library-EA.xml"
+        "https://storage.googleapis.com/newcode/rss_files/nonlinear-library-EA.xml",
+        "https://storage.googleapis.com/newcode/nonlinear-library-aggregated-EA.xml",
     ]
 
     local_xml_files = [

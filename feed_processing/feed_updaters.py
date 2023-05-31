@@ -332,7 +332,12 @@ def get_intro_str(item):
 def edit_item_description(feed):
     for item in feed.findall('channel/item'):
         description_text = item.find('description').text
-        description = f"{get_intro_str(item)} <br/> {description_text} <p>{outro_str}</p>"
+        description_html = BeautifulSoup(description_text, "html.parser")
+        published_on_text = description_html.find_all("p")[0]
+        published_on_text.decompose()
+        description_text = "".join(str(content) for content in description_html.find("body").contents)
+        intro_str = get_intro_str(item)
+        description = f"<p>{intro_str}</p> {description_text} <p>{outro_str}</p>"
         item.find('description').text = etree.CDATA(description)
 
     return feed
