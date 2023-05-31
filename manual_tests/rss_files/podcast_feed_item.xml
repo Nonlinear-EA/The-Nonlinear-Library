@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/",
+     version="2.0">
+    <item>
+        <guid isPermaLink="false">2uNeYiXMs4aQ2hfx9_NL_LW_LW</guid>
+        <title>LW - DandD.Sci 5E: Return of the League of Defenders by aphyer</title>
+        <description>
+            <![CDATA[<a href="https://www.lesswrong.com/posts/2uNeYiXMs4aQ2hfx9/d-and-d-sci-5e-return-of-the-league-of-defenders">Link to original article</a><br/><br/>Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: D&amp;D.Sci 5E: Return of the League of Defenders, published by aphyer on May 26, 2023 on LessWrong.
+This is an entry in the 'Dungeons & Data Science' series, a set of puzzles where players are given a dataset to analyze and an objective to pursue using information from that dataset.
+Note: this is a sequel to the original 'League of Defenders of the Storm' scenario, but uses a different ruleset. If you want to play that one first you can, but it's not necessary to have played that one in order to play this.
+STORY (skippable)
+You've been feeling pretty good about your past successes as an esports advisor on Cloud Liquid Gaming, using your Data Science skills to help them optimize their strategies against rival teams. But recently, you've gotten a very attractive offer from a North American team.
+The one constant in the esports scene is that the US and European teams invariably lose to Korean and Chinese ones. In the recent Mongolian Summer Invitational, no Western team ever beat an Asian one.
+The attempts of Western teams to hire away top Asian players have not helped. Recently, however, the 'Silver Shielders' team had the bright idea of hiring away the support staff rather than the players themselves. And that's where you come in.
+The sequel to the critically acclaimed 'League of Defenders of the Storm' is being released soon. While the full ruleset isn't available, your new employer does have a dataset of results of beta plays of the game, and is hoping for advice. In the upcoming release-day tournament, they're going to send a team of three of their best players to play against a foreign team - and they're hoping that with your help this might not be North America's 185th consecutive loss on the international stage.
+If you can employ your Data Science skills again, perhaps you can reverse the decline of NA as a region. (And get paid a lot. That's good too.)
+DATA & OBJECTIVES
+You need to select a team for your employers to play. You should choose three of the following 15 characters:
+Amazon Archer
+Bludgeon Bandit
+Captain Chakram
+Daring Duelist
+Flamethrower Felon
+Granite Golem
+Hammer Hurler
+Jaunty Javelineer
+Lamellar Legionary
+Matchlock Marauder
+Professor Pyro
+Rugged Ranger
+Silent Samurai
+Thunder Tyrant
+Wily Wizard
+Your goal is to maximize your team's winrate against an opposing team, which your employers believe will be playing the following three characters:
+Flamethrower Felon
+Rugged Ranger
+Silent Samurai
+(Note that you are allowed to select characters your opponents are also playing, but you are not allowed to select the same character more than once).
+To help you with this, you have a dataset of plays of the game. Each entry is a game that was played, the three characters on each team, and which team won.
+BONUS PVP OBJECTIVE
+You may also submit a PVP team. I recommend sending it as a PM to me, but if you don't mind other people seeing it you can just put it in your answer. The PVP team with the best overall record (sum of performances against all other submitted teams) will in theory win the right to specify the theme of an upcoming D&amp;D.Sci scenario. In practice, I still owe the last winner abstractapplic their scenario first, and while I expect to finish that soon I've thought that for at least the past nine months, so maybe don't count on it too much.
+I don't want the existence of a PVP objective to incentivize people too strongly against posting findings in the chat, so as an effort to reduce the risk of your findings being used against you: if multiple people submit the same PVP team, I will break the tie in favor of whoever submits it earlier.
+I'll aim to post the ruleset and results on June 5th (giving one week and both weekends for players). If you find yourself wanting extra time, comment below and I can push this deadline back.
+As usual, working together is ...]]></description>
+        <author>aphyer</author>
+        <link>https://www.lesswrong.com/posts/2uNeYiXMs4aQ2hfx9/d-and-d-sci-5e-return-of-the-league-of-defenders</link>
+        <content:encoded><![CDATA[<a href="https://www.lesswrong.com/posts/2uNeYiXMs4aQ2hfx9/d-and-d-sci-5e-return-of-the-league-of-defenders">Link to original article</a><br/><br/>Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: D&amp;D.Sci 5E: Return of the League of Defenders, published by aphyer on May 26, 2023 on LessWrong.
+This is an entry in the 'Dungeons & Data Science' series, a set of puzzles where players are given a dataset to analyze and an objective to pursue using information from that dataset.
+Note: this is a sequel to the original 'League of Defenders of the Storm' scenario, but uses a different ruleset. If you want to play that one first you can, but it's not necessary to have played that one in order to play this.
+STORY (skippable)
+You've been feeling pretty good about your past successes as an esports advisor on Cloud Liquid Gaming, using your Data Science skills to help them optimize their strategies against rival teams. But recently, you've gotten a very attractive offer from a North American team.
+The one constant in the esports scene is that the US and European teams invariably lose to Korean and Chinese ones. In the recent Mongolian Summer Invitational, no Western team ever beat an Asian one.
+The attempts of Western teams to hire away top Asian players have not helped. Recently, however, the 'Silver Shielders' team had the bright idea of hiring away the support staff rather than the players themselves. And that's where you come in.
+The sequel to the critically acclaimed 'League of Defenders of the Storm' is being released soon. While the full ruleset isn't available, your new employer does have a dataset of results of beta plays of the game, and is hoping for advice. In the upcoming release-day tournament, they're going to send a team of three of their best players to play against a foreign team - and they're hoping that with your help this might not be North America's 185th consecutive loss on the international stage.
+If you can employ your Data Science skills again, perhaps you can reverse the decline of NA as a region. (And get paid a lot. That's good too.)
+DATA & OBJECTIVES
+You need to select a team for your employers to play. You should choose three of the following 15 characters:
+Amazon Archer
+Bludgeon Bandit
+Captain Chakram
+Daring Duelist
+Flamethrower Felon
+Granite Golem
+Hammer Hurler
+Jaunty Javelineer
+Lamellar Legionary
+Matchlock Marauder
+Professor Pyro
+Rugged Ranger
+Silent Samurai
+Thunder Tyrant
+Wily Wizard
+Your goal is to maximize your team's winrate against an opposing team, which your employers believe will be playing the following three characters:
+Flamethrower Felon
+Rugged Ranger
+Silent Samurai
+(Note that you are allowed to select characters your opponents are also playing, but you are not allowed to select the same character more than once).
+To help you with this, you have a dataset of plays of the game. Each entry is a game that was played, the three characters on each team, and which team won.
+BONUS PVP OBJECTIVE
+You may also submit a PVP team. I recommend sending it as a PM to me, but if you don't mind other people seeing it you can just put it in your answer. The PVP team with the best overall record (sum of performances against all other submitted teams) will in theory win the right to specify the theme of an upcoming D&amp;D.Sci scenario. In practice, I still owe the last winner abstractapplic their scenario first, and while I expect to finish that soon I've thought that for at least the past nine months, so maybe don't count on it too much.
+I don't want the existence of a PVP objective to incentivize people too strongly against posting findings in the chat, so as an effort to reduce the risk of your findings being used against you: if multiple people submit the same PVP team, I will break the tie in favor of whoever submits it earlier.
+I'll aim to post the ruleset and results on June 5th (giving one week and both weekends for players). If you find yourself wanting extra time, comment below and I can push this deadline back.
+As usual, working together is ...]]></content:encoded>
+        <enclosure length="4896524" type="audio/mpeg"
+                   url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6946301/media/cedd84d6ed2eade0e1bcebc24401fb3d_compiled.mp3"/>
+        <pubDate>Sun, 28 May 2023 17:25:44 +0000</pubDate>
+        <itunes:title>LW - DandD.Sci 5E: Return of the League of Defenders by aphyer</itunes:title>
+        <itunes:subtitle><![CDATA[<a href="https://www.lesswrong.com/posts/2uNeYiXMs4aQ2hfx9/d-and-d-sci-5e-return-of-the-league-of-defenders">Link to original article</a><br/><br/>Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: D&amp;D.Sci 5E: Return of the League of Defenders, published by aphyer on May 26, 2023 on LessWrong.
+This is an entry in the 'Dungeons & Data Science' series, a set of puzzles where players are given a dataset to analyze and an objective to pursue using information from that dataset.
+Note: this is a sequel to the original 'League of Defenders of the Storm' scenario, but uses a different ruleset. If you want to play that one first you can, but it's not necessary to have played that one in order to play this.
+STORY (skippable)
+You've been feeling pretty good about your past successes as an esports advisor on Cloud Liquid Gaming, using your Data Science skills to help them optimize their strategies against rival teams. But recently, you've gotten a very attractive offer from a North American team.
+The one constant in the esports scene is that the US and European teams invariably lose to Korean and Chinese ones. In the recent Mongolian Summer Invitational, no Western team ever beat an Asian one.
+The attempts of Western teams to hire away top Asian players have not helped. Recently, however, the 'Silver Shielders' team had the bright idea of hiring away the support staff rather than the players themselves. And that's where you come in.
+The sequel to the critically acclaimed 'League of Defenders of the Storm' is being released soon. While the full ruleset isn't available, your new employer does have a dataset of results of beta plays of the game, and is hoping for advice. In the upcoming release-day tournament, they're going to send a team of three of their best players to play against a foreign team - and they're hoping that with your help this might not be North America's 185th consecutive loss on the international stage.
+If you can employ your Data Science skills again, perhaps you can reverse the decline of NA as a region. (And get paid a lot. That's good too.)
+DATA & OBJECTIVES
+You need to select a team for your employers to play. You should choose three of the following 15 characters:
+Amazon Archer
+Bludgeon Bandit
+Captain Chakram
+Daring Duelist
+Flamethrower Felon
+Granite Golem
+Hammer Hurler
+Jaunty Javelineer
+Lamellar Legionary
+Matchlock Marauder
+Professor Pyro
+Rugged Ranger
+Silent Samurai
+Thunder Tyrant
+Wily Wizard
+Your goal is to maximize your team's winrate against an opposing team, which your employers believe will be playing the following three characters:
+Flamethrower Felon
+Rugged Ranger
+Silent Samurai
+(Note that you are allowed to select characters your opponents are also playing, but you are not allowed to select the same character more than once).
+To help you with this, you have a dataset of plays of the game. Each entry is a game that was played, the three characters on each team, and which team won.
+BONUS PVP OBJECTIVE
+You may also submit a PVP team. I recommend sending it as a PM to me, but if you don't mind other people seeing it you can just put it in your answer. The PVP team with the best overall record (sum of performances against all other submitted teams) will in theory win the right to specify the theme of an upcoming D&amp;D.Sci scenario. In practice, I still owe the last winner abstractapplic their scenario first, and while I expect to finish that soon I've thought that for at least the past nine months, so maybe don't count on it too much.
+I don't want the existence of a PVP objective to incentivize people too strongly against posting findings in the chat, so as an effort to reduce the risk of your findings being used against you: if multiple people submit the same PVP team, I will break the tie in favor of whoever submits it earlier.
+I'll aim to post the ruleset and results on June 5th (giving one week and both weekends for players). If you find yourself wanting extra time, comment below and I can push this deadline back.
+As usual, working together is ...]]></itunes:subtitle>
+        <itunes:summary><![CDATA[<a href="https://www.lesswrong.com/posts/2uNeYiXMs4aQ2hfx9/d-and-d-sci-5e-return-of-the-league-of-defenders">Link to original article</a><br/><br/>Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: D&amp;D.Sci 5E: Return of the League of Defenders, published by aphyer on May 26, 2023 on LessWrong.
+This is an entry in the 'Dungeons & Data Science' series, a set of puzzles where players are given a dataset to analyze and an objective to pursue using information from that dataset.
+Note: this is a sequel to the original 'League of Defenders of the Storm' scenario, but uses a different ruleset. If you want to play that one first you can, but it's not necessary to have played that one in order to play this.
+STORY (skippable)
+You've been feeling pretty good about your past successes as an esports advisor on Cloud Liquid Gaming, using your Data Science skills to help them optimize their strategies against rival teams. But recently, you've gotten a very attractive offer from a North American team.
+The one constant in the esports scene is that the US and European teams invariably lose to Korean and Chinese ones. In the recent Mongolian Summer Invitational, no Western team ever beat an Asian one.
+The attempts of Western teams to hire away top Asian players have not helped. Recently, however, the 'Silver Shielders' team had the bright idea of hiring away the support staff rather than the players themselves. And that's where you come in.
+The sequel to the critically acclaimed 'League of Defenders of the Storm' is being released soon. While the full ruleset isn't available, your new employer does have a dataset of results of beta plays of the game, and is hoping for advice. In the upcoming release-day tournament, they're going to send a team of three of their best players to play against a foreign team - and they're hoping that with your help this might not be North America's 185th consecutive loss on the international stage.
+If you can employ your Data Science skills again, perhaps you can reverse the decline of NA as a region. (And get paid a lot. That's good too.)
+DATA & OBJECTIVES
+You need to select a team for your employers to play. You should choose three of the following 15 characters:
+Amazon Archer
+Bludgeon Bandit
+Captain Chakram
+Daring Duelist
+Flamethrower Felon
+Granite Golem
+Hammer Hurler
+Jaunty Javelineer
+Lamellar Legionary
+Matchlock Marauder
+Professor Pyro
+Rugged Ranger
+Silent Samurai
+Thunder Tyrant
+Wily Wizard
+Your goal is to maximize your team's winrate against an opposing team, which your employers believe will be playing the following three characters:
+Flamethrower Felon
+Rugged Ranger
+Silent Samurai
+(Note that you are allowed to select characters your opponents are also playing, but you are not allowed to select the same character more than once).
+To help you with this, you have a dataset of plays of the game. Each entry is a game that was played, the three characters on each team, and which team won.
+BONUS PVP OBJECTIVE
+You may also submit a PVP team. I recommend sending it as a PM to me, but if you don't mind other people seeing it you can just put it in your answer. The PVP team with the best overall record (sum of performances against all other submitted teams) will in theory win the right to specify the theme of an upcoming D&amp;D.Sci scenario. In practice, I still owe the last winner abstractapplic their scenario first, and while I expect to finish that soon I've thought that for at least the past nine months, so maybe don't count on it too much.
+I don't want the existence of a PVP objective to incentivize people too strongly against posting findings in the chat, so as an effort to reduce the risk of your findings being used against you: if multiple people submit the same PVP team, I will break the tie in favor of whoever submits it earlier.
+I'll aim to post the ruleset and results on June 5th (giving one week and both weekends for players). If you find yourself wanting extra time, comment below and I can push this deadline back.
+As usual, working together is ...]]></itunes:summary>
+        <itunes:author>aphyer</itunes:author>
+        <itunes:image>https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong.png
+        </itunes:image>
+        <itunes:duration>04:04</itunes:duration>
+        <itunes:keywords></itunes:keywords>
+        <itunes:explicit>None</itunes:explicit>
+        <itunes:episodeType>full</itunes:episodeType>
+        <itunes:episode>6092</itunes:episode>
+    </item>
+    <item>
+        <guid isPermaLink="false">ByqKwsYK6rH6AYNDY_NL_LW_LW</guid>
+        <title>LW - You now can enable reacts on your own posts! (and other react info) by Ruby</title>
+        <description><![CDATA[<a href="https://www.lesswrong.com/posts/ByqKwsYK6rH6AYNDY/you-now-can-enable-reacts-on-your-own-posts-and-other-react">Link to original article</a><br/><br/>Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: You now can enable reacts on your own posts! (and other react info), published by Ruby on May 28, 2023 on LessWrong.
+LessWrong is experimenting with the addition of reacts to the site, as per the recent experimental Open Thread. We are now progressing to the next stage of the experiment: trying out reacts in actual discussion threads.
+The dev/moderator team will be proactively looking for posts to enable to react voting on (with author permission), but also any user can enable it themselves to help us experiment:
+When creating or editing a post, expand the "Options" section at the bottom and change the Voting system to Names-attached reactions
+The admins will also be on the lookout for good posts to enable reacts on (with author permission).
+Iterating on the react palette
+We're continuing to think about what reacts should be available. Thanks to everyone who's weighed in so far.
+I just spent time today and yesterday adding a range of new reacts and sorting them, with a focus on reacts that express LessWrong-style conversational moves. Hover-overs tooltips have a longer description that you can view on the live thing (reacts are enabled on this post).
+We'll be tracking which ones get used, but please comment here with further feedback and requests. In other places, it'd be cool if people said things like "wish I could react with X" for various values of X.
+Different palette views
+Raemon made it so you can change how you view the palette. See the options at the top there:
+The options are:
+List
+Mixed List and Grid
+Grid of Icons (no text)
+Grid with Names
+Long-term I expect we'll have just one view, but we've made several available so people can give feedback on which they prefer.
+Currently live reacts are getting tweaked and might shift slightly
+Reacts are experimental! We're continuing to add new reacts but also edit and delete existing ones. This means that some reacts will be deprecated (and might disappear) and also that some will have their meaning tweaked. E.g. we might change the "Roll to disbelieve" react to just be "Skeptical", and things like that. So during this experimental phase, be warned that people might have clicked a react with a slightly adjacent meaning. We'll try to avoid doing this too much.
+Reacts aren't ready for mobile yet
+It's a large design challenge to make reacts work on mobile as well as desktop, so we'll do that if the experiment seems worth turning into a permanent site feature. Till then, you'll have the most luck with reacts on desktop.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]></description>
+        <author>Ruby</author>
+        <link>
+            https://www.lesswrong.com/posts/ByqKwsYK6rH6AYNDY/you-now-can-enable-reacts-on-your-own-posts-and-other-react
+        </link>
+        <content:encoded><![CDATA[<a href="https://www.lesswrong.com/posts/ByqKwsYK6rH6AYNDY/you-now-can-enable-reacts-on-your-own-posts-and-other-react">Link to original article</a><br/><br/>Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: You now can enable reacts on your own posts! (and other react info), published by Ruby on May 28, 2023 on LessWrong.
+LessWrong is experimenting with the addition of reacts to the site, as per the recent experimental Open Thread. We are now progressing to the next stage of the experiment: trying out reacts in actual discussion threads.
+The dev/moderator team will be proactively looking for posts to enable to react voting on (with author permission), but also any user can enable it themselves to help us experiment:
+When creating or editing a post, expand the "Options" section at the bottom and change the Voting system to Names-attached reactions
+The admins will also be on the lookout for good posts to enable reacts on (with author permission).
+Iterating on the react palette
+We're continuing to think about what reacts should be available. Thanks to everyone who's weighed in so far.
+I just spent time today and yesterday adding a range of new reacts and sorting them, with a focus on reacts that express LessWrong-style conversational moves. Hover-overs tooltips have a longer description that you can view on the live thing (reacts are enabled on this post).
+We'll be tracking which ones get used, but please comment here with further feedback and requests. In other places, it'd be cool if people said things like "wish I could react with X" for various values of X.
+Different palette views
+Raemon made it so you can change how you view the palette. See the options at the top there:
+The options are:
+List
+Mixed List and Grid
+Grid of Icons (no text)
+Grid with Names
+Long-term I expect we'll have just one view, but we've made several available so people can give feedback on which they prefer.
+Currently live reacts are getting tweaked and might shift slightly
+Reacts are experimental! We're continuing to add new reacts but also edit and delete existing ones. This means that some reacts will be deprecated (and might disappear) and also that some will have their meaning tweaked. E.g. we might change the "Roll to disbelieve" react to just be "Skeptical", and things like that. So during this experimental phase, be warned that people might have clicked a react with a slightly adjacent meaning. We'll try to avoid doing this too much.
+Reacts aren't ready for mobile yet
+It's a large design challenge to make reacts work on mobile as well as desktop, so we'll do that if the experiment seems worth turning into a permanent site feature. Till then, you'll have the most luck with reacts on desktop.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]></content:encoded>
+        <enclosure length="2989964" type="audio/mpeg"
+                   url="https://d22tbkdovk5ea2.cloudfront.net/audio/projects/8692/podcasts/6945646/media/3d930de04496cfc2f971310b6746fb87_compiled.mp3"/>
+        <pubDate>Sun, 28 May 2023 14:05:21 +0000</pubDate>
+        <itunes:title>LW - You now can enable reacts on your own posts! (and other react info) by Ruby</itunes:title>
+        <itunes:subtitle><![CDATA[<a href="https://www.lesswrong.com/posts/ByqKwsYK6rH6AYNDY/you-now-can-enable-reacts-on-your-own-posts-and-other-react">Link to original article</a><br/><br/>Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: You now can enable reacts on your own posts! (and other react info), published by Ruby on May 28, 2023 on LessWrong.
+LessWrong is experimenting with the addition of reacts to the site, as per the recent experimental Open Thread. We are now progressing to the next stage of the experiment: trying out reacts in actual discussion threads.
+The dev/moderator team will be proactively looking for posts to enable to react voting on (with author permission), but also any user can enable it themselves to help us experiment:
+When creating or editing a post, expand the "Options" section at the bottom and change the Voting system to Names-attached reactions
+The admins will also be on the lookout for good posts to enable reacts on (with author permission).
+Iterating on the react palette
+We're continuing to think about what reacts should be available. Thanks to everyone who's weighed in so far.
+I just spent time today and yesterday adding a range of new reacts and sorting them, with a focus on reacts that express LessWrong-style conversational moves. Hover-overs tooltips have a longer description that you can view on the live thing (reacts are enabled on this post).
+We'll be tracking which ones get used, but please comment here with further feedback and requests. In other places, it'd be cool if people said things like "wish I could react with X" for various values of X.
+Different palette views
+Raemon made it so you can change how you view the palette. See the options at the top there:
+The options are:
+List
+Mixed List and Grid
+Grid of Icons (no text)
+Grid with Names
+Long-term I expect we'll have just one view, but we've made several available so people can give feedback on which they prefer.
+Currently live reacts are getting tweaked and might shift slightly
+Reacts are experimental! We're continuing to add new reacts but also edit and delete existing ones. This means that some reacts will be deprecated (and might disappear) and also that some will have their meaning tweaked. E.g. we might change the "Roll to disbelieve" react to just be "Skeptical", and things like that. So during this experimental phase, be warned that people might have clicked a react with a slightly adjacent meaning. We'll try to avoid doing this too much.
+Reacts aren't ready for mobile yet
+It's a large design challenge to make reacts work on mobile as well as desktop, so we'll do that if the experiment seems worth turning into a permanent site feature. Till then, you'll have the most luck with reacts on desktop.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]></itunes:subtitle>
+        <itunes:summary><![CDATA[<a href="https://www.lesswrong.com/posts/ByqKwsYK6rH6AYNDY/you-now-can-enable-reacts-on-your-own-posts-and-other-react">Link to original article</a><br/><br/>Welcome to The Nonlinear Library, where we use Text-to-Speech software to convert the best writing from the Rationalist and EA communities into audio. This is: You now can enable reacts on your own posts! (and other react info), published by Ruby on May 28, 2023 on LessWrong.
+LessWrong is experimenting with the addition of reacts to the site, as per the recent experimental Open Thread. We are now progressing to the next stage of the experiment: trying out reacts in actual discussion threads.
+The dev/moderator team will be proactively looking for posts to enable to react voting on (with author permission), but also any user can enable it themselves to help us experiment:
+When creating or editing a post, expand the "Options" section at the bottom and change the Voting system to Names-attached reactions
+The admins will also be on the lookout for good posts to enable reacts on (with author permission).
+Iterating on the react palette
+We're continuing to think about what reacts should be available. Thanks to everyone who's weighed in so far.
+I just spent time today and yesterday adding a range of new reacts and sorting them, with a focus on reacts that express LessWrong-style conversational moves. Hover-overs tooltips have a longer description that you can view on the live thing (reacts are enabled on this post).
+We'll be tracking which ones get used, but please comment here with further feedback and requests. In other places, it'd be cool if people said things like "wish I could react with X" for various values of X.
+Different palette views
+Raemon made it so you can change how you view the palette. See the options at the top there:
+The options are:
+List
+Mixed List and Grid
+Grid of Icons (no text)
+Grid with Names
+Long-term I expect we'll have just one view, but we've made several available so people can give feedback on which they prefer.
+Currently live reacts are getting tweaked and might shift slightly
+Reacts are experimental! We're continuing to add new reacts but also edit and delete existing ones. This means that some reacts will be deprecated (and might disappear) and also that some will have their meaning tweaked. E.g. we might change the "Roll to disbelieve" react to just be "Skeptical", and things like that. So during this experimental phase, be warned that people might have clicked a react with a slightly adjacent meaning. We'll try to avoid doing this too much.
+Reacts aren't ready for mobile yet
+It's a large design challenge to make reacts work on mobile as well as desktop, so we'll do that if the experiment seems worth turning into a permanent site feature. Till then, you'll have the most luck with reacts on desktop.
+Thanks for listening. To help us out with The Nonlinear Library or to learn more, please visit nonlinear.org.]]></itunes:summary>
+        <itunes:author>Ruby</itunes:author>
+        <itunes:image>https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong.png
+        </itunes:image>
+        <itunes:duration>02:29</itunes:duration>
+        <itunes:keywords></itunes:keywords>
+        <itunes:explicit>None</itunes:explicit>
+        <itunes:episodeType>full</itunes:episodeType>
+        <itunes:episode>6091</itunes:episode>
+    </item>
+</rss>

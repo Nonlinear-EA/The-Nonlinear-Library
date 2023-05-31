@@ -548,6 +548,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     feed = append_author_to_item_titles(feed)
 
     new_feed_items = feed.findall('channel/item')
+    
     if not new_feed_items:
         logger.info("No new items to add to BeyondWords input feed.")
 

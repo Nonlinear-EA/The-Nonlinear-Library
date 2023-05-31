@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss
+        xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[LessWrong]]></title>
+        <description><![CDATA[A community blog devoted to refining the art of rationality]]></description>
+        <link>https://www.lesswrong.com</link>
+        <image>
+            <url>https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico</url>
+            <title>LessWrong</title>
+            <link>https://www.lesswrong.com</link>
+        </image>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Sat, 22 Apr 2023 22:00:06 GMT</lastBuildDate>
+        <atom:link href="https://www.lesswrong.com/feed.xml?view=community-rss&amp;karmaThreshold=30" rel="self"
+                   type="application/rss+xml"/>
+    </channel>
+</rss>
