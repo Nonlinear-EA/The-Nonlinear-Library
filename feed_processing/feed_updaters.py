@@ -330,11 +330,16 @@ def get_intro_str(item):
 
 
 def edit_item_description(feed):
+    logger = logging.getLogger("FeedUpdating")
     for item in feed.findall('channel/item'):
         description_text = item.find('description').text
         description_html = BeautifulSoup(description_text, "html.parser")
         published_on_text = description_html.find_all("p")[0]
         published_on_text.decompose()
+        description_contents = description_html.find("body").contents
+        if not description_contents:
+            item_title = item.find("title").text
+            logger.warning(f"Description for post titled {item_title} seems to be empty!")
         description_text = "".join(str(content) for content in description_html.find("body").contents)
         intro_str = get_intro_str(item)
         description = f"<p>{intro_str}</p> {description_text} <p>{outro_str}</p>"
@@ -548,7 +553,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     feed = append_author_to_item_titles(feed)
 
     new_feed_items = feed.findall('channel/item')
-    
+
     if not new_feed_items:
         logger.info("No new items to add to BeyondWords input feed.")
 
