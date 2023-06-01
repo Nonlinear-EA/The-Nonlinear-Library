@@ -336,11 +336,9 @@ def edit_item_description(feed):
         description_html = BeautifulSoup(description_text, "html.parser")
         published_on_text = description_html.find_all("p")[0]
         published_on_text.decompose()
-        description_contents = description_html.find("body")
-        if not description_contents or description_contents is None:
-            item_title = item.find("title").text
-            logger.warning(f"Description for post titled {item_title} seems to be empty!")
-            print(f"Description for post titled {item_title} seems to be empty!")
+        # description_contents = description_html.find("body")
+        item_title = item.find("title").text
+        print(f"Description for post titled {item_title} seems to be empty!")
         description_text = "".join(str(content) for content in description_html.find("body").contents)
         intro_str = get_intro_str(item)
         description = f"<p>{intro_str}</p> {description_text} <p>{outro_str}</p>"
