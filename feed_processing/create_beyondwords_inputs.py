@@ -22,7 +22,7 @@ def main_create_beyondwords_nonlinear_library_project_inputs(local: False):
         },
         'sources': {
             'list': [
-                'https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
+                # 'https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
                 'https://www.lesswrong.com/feed.xml?view=community-rss&karmaThreshold=30',
                 'https://www.alignmentforum.org/feed.xml?view=community-rss&karmaThreshold=0'
             ]

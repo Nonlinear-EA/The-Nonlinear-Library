@@ -183,14 +183,14 @@ def beyondwords_ea_config():
     return BeyondWordsInputConfig(
         author=nll_author,
         email=nonlinear_email,
-        gcp_bucket=gcp_bucket_newcode,
+        gcp_bucket=os.environ["GCP_BUCKET_NAME"],
         source='https://forum.effectivealtruism.org/feed.xml?view=community-rss&karmaThreshold=25',
         max_entries=30,
-        rss_filename='rss_files/nonlinear-library-EA.xml',
-        relevant_feeds=['rss_files/nonlinear-library-EA.xml',
-                        'rss_files/nonlinear-library-AF.xml',
-                        'rss_files/nonlinear-library-LW.xml'],
-        removed_authors_file="rss_files/removed_authors.txt",
+        rss_filename='nonlinear-library-EA.xml',
+        relevant_feeds=['nonlinear-library-EA.xml',
+                        'nonlinear-library-AF.xml',
+                        'nonlinear-library-LW.xml'],
+        removed_authors_file="removed_authors.txt",
     )
 
 
