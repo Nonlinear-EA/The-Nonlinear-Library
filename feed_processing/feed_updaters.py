@@ -340,6 +340,7 @@ def edit_item_description(feed):
         if not description_contents:
             item_title = item.find("title").text
             logger.warning(f"Description for post titled {item_title} seems to be empty!")
+            print(f"Description for post titled {item_title} seems to be empty!")
         description_text = "".join(str(content) for content in description_html.find("body").contents)
         intro_str = get_intro_str(item)
         description = f"<p>{intro_str}</p> {description_text} <p>{outro_str}</p>"
