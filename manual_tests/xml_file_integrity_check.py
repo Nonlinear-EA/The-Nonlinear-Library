@@ -64,5 +64,4 @@ if __name__ == '__main__':
     local_xml_files = [
         "./integrity_check_files/nonlinear-library-aggregated-EA.xml"
     ]
-    # check_xml_files_integrity(xml_files_urls, running_on_gcp=False)
     check_xml_files_integrity(local_xml_files, running_on_gcp=False)
