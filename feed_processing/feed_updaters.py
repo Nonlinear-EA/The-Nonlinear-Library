@@ -467,9 +467,9 @@ def update_podcast_provider_feed(
             feed_itunes_image.attrib["href"] = feed_config.image_url
 
     if not new_items:
-        logger.info("No new items to add to BeyondWords input feed.")
+        logger.info("No new items to add to podcast provider feed input feed.")
     else:
-        logger.info(f"Adding {len(new_items)} to the BeyondWords input feed in {feed_config.rss_filename}")
+        logger.info(f"Adding {len(new_items)} to the podcast provider feed in {feed_config.rss_filename}")
 
     save_feed(feed, storage)
 
