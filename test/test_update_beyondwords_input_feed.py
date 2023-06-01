@@ -151,3 +151,38 @@ def test_forum_items_that_are_already_present_in_beyondwords_feed_are_discarded(
     titles = [title.text.strip() for title in beyondwords_input_feed.findall("channel/item/title") if
               duplicate_item_title in title.text.strip()]
     assert len(titles) == 1
+
+
+def test_published_on_date_string_is_removed_from_the_item_description(
+        default_beyondwords_input_config,
+        disable_write_podcast_feed,
+        storage,
+        mocker
+):
+    """
+    Test that the description of an item, which contains a string like 'Published on May 30, 2023 2:24 PM GMT' is
+    removed from the description.
+
+    """
+    forum_feed = storage.read_podcast_feed("./files/forum_feed.xml")
+    item_title = "Check that date is removed from description"
+    item_description = """
+        <![CDATA[Published on May 30, 2023 2:24 PM GMT<br/><br/>
+        <p>This is a paragraph</p>
+        <p>This is another paragraph</p>
+        ]]
+    """
+    default_beyondwords_input_config.min_chars = 20
+    forum_feed.find("channel/item/description").text = item_description
+    forum_feed.find("channel/item/title").text = item_title
+    # Mock get_feed_tree_from_url, so it returns the modified feed.
+    mock_get_feed_tree_from_url = MagicMock(return_value=forum_feed)
+    mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
+
+    beyondwords_input_feed = update_beyondwords_input_feed(default_beyondwords_input_config, running_on_gcp=False)
+
+    # Retrieve the processed item
+    item = next(
+        filter(lambda _item: item_title in _item.find("title").text, beyondwords_input_feed.findall("channel/item")),
+        None)
+    assert "Published on May 30, 2023 2:24 PM GMT<" not in item.find("description").text
