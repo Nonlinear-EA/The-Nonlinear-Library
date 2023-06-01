@@ -42,7 +42,7 @@ def ea_weekly(a=None, b=None):
 
 def ea_all(a=None, b=None):
     print('running ea_all')
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     update_podcast_provider_feed(ea_all_config(), True)
 
 
