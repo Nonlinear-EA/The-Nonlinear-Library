@@ -22,6 +22,7 @@ class PodcastProviderFeedConfig(BaseFeedConfig):
     image_url: str
     gcp_bucket: str
     title: str
+    description: str
     guid_suffix: str = None
     search_period: SearchPeriod | None = None
     title_prefix: str = None

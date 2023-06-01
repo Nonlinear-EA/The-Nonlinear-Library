@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from lxml import etree
-from lxml.etree import XMLParser, Element
+from lxml.etree import XMLParser, Element, CDATA
 
 from feed_processing.configs import beyondwords_feed_namespaces
 from feed_processing.feed_config import PodcastProviderFeedConfig, BaseFeedConfig, BeyondWordsInputConfig
@@ -276,7 +276,7 @@ def prepend_website_abbreviation_to_feed_item_titles(feed):
 
 
 def get_feed_str(feed):
-    return etree.tostring(feed, xml_declaration=True)
+    return etree.tostring(feed, xml_declaration=True, encoding='utf-8')
 
 
 def save_feed(feed, storage):
@@ -300,7 +300,7 @@ def append_new_items_to_feed(new_items, feed):
         if not item_title_is_duplicate(item.find("title").text, existing_titles):
             feed.find('channel').append(item)
             appended_items += [item]
-    return appended_items
+    return appended_items, feed
 
 
 def add_author_tag_to_feed_items(feed):
@@ -313,7 +313,7 @@ def add_author_tag_to_feed_items(feed):
 
 def append_author_to_item_titles(feed):
     for item in feed.findall('channel/item'):
-        item.find('title').text = f'{item.find("title").text.strip()} by {item.find("author").text.strip()}'
+        item.find('title').text = CDATA(f'{item.find("title").text.strip()} by {item.find("author").text.strip()}')
     return feed
 
 
@@ -330,18 +330,14 @@ def get_intro_str(item):
 
 
 def edit_item_description(feed):
+    logger = logging.getLogger("FeedUpdating")
     for item in feed.findall('channel/item'):
-        intro_str = get_intro_str(item)
         description_text = item.find('description').text
-        description_html = BeautifulSoup(description_text, 'html.parser')
-        content = "<br/>".join([str(paragraph) for paragraph in description_html.find_all('p')[1:]])
-        content_text = intro_str + content + outro_str
-        item.find('description').text = etree.CDATA(intro_str)
-
-        if item.find('content'):
-            item.find('content').text = etree.CDATA(content_text)
-        else:
-            item.append(cdata_element('content', content_text))
+        description_html = BeautifulSoup(description_text, "html.parser")
+        description_text_without_date = "".join(str(content) for content in description_html.contents[3:])
+        intro_str = get_intro_str(item)
+        description = f"<p>{intro_str}</p> {description_text_without_date} <p>{outro_str}</p>"
+        item.find('description').text = etree.CDATA(description)
 
     return feed
 
@@ -378,7 +374,35 @@ def filter_entries_by_title_prefix(feed, title_prefix):
                 feed.find('channel').remove(entry)
 
 
-def update_feed_for_podcast_apps(
+def create_feed_element(feed, xpath, namespaces=None):
+    element = feed.find(xpath)
+    if element is None:
+        breadcrumbs = xpath.split("/")
+        if not breadcrumbs:
+            raise ValueError(f"Invalid XPath {breadcrumbs}")
+
+        parent_path = "/".join(breadcrumbs[:-1])
+        child = breadcrumbs[-1]
+        parent = feed.find(parent_path)
+        if parent is None:
+            feed, parent = create_feed_element(feed, parent_path)
+        element = etree.SubElement(parent, child)
+
+    return feed, element
+
+
+def update_feed_datum(feed, xpath: str, new_value: str, namespaces: object = None,
+                      create_element_if_xpath_element_is_none=True):
+    element = feed.find(xpath, namespaces=namespaces)
+    if element is None and create_element_if_xpath_element_is_none:
+        feed, element = create_feed_element(feed, xpath, namespaces)
+    elif element is None and not create_element_if_xpath_element_is_none:
+        return feed
+    element.text = new_value
+    return feed
+
+
+def update_podcast_provider_feed(
         feed_config: PodcastProviderFeedConfig,
         running_on_gcp
 ):
@@ -396,31 +420,63 @@ def update_feed_for_podcast_apps(
     logger = logging.getLogger("update_feed_for_podcast_apps")
 
     # Get feed from source
-    beyondwords_output_feed = get_feed_tree_from_url(feed_config.source)
+    feed = get_feed_tree_from_url(feed_config.source)
 
     # Filter out entries from other forums.
-    filter_entries_by_title_prefix(beyondwords_output_feed, feed_config.title_prefix)
+    filter_entries_by_title_prefix(feed, feed_config.title_prefix)
 
     # Filter out entries from removed authors.
-    remove_items_from_removed_authors(beyondwords_output_feed, feed_config, running_on_gcp)
+    remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
 
     # Add new items to the podcast apps feed.
     storage = create_storage(feed_config, running_on_gcp)
     feed_for_podcast_apps = storage.read_podcast_feed()
-    items_from_beyondwords_output_feed = beyondwords_output_feed.findall("channel/item")
-    new_items = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
+    items_from_beyondwords_output_feed = feed.findall("channel/item")
+    new_items, feed = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
+
+    # Update meta-data
+    feed = update_feed_datum(feed, "channel/title", feed_config.title)
+    feed = update_feed_datum(feed, "channel/description", feed_config.description)
+    feed = update_feed_datum(feed, "channel/author", feed_config.author)
+    feed = update_feed_datum(feed, "channel/image/url", feed_config.image_url)
+    # Update meta-data with custom namespaces
+    itunes_summary = feed.find("channel/{%s}summary" % beyondwords_feed_namespaces["itunes"])
+    if itunes_summary is None:
+        itunes_summary = etree.Element("{%s}summary" % beyondwords_feed_namespaces["itunes"],
+                                       nsmap=beyondwords_feed_namespaces)
+        itunes_summary.text = feed_config.description
+        feed.find("channel").append(itunes_summary)
+    itunes_image = feed.find("channel/{%s}image" % beyondwords_feed_namespaces["itunes"])
+    if itunes_image is None:
+        itunes_image = etree.Element("{%s}image" % beyondwords_feed_namespaces["itunes"],
+                                     attrib={"href": feed_config.image_url},
+                                     nsmap=beyondwords_feed_namespaces)
+        feed.find("channel").append(itunes_image)
+    else:
+        itunes_image.attrib["href"] = feed_config.image_url
+
+    # Update meta-data of new items
+    for item in feed.findall("channel/item"):
+        feed_itunes_image = item.find("{%s}image" % beyondwords_feed_namespaces["itunes"])
+        if feed_itunes_image is None:
+            item_itunes_image = etree.Element("{%s}image" % beyondwords_feed_namespaces["itunes"],
+                                              attrib={"href": feed_config.image_url},
+                                              nsmap=beyondwords_feed_namespaces)
+            item.append(item_itunes_image)
+        else:
+            feed_itunes_image.attrib["href"] = feed_config.image_url
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")
     else:
         logger.info(f"Adding {len(new_items)} to the BeyondWords input feed in {feed_config.rss_filename}")
 
-    save_feed(beyondwords_output_feed, storage)
+    save_feed(feed, storage)
 
-    return beyondwords_output_feed
+    return feed
 
 
-def remove_posts_with_short_description(feed, min_chars: int):
+def remove_posts_with_less_than_the_minimum_characters_in_description(feed, min_chars: int):
     for item in feed.findall('channel/item'):
         if len(item.find("description").text) < min_chars:
             feed.find('channel').remove(item)
@@ -428,12 +484,23 @@ def remove_posts_with_short_description(feed, min_chars: int):
     return feed
 
 
-def remove_posts_without_paragraphs(feed):
+def remove_posts_without_paragraphs_in_description(feed):
     for item in feed.findall('channel/item'):
         description_html = BeautifulSoup(item.find('description').text, 'html.parser')
         if len(description_html.find_all('p')) < 1:
             feed.find('channel').remove(item)
             print(f"Removed item '{item.find('title').text}' due to empty content, possibly a cross post.")
+
+    return feed
+
+
+def add_content_to_feed_items(feed):
+    for item in feed.findall("channel/item"):
+        intro_str = get_intro_str(item)
+        description_text = item.find('description').text
+        content_text = intro_str + description_text + outro_str
+        content_element = etree.SubElement(item, "content")
+        content_element.text = CDATA(content_text)
 
     return feed
 
@@ -458,44 +525,36 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
     titles_from_other_feeds = reduce(concatenate_item_titles, config.relevant_feeds, [])
 
     # Remove duplicates from other relevant feeds.
-    remove_items_also_found_in_other_relevant_files(feed, titles_from_other_feeds)
+    feed = remove_items_also_found_in_other_relevant_files(feed, titles_from_other_feeds)
 
     # The author tag is used to remove posts from removed authors, append it to each item
-    add_author_tag_to_feed_items(feed)
+    feed = add_author_tag_to_feed_items(feed)
 
-    # Remove items that might be cross posts or have very short content.
-    remove_posts_without_paragraphs(feed)
-    remove_posts_with_short_description(feed, config.min_chars)
+    # Remove items that are too short.
+    feed = remove_posts_without_paragraphs_in_description(feed)
+    feed = remove_posts_with_less_than_the_minimum_characters_in_description(feed, config.min_chars)
 
     # Appends intro and outro to description and creates content tag if not present.
-    edit_item_description(feed)
+    # Create content tag.
+    feed = edit_item_description(feed)
 
-    remove_items_from_removed_authors(feed, config, running_on_gcp)
+    feed = remove_items_from_removed_authors(feed, config, running_on_gcp)
 
     # Modify item titles by prepending the forum abbreviation
-    prepend_website_abbreviation_to_feed_item_titles(feed)
+    feed = prepend_website_abbreviation_to_feed_item_titles(feed)
 
     # Modify item titles by appending 'by <author>'
-    append_author_to_item_titles(feed)
+    feed = append_author_to_item_titles(feed)
 
-    # The list below contains the xpaths of the items that contain XML CDATA strings
-    cdata_xpaths = [
-        'channel/title',
-        'channel/item/dc:creator',
-        'channel/item/title'
-    ]
+    new_feed_items = feed.findall('channel/item')
 
-    # Replace text of elements with CDATA strings with CDATA strings
-    replace_cdata_strings(feed, cdata_xpaths, beyondwords_feed_namespaces)
-
-    forum_items = feed.findall('channel/item')
-    if not forum_items:
+    if not new_feed_items:
         logger.info("No new items to add to BeyondWords input feed.")
 
     # Append new items to feed
     storage = create_storage(config, running_on_gcp)
     beyondwords_input_feed = storage.read_podcast_feed()
-    new_items = append_new_items_to_feed(forum_items, beyondwords_input_feed)
+    new_items, feed = append_new_items_to_feed(new_feed_items, beyondwords_input_feed)
 
     if not new_items:
         logger.info("No new items to add to BeyondWords input feed.")

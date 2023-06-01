@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     version="2.0">
+    <channel>
+        <title>The Nonlinear Library: LessWrong</title>
+        <description>The Nonlinear Library allows you to easily listen to top EA and rationalist content on your podcast
+            player. We use text-to-speech software to create an automatically updating repository of audio content from
+            the EA Forum, Alignment Forum, LessWrong, and other EA blogs. To find out more, please visit us at
+            nonlinear.org
+        </description>
+        <author>The Nonlinear Fund</author>
+        <copyright>Â© 2023 The Nonlinear Fund</copyright>
+        <language>en-us</language>
+        <link>https://www.nonlinear.org</link>
+        <image>
+            <url>https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong.png</url>
+        </image>
+        <itunes:keywords></itunes:keywords>
+        <itunes:owner>
+            <itunes:name>The Nonlinear Fund</itunes:name>
+            <itunes:email>podcast@nonlinear.org</itunes:email>
+        </itunes:owner>
+        <itunes:category text="Education">
+            <itunes:category text="Education"/>
+        </itunes:category>
+        <itunes:explicit>no</itunes:explicit>
+        <itunes:image
+                href="https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20LessWrong.png"/>
+        <itunes:author>The Nonlinear Fund</itunes:author>
+        <itunes:summary>
+            <![CDATA[The Nonlinear Library allows you to easily listen to top EA and rationalist content on your podcast player. We use text-to-speech software to create an automatically updating repository of audio content from the EA Forum, Alignment Forum, LessWrong, and other EA blogs. To find out more, please visit us at nonlinear.org]]></itunes:summary>
+        <lastBuildDate>Sun, 28 May 2023 18:22:11 +0000</lastBuildDate>
+    </channel>
+</rss>
