@@ -50,6 +50,7 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
         feed: An XML element tree
 
     """
+    logger = logging.getLogger()
     # Retrieve removed authors
     storage = create_storage(config, running_on_gcp)
     removed_authors = storage.read_removed_authors()
@@ -57,6 +58,7 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
         author = item.find('author').text.strip()
         if author in removed_authors:
             feed.find('channel').remove(item)
+            logger.info(f"Removing post {item.find('title').text} because it was written by a removed author.")
     return feed
 
 
@@ -294,12 +296,15 @@ def append_new_items_to_feed(new_items, feed):
     Returns: Feed with new items.
 
     """
+    logger = logging.getLogger()
+
     existing_titles = [title.text.strip() for title in feed.findall("channel/item/title")]
     appended_items = []
     for item in new_items:
         if not item_title_is_duplicate(item.find("title").text, existing_titles):
             feed.find('channel').append(item)
             appended_items += [item]
+            logger.info(f"New item titled '{item.find('title').text}'")
     return appended_items, feed
 
 
@@ -477,19 +482,21 @@ def update_podcast_provider_feed(
 
 
 def remove_posts_with_less_than_the_minimum_characters_in_description(feed, min_chars: int):
+    logger = logging.getLogger()
     for item in feed.findall('channel/item'):
         if len(item.find("description").text) < min_chars:
             feed.find('channel').remove(item)
-            print(f"Removed item '{item.find('title').text}' because it has less than {min_chars}.")
+            logger.info(f"Removed item '{item.find('title').text}' because it has less than {min_chars}.")
     return feed
 
 
 def remove_posts_without_paragraphs_in_description(feed):
+    logger = logging.getLogger()
     for item in feed.findall('channel/item'):
         description_html = BeautifulSoup(item.find('description').text, 'html.parser')
         if len(description_html.find_all('p')) < 1:
             feed.find('channel').remove(item)
-            print(f"Removed item '{item.find('title').text}' due to empty content, possibly a cross post.")
+            logger.info(f"Removed item '{item.find('title').text}' due to empty content, possibly a cross post.")
 
     return feed
 

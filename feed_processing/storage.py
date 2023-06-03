@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from lxml import etree
@@ -14,6 +15,7 @@ class StorageInterface:
     def __init__(self, rss_filename: str, removed_authors_filename: str = "./removed_authors"):
         self.removed_authors_filename = removed_authors_filename
         self.rss_filename = rss_filename
+        self._logger = logging.getLogger("Storage")
 
     def write_podcast_feed(self, feed: str):
         raise NotImplementedError()
@@ -37,7 +39,7 @@ class LocalStorage(StorageInterface):
 
     def read_removed_authors(self):
         removed_authors = self.__read_file(self.removed_authors_filename)
-        print('Returning removed authors of ', ', '.join(removed_authors))
+        self._logger.info('Returning removed authors of ', ', '.join(removed_authors))
         return removed_authors
 
     def read_podcast_feed(self, filename: str = None) -> Element:
@@ -48,26 +50,29 @@ class LocalStorage(StorageInterface):
             return etree.parse(filename, parser)
         except (FileNotFoundError, OSError) as e:
             empty_xml_feed = 'rss_files/empty_feed.xml'
-            print(type(e).__name__, 'when trying to parse XML from file at ', filename,
-                  ' so returning XML from ',
-                  empty_xml_feed, ' instead.')
+            self._logger.info(
+                f"{type(e).__name__} when trying to parse XML from file at '{filename}', so returning XML from "
+                f"'{empty_xml_feed}' instead."
+            )
             return etree.parse(empty_xml_feed, parser)
 
     def write_podcast_feed(self, feed):
-        print('writing RSS content to ', self.rss_filename)
+        self._logger.info('writing RSS content to ', self.rss_filename)
         self.__write_file_as_bytes(self.rss_filename, feed)
 
     def __read_file(self, filename: str):
-        print('reading from file with name ', filename)
+        self._logger.info('reading from file with name ', filename)
         with open(filename, 'r') as f:
             return [line.rstrip() for line in f.readlines()]
 
     def __write_file_as_bytes(self, filename: str, content: bytes):
         with open(filename, 'wb') as f:
+            self._logger.info(f"Writing {len(content)} bytes to {filename}")
             return f.write(content)
 
     def __write_file(self, filename: str, content: str):
         with open(filename, 'w') as f:
+            self._logger.info(f"Writing {len(content.encode('utf-8'))} bytes to {filename}")
             return f.write(content)
 
 
@@ -82,41 +87,41 @@ class GoogleCloudStorage(StorageInterface):
         self.gcp_bucket = gcp_bucket
 
     def read_removed_authors(self):
-        print(f"Loading removed authors from {self.removed_authors_filename}")
+        self._logger.info(f"Loading removed authors from {self.removed_authors_filename}")
         removed_authors = self.__read_file(self.removed_authors_filename)
-        print('Returning removed authors of ', ', '.join(removed_authors))
+        self._logger.info(f"Returning list of removed authors: {', '.join(removed_authors)}")
         return removed_authors
 
     def write_podcast_feed(self, feed: str):
-        print('Writing podcast feed ', feed, ' to file ', self.rss_filename)
+        self._logger.info('Writing podcast feed ', feed, ' to file ', self.rss_filename)
         self.__write_file(self.rss_filename, feed)
 
     def read_podcast_feed(self, filename: str = None) -> Element:
         if not filename:
             filename = self.rss_filename
-        print(f'Reading podcast feed from file {filename}')
+        self._logger.info(f'Reading podcast feed from file {filename}')
         rss_feed_str = "".join(self.__read_file(filename))
         parser = XMLParser(strip_cdata=False)
         if rss_feed_str:
             return etree.fromstring(bytes(rss_feed_str, "utf-8"), parser)
         else:
-            print(f'File {filename} not found, trying to return an empty feed file.')
+            self._logger.info(f'File {filename} not found, trying to return an empty feed file.')
             return etree.parse('rss_files/empty_feed.xml', parser)
 
     def __read_file(self, path: str):
-        print('Reading from bucket ', self.gcp_bucket, ' and path ', path)
+        self._logger.info('Reading from bucket ', self.gcp_bucket, ' and path ', path)
         from google.cloud import storage
         client = storage.Client()
         bucket = client.get_bucket(self.gcp_bucket)
         blob = bucket.get_blob(path)
         if blob is None:
-            print('blob ', blob, ' not found, so returning an empty List.')
+            self._logger.info(f"blob {blob} not found, so returning an empty List.")
             return []
         downloaded_blob = blob.download_as_string()
         return [line.rstrip() for line in downloaded_blob.decode('UTF-8').split('\n')]
 
     def __write_file(self, path: str, content: str):
-        print('Writing to bucket ', self.gcp_bucket, ' and path ', path)
+        self._logger.info(f"Writing to bucket {self.gcp_bucket} and path {path}")
         from google.cloud import storage
         client = storage.Client()
         bucket = client.get_bucket(self.gcp_bucket)
