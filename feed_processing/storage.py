@@ -109,7 +109,7 @@ class GoogleCloudStorage(StorageInterface):
             return etree.parse('rss_files/empty_feed.xml', parser)
 
     def __read_file(self, path: str):
-        self._logger.info('Reading from bucket ', self.gcp_bucket, ' and path ', path)
+        self._logger.info(f"Reading from bucket '{self.gcp_bucket}' and path '{path}'")
         from google.cloud import storage
         client = storage.Client()
         bucket = client.get_bucket(self.gcp_bucket)
