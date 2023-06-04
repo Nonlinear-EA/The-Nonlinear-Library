@@ -50,7 +50,7 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
         feed: An XML element tree
 
     """
-    logger = logging.getLogger()
+    logger = logging.getLogger("remove_items_from_removed_authors")
     # Retrieve removed authors
     storage = create_storage(config, running_on_gcp)
     removed_authors = storage.read_removed_authors()
@@ -296,7 +296,7 @@ def append_new_items_to_feed(new_items, feed):
     Returns: Feed with new items.
 
     """
-    logger = logging.getLogger()
+    logger = logging.getLogger(f"function:{append_new_items_to_feed.__name__}")
 
     existing_titles = [title.text.strip() for title in feed.findall("channel/item/title")]
     appended_items = []
@@ -363,11 +363,12 @@ def item_title_is_duplicate(title: str, existing_titles: List[str]):
 
 
 def remove_items_also_found_in_other_relevant_files(feed: Element, existing_titles: List[str]) -> Element:
+    logger = logging.getLogger(f"function:{remove_items_also_found_in_other_relevant_files.__name__}")
     n_entries = len(feed.findall('channel/item'))
     for item in feed.findall('channel/item'):
         if item_title_is_duplicate(item.find('title').text, existing_titles):
             feed.find('channel').remove(item)
-    print(f'Removed {n_entries - len(feed.findall("channel/item"))} duplicate entries.')
+    logger.info(f'Removed {n_entries - len(feed.findall("channel/item"))} duplicate entries.')
     return feed
 
 
@@ -422,7 +423,7 @@ def update_podcast_provider_feed(
     Returns: The file name of the produced XML string and the xml string and the title of the new episode
     """
 
-    logger = logging.getLogger("update_feed_for_podcast_apps")
+    logger = logging.getLogger(f"function:{update_podcast_provider_feed.__name__}")
 
     # Get feed from source
     feed = get_feed_tree_from_url(feed_config.source)
@@ -482,7 +483,7 @@ def update_podcast_provider_feed(
 
 
 def remove_posts_with_less_than_the_minimum_characters_in_description(feed, min_chars: int):
-    logger = logging.getLogger()
+    logger = logging.getLogger(f"function:{remove_posts_with_less_than_the_minimum_characters_in_description.__name__}")
     for item in feed.findall('channel/item'):
         if len(item.find("description").text) < min_chars:
             feed.find('channel').remove(item)
@@ -491,7 +492,7 @@ def remove_posts_with_less_than_the_minimum_characters_in_description(feed, min_
 
 
 def remove_posts_without_paragraphs_in_description(feed):
-    logger = logging.getLogger()
+    logger = logging.getLogger(f"function:{remove_posts_without_paragraphs_in_description.__name__}")
     for item in feed.findall('channel/item'):
         description_html = BeautifulSoup(item.find('description').text, 'html.parser')
         if len(description_html.find_all('p')) < 1:
@@ -521,7 +522,7 @@ def update_beyondwords_input_feed(config: BeyondWordsInputConfig, running_on_gcp
         running_on_gcp: True if function is running on GCP otherwise False
 
     """
-    logger = logging.getLogger("update_beyondwords_input_feed")
+    logger = logging.getLogger(f"function:{update_beyondwords_input_feed.__name__}")
 
     feed = get_feed_tree_from_url(config.source)
 

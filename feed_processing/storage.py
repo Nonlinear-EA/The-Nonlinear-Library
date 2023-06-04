@@ -39,7 +39,7 @@ class LocalStorage(StorageInterface):
 
     def read_removed_authors(self):
         removed_authors = self.__read_file(self.removed_authors_filename)
-        self._logger.info('Returning removed authors of ', ', '.join(removed_authors))
+        self._logger.info(f"Returning removed authors {', '.join(removed_authors)}")
         return removed_authors
 
     def read_podcast_feed(self, filename: str = None) -> Element:
@@ -57,22 +57,22 @@ class LocalStorage(StorageInterface):
             return etree.parse(empty_xml_feed, parser)
 
     def write_podcast_feed(self, feed):
-        self._logger.info('writing RSS content to ', self.rss_filename)
+        self._logger.info(f"writing RSS content to '{self.rss_filename}'")
         self.__write_file_as_bytes(self.rss_filename, feed)
 
     def __read_file(self, filename: str):
-        self._logger.info('reading from file with name ', filename)
+        self._logger.info(f"reading from file with name {filename}")
         with open(filename, 'r') as f:
             return [line.rstrip() for line in f.readlines()]
 
     def __write_file_as_bytes(self, filename: str, content: bytes):
         with open(filename, 'wb') as f:
-            self._logger.info(f"Writing {len(content)} bytes to {filename}")
+            self._logger.info(f"Writing {int(len(content) / 1024)} KB to {filename}")
             return f.write(content)
 
     def __write_file(self, filename: str, content: str):
         with open(filename, 'w') as f:
-            self._logger.info(f"Writing {len(content.encode('utf-8'))} bytes to {filename}")
+            self._logger.info(f"Writing {int(len(content.encode('utf-8')) / 1024)} KB to {filename}")
             return f.write(content)
 
 
