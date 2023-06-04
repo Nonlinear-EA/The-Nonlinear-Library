@@ -93,7 +93,7 @@ class GoogleCloudStorage(StorageInterface):
         return removed_authors
 
     def write_podcast_feed(self, feed: str):
-        self._logger.info('Writing podcast feed ', feed, ' to file ', self.rss_filename)
+        self._logger.info(f"Writing podcast feed '{feed}' to file '{self.rss_filename}'")
         self.__write_file(self.rss_filename, feed)
 
     def read_podcast_feed(self, filename: str = None) -> Element:
