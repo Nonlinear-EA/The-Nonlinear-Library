@@ -80,7 +80,7 @@ def af_weekly_config():
 
 def ea_all_config():
     return PodcastProviderFeedConfig(
-        source=beyondwords_sandbox_rss_output,
+        source=beyondwords_rss_output,
         author=nll_author,
         email=nonlinear_email,
         image_url='https://storage.googleapis.com/rssfile/images/Nonlinear%20Logo%203000x3000%20-%20EA%20Forum.png',

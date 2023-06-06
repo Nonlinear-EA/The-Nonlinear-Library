@@ -58,7 +58,7 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
         author = item.find('author').text.strip()
         if author in removed_authors:
             feed.find('channel').remove(item)
-            logger.info(f"Removing post {item.find('title').text} because it was written by a removed author.")
+            logger.info(f"Removing post '{item.find('title').text}' because it was written by removed author {author}.")
     return feed
 
 
@@ -304,7 +304,7 @@ def append_new_items_to_feed(new_items, feed):
         if not item_title_is_duplicate(item.find("title").text, existing_titles):
             feed.find('channel').append(item)
             appended_items += [item]
-            logger.info(f"New item titled '{item.find('title').text}'")
+            logger.info(f"New item titled '{item.find('title').text}' found.")
     return appended_items, feed
 
 
@@ -335,7 +335,6 @@ def get_intro_str(item):
 
 
 def edit_item_description(feed):
-    logger = logging.getLogger("FeedUpdating")
     for item in feed.findall('channel/item'):
         description_text = item.find('description').text
         description_html = BeautifulSoup(description_text, "html.parser")
@@ -374,10 +373,15 @@ def remove_items_also_found_in_other_relevant_files(feed: Element, existing_titl
 
 def filter_entries_by_title_prefix(feed, title_prefix):
     # Filter entries by checking if their titles match the provided title_prefix
+    n_items = len(feed.findall("channel/item"))
     if title_prefix:
         for entry in feed.findall('channel/item'):
             if not entry.find('title').text.startswith(title_prefix):
                 feed.find('channel').remove(entry)
+    logger = logging.getLogger(f"function:{filter_entries_by_title_prefix.__name__}")
+    logger.info(
+        f"Removed {n_items - len(feed.findall('channel/item'))} because they didn't match the prefix '{title_prefix}'")
+    return feed
 
 
 def create_feed_element(feed, xpath, namespaces=None):
@@ -429,10 +433,10 @@ def update_podcast_provider_feed(
     feed = get_feed_tree_from_url(feed_config.source)
 
     # Filter out entries from other forums.
-    filter_entries_by_title_prefix(feed, feed_config.title_prefix)
+    feed = filter_entries_by_title_prefix(feed, feed_config.title_prefix)
 
     # Filter out entries from removed authors.
-    remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
+    feed = remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
 
     # Add new items to the podcast apps feed.
     storage = create_storage(feed_config, running_on_gcp)
@@ -445,6 +449,7 @@ def update_podcast_provider_feed(
     feed = update_feed_datum(feed, "channel/description", feed_config.description)
     feed = update_feed_datum(feed, "channel/author", feed_config.author)
     feed = update_feed_datum(feed, "channel/image/url", feed_config.image_url)
+
     # Update meta-data with custom namespaces
     itunes_summary = feed.find("channel/{%s}summary" % beyondwords_feed_namespaces["itunes"])
     if itunes_summary is None:
