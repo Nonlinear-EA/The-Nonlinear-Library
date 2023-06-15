@@ -423,24 +423,16 @@ def add_link_to_original_article_to_feed_items_description(feed):
         item_description = item.find("description")
 
         if item_description is None:
-            return feed
+            continue
 
         description_text = item_description.text
         description_html = BeautifulSoup(description_text, features="lxml")
 
-        a_tags = description_html.find_all("a")
-
-        def a_tag_is_link_to_original_article(tag):
-            return False
-
-        link_to_original_article_tag = next(filter(a_tag_is_link_to_original_article, a_tags), None)
-
-        if link_to_original_article_tag:
-            return feed
-
+        # TODO: Check for a tag with the post to the original article before adding it, otherwise it might be
+        #  duplicated.
         link_to_original_article = item.find("link")
         if link_to_original_article is None:
-            return feed
+            continue
 
         link_to_original_article_html = get_html_link_to_original_article(item)
         description_html.body.insert(0, BeautifulSoup(link_to_original_article_html, "html.parser").a)
