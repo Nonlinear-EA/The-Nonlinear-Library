@@ -418,6 +418,38 @@ def update_feed_datum(feed, xpath: str, new_value: str, namespaces: object = Non
     return feed
 
 
+def add_link_to_original_article_to_feed_items_description(feed):
+    for item in feed.findall("channel/item"):
+
+        item_description = item.find("description")
+
+        if item_description is None:
+            return feed
+
+        description_text = item_description.text
+        description_html = BeautifulSoup(description_text, parser="parser.html")
+
+        a_tags = description_html.find_all("a")
+
+        def a_tag_is_link_to_original_article(tag):
+            return False
+
+        link_to_original_article_tag = next(filter(a_tag_is_link_to_original_article, a_tags), None)
+
+        if link_to_original_article_tag:
+            return feed
+
+        link_to_original_article = item.find("link")
+        if link_to_original_article is None:
+            return feed
+
+        link_to_original_article_html = f"<a href={link_to_original_article.text}>Link to original article</a><br/>"
+        description_html.body.insert(0, BeautifulSoup(link_to_original_article_html).a)
+        item.find("description").text = CDATA(str(description_html))
+
+    return feed
+
+
 def update_podcast_provider_feed(
         feed_config: PodcastProviderFeedConfig,
         running_on_gcp
@@ -443,6 +475,9 @@ def update_podcast_provider_feed(
 
     # Filter out entries from removed authors.
     feed = remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
+
+    # Add link to original article to item's description
+    feed = add_link_to_original_article_to_feed_items_description(feed)
 
     # Add new items to the podcast apps feed.
     storage = create_storage(feed_config, running_on_gcp)
