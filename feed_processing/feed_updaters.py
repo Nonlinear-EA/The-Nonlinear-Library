@@ -345,8 +345,7 @@ def edit_item_description(feed):
         description_html = BeautifulSoup(description_text, "html.parser")
         description_text_without_date = "".join(str(content) for content in description_html.contents[3:])
         intro_str = get_intro_str(item)
-        html_link_to_original_article = get_html_link_to_original_article(item)
-        description = f"{html_link_to_original_article}<br/><p>{intro_str}</p><br/> {description_text_without_date} <p>{outro_str}</p>"
+        description = f"{intro_str}</p><br/> {description_text_without_date} <p>{outro_str}</p>"
         item.find('description').text = etree.CDATA(description)
 
     return feed
@@ -427,7 +426,7 @@ def add_link_to_original_article_to_feed_items_description(feed):
             return feed
 
         description_text = item_description.text
-        description_html = BeautifulSoup(description_text, parser="parser.html")
+        description_html = BeautifulSoup(description_text, features="lxml")
 
         a_tags = description_html.find_all("a")
 
@@ -443,8 +442,8 @@ def add_link_to_original_article_to_feed_items_description(feed):
         if link_to_original_article is None:
             return feed
 
-        link_to_original_article_html = f"<a href={link_to_original_article.text}>Link to original article</a><br/>"
-        description_html.body.insert(0, BeautifulSoup(link_to_original_article_html).a)
+        link_to_original_article_html = get_html_link_to_original_article(item)
+        description_html.body.insert(0, BeautifulSoup(link_to_original_article_html, "html.parser").a)
         item.find("description").text = CDATA(str(description_html))
 
     return feed
