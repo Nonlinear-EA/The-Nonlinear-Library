@@ -376,14 +376,14 @@ def remove_items_also_found_in_other_relevant_files(feed: Element, existing_titl
     return feed
 
 
-def filter_entries_by_title_prefix(feed, title_prefix):
+def filter_entries_by_forum_title_prefix(feed, title_prefix):
     # Filter entries by checking if their titles match the provided title_prefix
     n_items = len(feed.findall("channel/item"))
     if title_prefix:
         for entry in feed.findall('channel/item'):
             if not entry.find('title').text.startswith(title_prefix):
                 feed.find('channel').remove(entry)
-    logger = logging.getLogger(f"function:{filter_entries_by_title_prefix.__name__}")
+    logger = logging.getLogger(f"function:{filter_entries_by_forum_title_prefix.__name__}")
     logger.info(
         f"Removed {n_items - len(feed.findall('channel/item'))} because they didn't match the prefix '{title_prefix}'")
     return feed
@@ -458,16 +458,11 @@ def update_podcast_provider_feed(
 
     logger = logging.getLogger(f"function:{update_podcast_provider_feed.__name__}")
 
-    # Get feed from source
     feed = get_feed_tree_from_url(feed_config.source)
 
-    # Filter out entries from other forums.
-    feed = filter_entries_by_title_prefix(feed, feed_config.title_prefix)
-
-    # Filter out entries from removed authors.
+    # Apply filtering and formatting to the feed items.
+    feed = filter_entries_by_forum_title_prefix(feed, feed_config.title_prefix)
     feed = remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
-
-    # Add link to original article to item's description
     feed = add_link_to_original_article_to_feed_items_description(feed)
 
     # Add new items to the podcast apps feed.
