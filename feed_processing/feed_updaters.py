@@ -334,19 +334,13 @@ def get_intro_str(item):
            f"{authors} on {summary_date_str} on {website}. "
 
 
-def get_html_link_to_original_article(item):
-    link = item.find("link")
-    return f'<a href="{link.text}">Link to original article</a><br/>'
-
-
 def edit_item_description(feed):
     for item in feed.findall('channel/item'):
         description_text = item.find('description').text
         description_html = BeautifulSoup(description_text, "html.parser")
         description_text_without_date = "".join(str(content) for content in description_html.contents[3:])
         intro_str = get_intro_str(item)
-        html_link_to_original_article = get_html_link_to_original_article(item)
-        description = f"{html_link_to_original_article}<br/><p>{intro_str}</p><br/> {description_text_without_date} <p>{outro_str}</p>"
+        description = f"<p>{intro_str}</p> {description_text_without_date} <p>{outro_str}</p>"
         item.find('description').text = etree.CDATA(description)
 
     return feed
