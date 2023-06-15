@@ -345,7 +345,7 @@ def edit_item_description(feed):
         description_html = BeautifulSoup(description_text, "html.parser")
         description_text_without_date = "".join(str(content) for content in description_html.contents[3:])
         intro_str = get_intro_str(item)
-        description = f"{intro_str}</p><br/> {description_text_without_date} <p>{outro_str}</p>"
+        description = f"<p>{intro_str}</p> {description_text_without_date} <p>{outro_str}</p>"
         item.find('description').text = etree.CDATA(description)
 
     return feed
