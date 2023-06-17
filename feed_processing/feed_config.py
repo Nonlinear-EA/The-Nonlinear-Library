@@ -28,6 +28,7 @@ class PodcastProviderFeedConfig(BaseFeedConfig):
     title_prefix: str = None
     date_format: str = '%a, %d %b %Y %H:%M:%S %z'
     top_post_only: bool = False
+    podcast_topic: str = None
 
     def get_search_period_timedelta(self) -> timedelta | None:
         """

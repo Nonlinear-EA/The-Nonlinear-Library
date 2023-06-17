@@ -441,6 +441,18 @@ def add_link_to_original_article_to_feed_items_description(feed):
     return feed
 
 
+def get_topic_labels_for_podcast_feed(feed_config: PodcastProviderFeedConfig, running_on_gcp):
+    storage = create_storage(feed_config, running_on_gcp)
+    return storage.read_podcast_topic_labels(feed_config.podcast_topic)
+
+
+def filter_entries_by_podcast_topic(feed, feed_config, running_on_gcp):
+    topic_labels = get_topic_labels_for_podcast_feed(feed_config, running_on_gcp)
+
+    for item in feed.findall("channel/item"):
+        item_labels = item.find("labels")
+
+
 def update_podcast_provider_feed(
         feed_config: PodcastProviderFeedConfig,
         running_on_gcp
@@ -461,7 +473,12 @@ def update_podcast_provider_feed(
     feed = get_feed_tree_from_url(feed_config.source)
 
     # Apply filtering and formatting to the feed items.
-    feed = filter_entries_by_forum_title_prefix(feed, feed_config.title_prefix)
+    if feed_config.title_prefix:
+        feed = filter_entries_by_forum_title_prefix(feed, feed_config.title_prefix)
+
+    if feed_config.podcast_topic:
+        feed = filter_entries_by_podcast_topic(feed, feed_config.podcast_topic)
+
     feed = remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
     feed = add_link_to_original_article_to_feed_items_description(feed)
 

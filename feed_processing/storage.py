@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import List
 
@@ -24,6 +25,9 @@ class StorageInterface:
         raise NotImplementedError()
 
     def read_removed_authors(self) -> List[str]:
+        raise NotImplementedError()
+
+    def read_podcast_topic_labels(self, topic: str) -> List[str]:
         raise NotImplementedError()
 
 
@@ -59,6 +63,14 @@ class LocalStorage(StorageInterface):
     def write_podcast_feed(self, feed):
         self._logger.info(f"writing RSS content to '{self.rss_filename}'")
         self.__write_file_as_bytes(self.rss_filename, feed)
+
+    def read_podcast_topic_labels(self, topic) -> List[str]:
+        self._logger.info(f"Reading labels for topic {topic}")
+        with open("./topic_labels.json") as f:
+            all_topic_labels = json.load(f)
+            if topic not in all_topic_labels.keys():
+                return []
+            return all_topic_labels[topic]
 
     def __read_file(self, filename: str):
         self._logger.info(f"reading from file with name {filename}")
