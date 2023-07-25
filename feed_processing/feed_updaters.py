@@ -501,7 +501,7 @@ def update_podcast_provider_feed(
     items_from_beyondwords_output_feed = feed.findall("channel/item")
     new_items, feed = append_new_items_to_feed(items_from_beyondwords_output_feed, feed_for_podcast_apps)
 
-    # Update meta-data
+    # Update feed meta-data
     feed = update_feed_datum(feed, "channel/title", feed_config.title)
     feed = update_feed_datum(feed, "channel/description", feed_config.description)
     feed = update_feed_datum(feed, "channel/author", feed_config.author)
@@ -514,6 +514,9 @@ def update_podcast_provider_feed(
                                        nsmap=beyondwords_feed_namespaces)
         itunes_summary.text = feed_config.description
         feed.find("channel").append(itunes_summary)
+    else:
+        itunes_summary.text = feed_config.description
+
     itunes_image = feed.find("channel/{%s}image" % beyondwords_feed_namespaces["itunes"])
     if itunes_image is None:
         itunes_image = etree.Element("{%s}image" % beyondwords_feed_namespaces["itunes"],

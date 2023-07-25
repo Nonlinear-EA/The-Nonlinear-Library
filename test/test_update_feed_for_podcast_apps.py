@@ -27,15 +27,18 @@ def test_update_feed_for_podcast_apps_discards_new_items_from_forums_that_dont_m
     default_podcast_provider_feed_config.title_prefix = "AForumPrefix"
     # Change the input feed so that one item matches the prefix.
     modified_input_feed = storage.read_podcast_feed("./files/beyondwords_output_feed.xml")
-    item_title_to_modify = modified_input_feed.find("channel/item/title")
+    item_title_to_modify = modified_input_feed.findall("channel/item/title")[1]
     item_title_to_modify.text = "AForumPrefix - This is an entry form the TestForum"
+    item_to_discard = modified_input_feed.findall("channel/item")[0]
+    item_to_discard.find("title").text = "InvalidPrefix - This entry should be removed"
     mock_get_feed_tree_from_url = MagicMock(return_value=modified_input_feed)
     # Mock the get_feed_tree_from_url, so it returns the modified feed
     mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
 
     feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
 
-    assert all(title.text.split("-")[0].strip() == "AForumPrefix" for title in feed.findall("channel/item/title"))
+    titles = [title.text for title in feed.findall("channel/item/title")]
+    assert "InvalidPrefix - This entry should be removed" not in titles
 
 
 def test_update_feed_for_podcast_apps_discards_new_items_from_removed_authors(
