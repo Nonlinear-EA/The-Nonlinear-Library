@@ -3,7 +3,7 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from functools import reduce
 from time import strptime, mktime
-from typing import List
+from typing import List, Tuple
 from urllib.parse import urlparse
 
 import requests
@@ -73,15 +73,18 @@ def filter_entries_by_search_period(feed: Element, feed_config: PodcastProviderF
     """
     # Filter posts based on the requested search period
     # Get search period as timedelta
-    search_period = feed_config.get_search_period_timedelta()
+    period_timedelta = feed_config.get_search_period_timedelta()
     # Define the time of the oldest post that should come through
-    oldest_post_time = datetime.now() - search_period
+    oldest_post_time = datetime.now() - period_timedelta
 
     for entry in feed.findall('channel/item'):
         published_date_str = entry.find('pubDate').text
-        published_date = mktime(strptime(published_date_str, feed_config.date_format))
+        published_datetime = strptime(published_date_str, feed_config.date_format)
+        published_date = mktime(published_datetime)
         if published_date <= oldest_post_time.timestamp():
             feed.find('channel').remove(entry)
+
+    return feed
 
 
 def download_file_from_url(url, cache: bool = True, encoding: str = "utf-8"):
@@ -389,6 +392,29 @@ def filter_entries_by_forum_title_prefix(feed, title_prefix):
     return feed
 
 
+def find_top_post(feed: Element) -> Tuple[Element, int]:
+    top_karma = 0
+    top_post = None
+    for i, item in enumerate(feed.findall("channel/item")):
+        post_karma = get_post_karma(item.find("link").text)
+        if post_karma > top_karma:
+            top_karma = post_karma
+            top_post = item
+    return top_post, top_karma
+
+
+def filter_top_post(feed: Element):
+    top_post, _ = find_top_post(feed)
+    top_post_id = top_post.find("guid").text
+
+    non_top_posts = feed.xpath(f"//channel/item[guid != '{top_post_id}']")
+
+    for item in non_top_posts:
+        feed.find("channel").remove(item)
+
+    return feed
+
+
 def create_feed_element(feed, xpath, namespaces=None):
     element = feed.find(xpath)
     if element is None:
@@ -460,8 +486,12 @@ def update_podcast_provider_feed(
 
     feed = get_feed_tree_from_url(feed_config.source)
 
-    # Apply filtering and formatting to the feed items.
+    # Apply filters and formatting to the feed items.
     feed = filter_entries_by_forum_title_prefix(feed, feed_config.title_prefix)
+    if feed_config.search_period:
+        feed = filter_entries_by_search_period(feed, feed_config)
+    if feed_config.top_post_only:
+        feed = filter_top_post(feed)
     feed = remove_items_from_removed_authors(feed, feed_config, running_on_gcp)
     feed = add_link_to_original_article_to_feed_items_description(feed)
 

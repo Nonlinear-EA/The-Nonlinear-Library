@@ -156,9 +156,10 @@ def lw_daily_config():
         guid_suffix='_LW-day',
         search_period=PodcastProviderFeedConfig.SearchPeriod.ONE_DAY,
         title_prefix='LW - ',
-        gcp_bucket=gcp_bucket_newcode,
+        gcp_bucket=os.environ["GCP_BUCKET_NAME"],
         rss_filename='nonlinear-library-aggregated-LW-daily.xml',
-        top_post_only=True
+        top_post_only=True,
+        removed_authors_file="removed_authors.txt"
     )
 
 

@@ -1,9 +1,13 @@
 import os
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 
+import freezegun
 import pytest
+from bs4 import BeautifulSoup
+from lxml.etree import CDATA, SubElement
 
-from feed_processing.feed_updaters import update_podcast_provider_feed
+from feed_processing.feed_config import PodcastProviderFeedConfig
+from feed_processing.feed_updaters import update_podcast_provider_feed, get_feed_str
 
 
 @pytest.fixture(autouse=True)
@@ -209,3 +213,90 @@ def test_update_feed_for_podcast_providers_updates_itunes_image(
     feed_itunes_image_element = feed.find(f"channel/{{{itunes_namespace}}}image")
     feed_itunes_image_href = feed_itunes_image_element.attrib["href"]
     assert feed_itunes_image_href == "https://image.feed.url/image.jpg"
+
+
+def test_update_feed_for_podcast_providers_writes_correct_utf_strings(
+        default_podcast_provider_feed_config,
+        storage,
+        mocker,
+        disable_write_podcast_feed
+):
+    beyondwords_output_feed = storage.read_podcast_feed("./files/beyondwords_output_feed.xml")
+    feed_item = beyondwords_output_feed.findall("channel/item")[0]
+    feed_item_title = feed_item.find("title")
+    item_test_id = SubElement(feed_item, "test_id")
+    item_test_id.text = "Test post"  # "Mark this post, so it can be retrieved before the assertion"
+    item_test_html = BeautifulSoup("""
+    <body>
+    This is the description of an item with "quotes".
+    </body>
+    """)
+    feed_item_description = feed_item.find("description")
+    feed_item_description.text = CDATA(str(item_test_html))
+    feed_item_title.text = CDATA('This is a string with "quotes"')
+    mock_get_feed_tree_from_url = MagicMock(return_value=beyondwords_output_feed)
+    mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
+
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
+
+    item_in_podcast_feed = feed.xpath("//channel/item[test_id='Test post']")[0]
+    item_title = item_in_podcast_feed.find("title")
+    feed_str = get_feed_str(feed)
+    assert 'This is a string with "quotes"' == item_title.text
+
+
+@freezegun.freeze_time("2023-07-01")
+def test_update_feed_only_writes_posts_within_the_period_defined_in_config(
+        default_podcast_provider_feed_config,
+        storage,
+        mocker,
+        disable_write_podcast_feed
+):
+    default_podcast_provider_feed_config.search_period = PodcastProviderFeedConfig.SearchPeriod.ONE_DAY
+    beyondwords_output_feed = storage.read_podcast_feed("./files/beyondwords_output_feed.xml")
+    item_within_period = beyondwords_output_feed.findall("channel/item")[0]
+    item_outside_period = beyondwords_output_feed.findall("channel/item")[1]
+    item_within_period.find("pubDate").text = "Sat, 01 Jul 2023 00:01:00 +0000"
+    item_outside_period.find("pubDate").text = "Thu, 29 Jun 2023 23:59:59 +0000"
+    item_outside_period.find("title").text = "This item should not be found in the output feed"
+    mock_get_feed_tree_from_url = MagicMock(return_value=beyondwords_output_feed)
+    mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
+
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
+
+    feed_item_titles = [element.text for element in feed.findall("channel/item/title")]
+    assert "This item should not be found in the output feed" not in feed_item_titles
+
+
+def test_update_feed_filters_out_non_top_posts_if_top_post_only_is_set_to_true(
+        default_podcast_provider_feed_config,
+        storage,
+        mocker,
+        disable_write_podcast_feed
+):
+    def get_karma_mock_generator():
+        max_karma = 100
+        while True:
+            max_karma -= 1
+            yield max_karma
+
+    def get_karma_mock_fn(_):
+        get_karma_mock_fn.karma -= 1
+        return get_karma_mock_fn.karma
+
+    get_karma_mock_fn.karma = 100
+    default_podcast_provider_feed_config.top_post_only = True
+    beyondwords_output_feed = storage.read_podcast_feed("./files/beyondwords_output_feed.xml")
+    top_post = beyondwords_output_feed.findall("channel/item")[0]
+    top_post.find("title").text = "This is the top post"
+    non_top_post = beyondwords_output_feed.findall("channel/item")[1]
+    non_top_post.find("title").text = "This is not the top post"
+    mock_get_feed_tree_from_url = MagicMock(return_value=beyondwords_output_feed)
+    mock_get_post_karma = Mock(side_effect=get_karma_mock_fn)
+    mocker.patch("feed_processing.feed_updaters.get_feed_tree_from_url", new=mock_get_feed_tree_from_url)
+    mocker.patch("feed_processing.feed_updaters.get_post_karma", new=mock_get_post_karma)
+    feed = update_podcast_provider_feed(default_podcast_provider_feed_config, False)
+
+    feed_item_titles = [title.text for title in feed.findall("channel/item/title")]
+
+    assert "This is not the top post" not in feed_item_titles
