@@ -101,7 +101,7 @@ class GoogleCloudStorage(StorageInterface):
             filename = self.rss_filename
         self._logger.info(f'Reading podcast feed from file {filename}')
         rss_feed_str = "".join(self.__read_file(filename))
-        parser = XMLParser(strip_cdata=False)
+        parser = XMLParser(encoding='utf-8', strip_cdata=False)
         if rss_feed_str:
             return etree.fromstring(bytes(rss_feed_str, "utf-8"), parser)
         else:

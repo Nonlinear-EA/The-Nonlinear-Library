@@ -42,7 +42,7 @@ def default_podcast_provider_feed_config() -> PodcastProviderFeedConfig:
         gcp_bucket='rssfile',
         rss_filename='files/podcast_provider_feed.xml',
         removed_authors_file="./files/removed_authors.txt",
-        description="This is the podcast description, so, bla bla bla"
+        description="This is the podcast description, so, bla bla bla",
     )
 
 

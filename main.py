@@ -73,7 +73,8 @@ def beyondwords_ea(a=None, b=None):
 
 
 def beyondwords_lw(a=None, b=None):
-    print('running beyondwords_lw')
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    print("running beyondwords_lw")
     update_beyondwords_input_feed(beyondwords_lw_config(), True)
 
 
