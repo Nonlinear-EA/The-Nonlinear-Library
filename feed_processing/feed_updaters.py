@@ -281,7 +281,7 @@ def prepend_website_abbreviation_to_feed_item_titles(feed):
 
 
 def get_feed_str(feed):
-    return etree.tostring(feed, xml_declaration=True, encoding='utf-8')
+    return etree.tostring(feed, xml_declaration=True, encoding='utf-8', pretty_print=True)
 
 
 def save_feed(feed, storage):
