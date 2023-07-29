@@ -16,7 +16,7 @@ class StorageInterface:
         self.removed_authors_filename = removed_authors_filename
         self.rss_filename = rss_filename
         self._logger = logging.getLogger("Storage")
-        self._parser = XMLParser(encoding="utf-8", strip_cdata=False, remove_blank_text=True)
+        self._parser = XMLParser(encoding="utf-8", strip_cdata=True, remove_blank_text=True)
 
     def write_podcast_feed(self, feed: str):
         raise NotImplementedError()
