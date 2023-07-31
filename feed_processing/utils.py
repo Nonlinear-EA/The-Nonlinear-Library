@@ -54,7 +54,12 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
     storage = create_storage(config, running_on_gcp)
     removed_authors = storage.read_removed_authors()
     for item in feed.findall('channel/item'):
-        author = item.find('author').text.strip()
+        author_tag = item.find("author")
+        if author_tag.text is None:
+            author = "Unknown"
+            logger.warning(f"Post {item.find('title').text} from unknown author.")
+        else:
+            author = item.find('author').text.strip()
         if author in removed_authors:
             feed.find('channel').remove(item)
             logger.info(f"Removing post '{item.find('title').text}' because it was written by removed author {author}.")
@@ -70,19 +75,26 @@ def filter_entries_by_search_period(feed: Element, feed_config: PodcastProviderF
         feed_config: Parameters for podcast feed generation
 
     """
+    logger = logging.getLogger(__name__)
     # Filter posts based on the requested search period
     # Get search period as timedelta
     period_timedelta = feed_config.get_search_period_timedelta()
     # Define the time of the oldest post that should come through
     oldest_post_time = datetime.now() - period_timedelta
 
+    logger.info(f"Filtering entries published before {oldest_post_time.strftime('%Y-%m-%d %H:%M')}")
+    removal_count = 0
     for entry in feed.findall('channel/item'):
         published_date_str = entry.find('pubDate').text
         published_datetime = strptime(published_date_str, feed_config.date_format)
         published_date = mktime(published_datetime)
         if published_date <= oldest_post_time.timestamp():
+            removal_count += 1
+            logger.debug(
+                f"Removing item {entry.find('title').text} because it was published outside the requested period.")
             feed.find('channel').remove(entry)
-
+    logger.info(
+        f"Removed {removal_count} items from the feed because they were published outside the requested period.")
     return feed
 
 
