@@ -57,10 +57,10 @@ def remove_items_from_removed_authors(feed: Element, config: BaseFeedConfig, run
     for item in feed.findall('channel/item'):
         author_tag = item.find("author")
         if author_tag.text is None:
-            feed.find("channel").remove(item)
-            logger.warning("Removed post due to unknown author.")
-            continue
-        author = item.find('author').text.strip()
+            author = "Unknown"
+            logger.warning(f"Post {item.find('title').text} from unknown author.")
+        else:
+            author = item.find('author').text.strip()
         if author in removed_authors:
             feed.find('channel').remove(item)
             logger.info(f"Removing post '{item.find('title').text}' because it was written by removed author {author}.")
