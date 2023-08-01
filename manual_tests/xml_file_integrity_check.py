@@ -4,7 +4,7 @@ from google.cloud import logging as gcloud_logging
 from lxml import etree
 from lxml.etree import XMLParser, XMLSyntaxError
 
-from feed_processing.feed_updaters import download_file_from_url
+from feed_processing.utils import download_file_from_url
 
 
 def xml_string_is_valid(xml_str):
