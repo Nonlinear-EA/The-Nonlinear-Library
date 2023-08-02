@@ -1,5 +1,11 @@
-from configs import ea_weekly_config
-from feed_updaters import update_podcast_feed
+import logging
+import os
+import sys
+
+from feed_processing.configs import ea_weekly_config
+from feed_processing.feed_updaters import update_podcast_provider_feed
 
 if __name__ == '__main__':
-    update_podcast_feed(ea_weekly_config(), False)
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    os.environ["GCP_BUCKET_NAME"] = "newcode"
+    update_podcast_provider_feed(ea_weekly_config(), False)

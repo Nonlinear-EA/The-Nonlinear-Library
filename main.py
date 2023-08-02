@@ -48,6 +48,7 @@ def ea_all(a=None, b=None):
 
 def lw_daily(a=None, b=None):
     print('running lw_daily')
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     update_podcast_provider_feed(lw_daily_config(), True)
 
 

@@ -16,6 +16,7 @@ class StorageInterface:
         self.removed_authors_filename = removed_authors_filename
         self.rss_filename = rss_filename
         self._logger = logging.getLogger("Storage")
+        self._parser = XMLParser(encoding="utf-8", strip_cdata=True, remove_blank_text=True)
 
     def write_podcast_feed(self, feed: str):
         raise NotImplementedError()
@@ -43,18 +44,17 @@ class LocalStorage(StorageInterface):
         return removed_authors
 
     def read_podcast_feed(self, filename: str = None) -> Element:
-        parser = XMLParser(encoding='utf-8', strip_cdata=False)
         if not filename:
             filename = self.rss_filename
         try:
-            return etree.parse(filename, parser)
+            return etree.parse(filename, self._parser)
         except (FileNotFoundError, OSError) as e:
             empty_xml_feed = 'rss_files/empty_feed.xml'
             self._logger.info(
                 f"{type(e).__name__} when trying to parse XML from file at '{filename}', so returning XML from "
                 f"'{empty_xml_feed}' instead."
             )
-            return etree.parse(empty_xml_feed, parser)
+            return etree.parse(empty_xml_feed, self._parser)
 
     def write_podcast_feed(self, feed):
         self._logger.info(f"writing RSS content to '{self.rss_filename}'")
@@ -101,12 +101,11 @@ class GoogleCloudStorage(StorageInterface):
             filename = self.rss_filename
         self._logger.info(f'Reading podcast feed from file {filename}')
         rss_feed_str = "".join(self.__read_file(filename))
-        parser = XMLParser(encoding='utf-8', strip_cdata=False)
         if rss_feed_str:
-            return etree.fromstring(bytes(rss_feed_str, "utf-8"), parser)
+            return etree.fromstring(bytes(rss_feed_str, "utf-8"), self._parser)
         else:
             self._logger.info(f'File {filename} not found, trying to return an empty feed file.')
-            return etree.parse('rss_files/empty_feed.xml', parser)
+            return etree.parse('rss_files/empty_feed.xml', self._parser)
 
     def __read_file(self, path: str):
         self._logger.info(f"Reading from bucket '{self.gcp_bucket}' and path '{path}'")
